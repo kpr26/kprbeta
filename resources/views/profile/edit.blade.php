@@ -505,13 +505,13 @@
                                 <span class="input-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                                 </span>
-                                <select name="new_role" class="form-input form-select">
-                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }}>Pilih role...</option>
-                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }}>User (Staf Operasional)</option>
-                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }}>Teknisi (Hanya Input Logsheet / HP PWA)</option>
-                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }}>Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
-                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }}>Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
-                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }}>Admin (Akses Penuh)</option>
+                                <select name="new_role" class="form-input form-select" style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
+                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }} style="background-color: #0b1120; color: #94a3b8;">Pilih role...</option>
+                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">User (Staf Operasional)</option>
+                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
+                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
+                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
                                 </select>
                             </div>
                             @error('new_role')
@@ -761,12 +761,12 @@
                                     <span class="input-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <select name="edit_role" id="modal_edit_role" class="form-input form-select" required>
-                                        <option value="user">User (Staf Operasional)</option>
-                                        <option value="teknisi">Teknisi (Hanya Input Logsheet / HP PWA)</option>
-                                        <option value="eng_admin">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
-                                        <option value="eng_spv">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
-                                        <option value="admin">Admin (Akses Penuh)</option>
+                                    <select name="edit_role" id="modal_edit_role" class="form-input form-select" required style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
+                                        <option value="user" style="background-color: #0f172a; color: #f8fafc;">User (Staf Operasional)</option>
+                                        <option value="teknisi" style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
+                                        <option value="eng_admin" style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
+                                        <option value="eng_spv" style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                        <option value="admin" style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
                                     </select>
                                 </div>
                                 <small class="text-muted" id="selfRoleNotice" style="display:none; color:#f59e0b !important; margin-top:4px;">*Role akun sendiri tidak dapat diubah di sini.</small>
@@ -778,9 +778,9 @@
                                     <span class="input-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <select name="edit_is_active" id="modal_edit_is_active" class="form-input form-select" required>
-                                        <option value="1">Aktif (Bisa Login)</option>
-                                        <option value="0">Nonaktif (Akses Diblokir)</option>
+                                    <select name="edit_is_active" id="modal_edit_is_active" class="form-input form-select" required style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
+                                        <option value="1" style="background-color: #0f172a; color: #f8fafc;">Aktif (Bisa Login)</option>
+                                        <option value="0" style="background-color: #0f172a; color: #f8fafc;">Nonaktif (Akses Diblokir)</option>
                                     </select>
                                 </div>
                                 <small class="text-muted" id="selfStatusNotice" style="display:none; color:#f59e0b !important; margin-top:4px;">*Akun Anda sendiri tidak dapat dinonaktifkan.</small>

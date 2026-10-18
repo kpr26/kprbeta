@@ -1036,11 +1036,47 @@ body {
 }
 
 /* ── Form select ── */
-.form-select {
+.form-select,
+select.form-input {
+  color-scheme: dark;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #1e293b;
+  color: #f8fafc !important;
   padding-right: 44px;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px 16px;
+}
+
+.form-select:hover,
+select.form-input:hover {
+  background-color: #243247;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.form-select:focus,
+select.form-input:focus {
+  background-color: #1e293b;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.form-select option,
+select.form-input option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 12px 14px;
+  font-size: 0.92rem;
+}
+
+.form-select option:disabled,
+select.form-input option:disabled {
+  color: #94a3b8 !important;
+  background-color: #0b1120 !important;
 }
 
 /* ── Button green ── */
