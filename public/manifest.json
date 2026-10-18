@@ -1,0 +1,72 @@
+{
+  "id": "/?source=pwa",
+  "name": "KPR Beta — Logsheet Teknisi",
+  "short_name": "Logsheet",
+  "description": "Aplikasi Input Logsheet Harian Listrik & Air KPR Beta untuk Teknisi",
+  "start_url": "/logsheet/create",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e1a",
+  "theme_color": "#4f46e5",
+  "categories": ["utilities", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Input Logsheet Hari Ini",
+      "short_name": "Input Harian",
+      "description": "Buka formulir input logsheet listrik dan air",
+      "url": "/logsheet/create",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Riwayat Logsheet",
+      "short_name": "Riwayat",
+      "description": "Lihat rekap pencatatan logsheet",
+      "url": "/logsheet",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
