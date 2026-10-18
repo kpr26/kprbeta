@@ -18,6 +18,16 @@ Route::get('/manifest.json', [PwaController::class, 'manifest'])->name('pwa.mani
 Route::get('/icons/icon-{size}.png', [PwaController::class, 'icon'])->where('size', '192|512')->name('pwa.icon');
 Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw');
 Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
+Route::get('/.well-known/assetlinks.json', function () {
+    $path = public_path('.well-known/assetlinks.json');
+    if (file_exists($path)) {
+        return response(file_get_contents($path), 200, [
+            'Content-Type'                => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
+        ]);
+    }
+    return response()->json([], 200, ['Content-Type' => 'application/json']);
+});
 
 // ── Storage Asset Delivery (Shared Hosting tanpa Symlink) ──
 Route::get('/storage/{path}', function ($path) {
