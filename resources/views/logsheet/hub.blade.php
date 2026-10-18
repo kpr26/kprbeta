@@ -15,7 +15,7 @@
     <div class="panel-head">
         <div>
             <h2>Pilih Utilitas Logsheet</h2>
-            <p>Pilih meteran yang ingin Anda catat stand dan fotonya secara terpisah.</p>
+            <p>Petugas: <b style="color:#fbbf24;">{{ auth()->user()->name }}</b> &middot; Pilih meteran yang ingin Anda catat stand dan fotonya secara terpisah.</p>
         </div>
         <div class="btn-group">
             <a href="{{ route('logsheet.index') }}" class="btn btn-sm">

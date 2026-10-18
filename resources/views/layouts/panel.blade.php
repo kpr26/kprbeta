@@ -30,23 +30,22 @@
                 </svg>
             </div>
             <div class="mobile-topbar-info">
-                <span class="mobile-brand-title">KPR Beta</span>
-                @if($isTeknisi)
-                    <span class="badge-role-pill">Teknisi</span>
-                @else
-                    <span class="badge-role-pill badge-role-pill--{{ $authUser->role }}">{{ $currentRoleLabel }}</span>
-                @endif
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="mobile-brand-title">KPR Beta</span>
+                    @if($isTeknisi)
+                        <span class="badge-role-pill">Teknisi</span>
+                    @else
+                        <span class="badge-role-pill badge-role-pill--{{ $authUser->role }}">{{ $currentRoleLabel }}</span>
+                    @endif
+                </div>
+                <div class="mobile-topbar-user" style="font-size:0.75rem; color:var(--text-secondary); font-weight:500; margin-top:2px;">
+                    <span style="color:var(--text-muted);">Akun:</span> <strong style="color:#f8fafc;">{{ $authUser->name }}</strong>
+                </div>
             </div>
         </div>
 
         <div class="mobile-topbar-actions">
-            <!-- PWA Install Button (auto-shown if installable) -->
-            <button type="button" class="btn-pwa-install pwa-install-btn" style="display:none;" title="Pasang aplikasi di layar utama HP">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v7.69l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V3.75A.75.75 0 0 1 10 3ZM3.75 14.5a.75.75 0 0 1 .75.75 3.25 3.25 0 0 0 3.25 3.25h4.5a3.25 3.25 0 0 0 3.25-3.25.75.75 0 0 1 1.5 0 4.75 4.75 0 0 1-4.75 4.75h-4.5A4.75 4.75 0 0 1 2.25 15.25a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd"/></svg>
-                <span>Pasang</span>
-            </button>
-
-            <form method="POST" action="{{ route('logout') }}" class="inline">
+            <form method="POST" action="{{ route('logout') }}" class="inline" onsubmit="return confirm('Keluar dari aplikasi?')">
                 @csrf
                 <button type="submit" class="mobile-btn-logout" title="Keluar">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-1.08a.75.75 0 1 0-1.004-1.11l-2.5 2.567a.75.75 0 0 0 0 1.086l2.5 2.567a.75.75 0 1 0 1.004-1.11l-1.048-1.08h9.546A.75.75 0 0 0 19 10Z" clip-rule="evenodd"/></svg>
