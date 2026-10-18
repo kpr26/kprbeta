@@ -12,18 +12,23 @@ class PwaController extends Controller
     public function manifest()
     {
         $manifest = [
-            'id'               => '/?source=pwa',
-            'name'             => 'KPR Beta — Logsheet Teknisi',
-            'short_name'       => 'Logsheet',
-            'description'      => 'Aplikasi Input Logsheet Harian Listrik & Air KPR Beta untuk Teknisi',
-            'start_url'        => '/?source=pwa',
-            'scope'            => '/',
-            'display'          => 'standalone',
-            'orientation'      => 'portrait',
-            'background_color' => '#0a0e1a',
-            'theme_color'      => '#4f46e5',
-            'categories'       => ['utilities', 'productivity', 'business'],
-            'icons'            => [
+            'id'                          => '/?source=pwa',
+            'name'                        => 'KPR Beta — Logsheet Teknisi',
+            'short_name'                  => 'Logsheet',
+            'description'                 => 'Aplikasi Input Logsheet Harian Listrik & Air KPR Beta untuk Teknisi',
+            'lang'                        => 'id',
+            'dir'                         => 'ltr',
+            'start_url'                   => '/?source=pwa',
+            'scope'                       => '/',
+            'display'                     => 'standalone',
+            'display_override'            => ['window-controls-overlay', 'standalone', 'minimal-ui'],
+            'orientation'                 => 'any',
+            'background_color'            => '#0a0e1a',
+            'theme_color'                 => '#4f46e5',
+            'categories'                  => ['utilities', 'productivity', 'business'],
+            'prefer_related_applications' => false,
+            'related_applications'        => [],
+            'icons'                       => [
                 [
                     'src'     => '/icons/icon-192.png',
                     'sizes'   => '192x192',
@@ -52,6 +57,23 @@ class PwaController extends Controller
                     'src'     => '/icons/icon.svg',
                     'sizes'   => 'any',
                     'type'    => 'image/svg+xml',
+                    'purpose' => 'any',
+                ],
+            ],
+            'screenshots' => [
+                [
+                    'src'         => '/screenshots/screenshot-desktop.png',
+                    'sizes'       => '1280x720',
+                    'type'        => 'image/png',
+                    'form_factor' => 'wide',
+                    'label'       => 'Dashboard Rekap Logsheet KPR Beta',
+                ],
+                [
+                    'src'         => '/screenshots/screenshot-mobile.png',
+                    'sizes'       => '750x1334',
+                    'type'        => 'image/png',
+                    'form_factor' => 'narrow',
+                    'label'       => 'Formulir Input Logsheet Harian Mobile',
                 ],
             ],
             'shortcuts' => [
