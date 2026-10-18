@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/profil/user/{user}', [ProfileController::class, 'updateUser'])->name('profile.updateUser');
     Route::patch('/profil/user/{user}/toggle-status', [ProfileController::class, 'toggleUserStatus'])->name('profile.toggleUserStatus');
     Route::delete('/profil/user/{user}', [ProfileController::class, 'destroyUser'])->name('profile.destroyUser');
+    Route::post('/profil/signatures/{user}/reset', [ProfileController::class, 'resetUserSignature'])->name('admin.signatures.reset');
 
     // ── Helper Maintenance / Migrasi Database (Khusus Admin) ──
     Route::middleware('role:admin')->get('/admin/migrate-db', function () {

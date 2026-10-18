@@ -127,6 +127,11 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
+        // Pencegahan: Pengguna selain Superadmin tidak dapat mengubah tanda tangan jika sudah tersimpan
+        if (! $user->isSuperAdmin() && $user->tanda_tangan) {
+            return back()->withErrors(['signature' => 'Tanda tangan digital Anda sudah tersimpan dan terkunci. Silakan lapor ke Superadmin untuk mengajukan reset tanda tangan.']);
+        }
+
         // 1. Upload via file gambar
         if ($request->hasFile('signature_file')) {
             $request->validate([
@@ -144,7 +149,7 @@ class ProfileController extends Controller
             $path = $request->file('signature_file')->store('signatures', 'public');
             $user->update(['tanda_tangan' => $path]);
 
-            return back()->with('success', 'Tanda tangan digital berhasil disimpan.');
+            return back()->with('success', 'Tanda tangan digital berhasil disimpan dan dikunci.');
         }
 
         // 2. Gambar via Canvas (Base64)
@@ -171,7 +176,7 @@ class ProfileController extends Controller
                 Storage::disk('public')->put($filename, $decoded);
                 $user->update(['tanda_tangan' => $filename]);
 
-                return back()->with('success', 'Tanda tangan digital berhasil disimpan.');
+                return back()->with('success', 'Tanda tangan digital berhasil disimpan dan dikunci.');
             }
         }
 
@@ -179,17 +184,40 @@ class ProfileController extends Controller
     }
 
     /**
-     * Hapus tanda tangan digital.
+     * Hapus / reset tanda tangan digital mandiri (khusus Superadmin).
      */
     public function destroySignature()
     {
         $user = Auth::user();
+
+        // Hanya superadmin yang boleh mereset tanda tangannya sendiri secara mandiri jika sudah terkunci
+        if (! $user->isSuperAdmin() && $user->tanda_tangan) {
+            return back()->withErrors(['signature' => 'Tanda tangan digital Anda telah terkunci. Silakan lapor ke Superadmin untuk permohonan reset.']);
+        }
+
         if ($user->tanda_tangan) {
             Storage::disk('public')->delete($user->tanda_tangan);
             $user->update(['tanda_tangan' => null]);
         }
 
-        return back()->with('success', 'Tanda tangan digital berhasil dihapus.');
+        return back()->with('success', 'Tanda tangan digital berhasil di-reset.');
+    }
+
+    /**
+     * Reset tanda tangan digital pengguna lain (khusus Superadmin).
+     */
+    public function resetUserSignature(User $user)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses ditolak. Hanya Superadmin yang berhak mereset tanda tangan.');
+
+        if ($user->tanda_tangan) {
+            Storage::disk('public')->delete($user->tanda_tangan);
+            $user->update(['tanda_tangan' => null]);
+        }
+
+        return back()
+            ->with('success', "Tanda tangan digital untuk \"{$user->name}\" (@{$user->username}) berhasil di-reset. Pengguna sekarang dapat membuat tanda tangan baru.")
+            ->with('active_tab', 'signatures');
     }
 
     /**

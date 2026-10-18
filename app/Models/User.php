@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->tanda_tangan ? asset('storage/' . $this->tanda_tangan) : null;
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'superadmin'], true);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

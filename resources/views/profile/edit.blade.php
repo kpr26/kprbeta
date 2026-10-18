@@ -53,7 +53,12 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>
                 Ubah Password
             </a>
-            @if(auth()->user()->role === 'admin')
+            @if(auth()->user()->isSuperAdmin())
+            <a href="#signatures" class="profile-nav-item" data-tab="signatures">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1V5a3 3 0 0 0-3-3Zm1 4V5a1 1 0 1 0-2 0v1h2Zm-3 6a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0v-2Z" clip-rule="evenodd"/></svg>
+                Reset Tanda Tangan
+                <span class="nav-badge-admin" style="background:rgba(239,68,68,0.2);color:#f87171;">Superadmin</span>
+            </a>
             <a href="#users" class="profile-nav-item" data-tab="users">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.18.295-.083.658.207.84A7.978 7.978 0 0 0 8 18c1.168 0 2.279-.25 3.279-.7a.75.75 0 0 0-.145-1.377 7.992 7.992 0 0 1-2.405.533 6.484 6.484 0 0 0 .25-.978.75.75 0 0 0-.467-.838A5.5 5.5 0 0 0 5.5 15c-.66 0-1.29.12-1.87.338a.75.75 0 0 0-.421.498 6.01 6.01 0 0 0-.163.417ZM15.5 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM13 9.5a3.986 3.986 0 0 0-1.928 3.42 6.5 6.5 0 0 1 4.428 0A3.988 3.988 0 0 0 13.5 9.5H13ZM11 13.5A5 5 0 0 1 21 13.5v.25a.75.75 0 0 1-.75.75h-8.5A.75.75 0 0 1 11 13.75v-.25Z"/></svg>
                 Kelola Akun
@@ -239,75 +244,96 @@
                 </div>
 
                 @if($user->signature_url)
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px; margin-bottom:24px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                    {{-- KONDISI 1: SUDAH ADA TANDA TANGAN (TERKUNCI SECARA PERMANEN) --}}
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px; margin-bottom:20px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <span class="badge badge-ok" style="font-size:0.8rem; padding:4px 10px;">✓ Tanda Tangan Aktif</span>
                                 <span style="font-size:0.82rem; color:var(--text-muted);">Tersimpan pada akun Anda</span>
                             </div>
-                            <form method="POST" action="{{ route('profile.signature.destroy') }}" onsubmit="return confirm('Hapus tanda tangan digital yang tersimpan?')">
+                            @if(auth()->user()->isSuperAdmin())
+                            <form method="POST" action="{{ route('profile.signature.destroy') }}" onsubmit="return confirm('Apakah Anda yakin ingin mereset tanda tangan digital Anda sendiri? Anda harus menandatangani ulang setelahnya.')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Hapus Tanda Tangan</button>
+                                <button type="submit" class="btn btn-sm btn-danger">Reset Tanda Tangan Saya</button>
                             </form>
+                            @endif
                         </div>
-                        <div style="background:#ffffff; border-radius:10px; padding:16px; text-align:center; max-width:320px; margin:0 auto; box-shadow:0 4px 14px rgba(0,0,0,0.25);">
-                            <img src="{{ $user->signature_url }}" alt="Tanda Tangan {{ $user->name }}" style="max-height:90px; max-width:100%; object-fit:contain;">
+
+                        <div style="background:#ffffff; border-radius:12px; padding:20px; text-align:center; max-width:340px; margin:0 auto; box-shadow:0 4px 16px rgba(0,0,0,0.25); border:1px solid rgba(0,0,0,0.08);">
+                            <img src="{{ $user->signature_url }}" alt="Tanda Tangan {{ $user->name }}" style="max-height:100px; max-width:100%; object-fit:contain;">
+                        </div>
+
+                        {{-- Kotak Peringatan & Status Terkunci --}}
+                        <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; margin-top:20px; display:flex; align-items:flex-start; gap:12px;">
+                            <span style="font-size:1.5rem; line-height:1;">🔒</span>
+                            <div>
+                                <strong style="color:#34d399; font-size:0.92rem; display:block; margin-bottom:4px;">Tanda Tangan Digital Terkunci & Sah</strong>
+                                <p style="font-size:0.84rem; color:var(--text-secondary); line-height:1.5; margin:0;">
+                                    Tanda tangan digital Anda telah tersimpan dan <strong>tidak dapat diubah atau diedit secara mandiri</strong> untuk menjaga integritas dan keabsahan dokumen logsheet operasional.
+                                    <br>
+                                    Jika Anda harus mengganti atau memperbarui tanda tangan, <strong>silakan lapor terlebih dahulu ke role Superadmin</strong> untuk melakukan permohonan reset tanda tangan akun Anda.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 @else
-                    <div style="background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.25); border-radius:12px; padding:16px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
-                        <span style="font-size:1.5rem;">✍️</span>
+                    {{-- KONDISI 2: BELUM ADA TANDA TANGAN (ATAU TELAH DI-RESET OLEH SUPERADMIN) --}}
+                    <div style="background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.25); border-radius:12px; padding:16px; margin-bottom:24px; display:flex; align-items:flex-start; gap:12px;">
+                        <span style="font-size:1.5rem; line-height:1;">✍️</span>
                         <div>
-                            <strong style="color:#fbbf24; font-size:0.9rem;">Belum Ada Tanda Tangan Digital</strong>
-                            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Silakan goreskan tanda tangan Anda pada kanvas di bawah ini.</p>
+                            <strong style="color:#fbbf24; font-size:0.9rem; display:block; margin-bottom:3px;">Belum Ada Tanda Tangan Digital</strong>
+                            <p style="font-size:0.82rem; color:var(--text-secondary); margin:0; line-height:1.45;">
+                                Silakan goreskan tanda tangan Anda pada kanvas di bawah ini.
+                                <strong style="color:#f8fafc;">Penting:</strong> Setelah Anda menekan tombol simpan, tanda tangan akan otomatis terkunci secara permanen dan tidak dapat diedit tanpa reset dari Superadmin.
+                            </p>
                         </div>
+                    </div>
+
+                    {{-- Opsi 1: Gambar Tanda Tangan di Layar Kanvas --}}
+                    <div style="margin-bottom:28px;">
+                        <label class="form-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                            <span>✍️ Goreskan Tanda Tangan (Touchscreen / Mouse):</span>
+                            <small style="color:var(--text-muted); font-weight:normal;">Gunakan jari di layar HP</small>
+                        </label>
+
+                        <div style="border:2px dashed rgba(99,102,241,0.4); border-radius:14px; background:#ffffff; overflow:hidden; position:relative; box-shadow:0 4px 16px rgba(0,0,0,0.25);">
+                            <canvas id="signatureCanvas" style="width:100%; height:180px; display:block; cursor:crosshair; touch-action:none;"></canvas>
+                            <div id="signaturePlaceholder" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; color:#94a3b8; font-size:0.95rem; font-style:italic;">
+                                Goreskan tanda tangan di sini...
+                            </div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:10px;">
+                            <button type="button" class="btn btn-sm" id="btnClearSignature" style="background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-secondary);">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.09l.343.342a7 7 0 1 0 1.258-7.904.75.75 0 1 0 1.085 1.034 5.5 5.5 0 0 1 8.126 2.781Z" clip-rule="evenodd"/></svg>
+                                Ulangi / Bersihkan
+                            </button>
+
+                            <form method="POST" action="{{ route('profile.signature.update') }}" id="canvasSignatureForm">
+                                @csrf
+                                <input type="hidden" name="signature_data" id="signatureDataInput">
+                                <button type="submit" class="btn btn-primary" id="btnSaveCanvasSignature" disabled>
+                                    ✓ Simpan & Kunci Tanda Tangan
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {{-- Opsi 2: Upload File Tanda Tangan --}}
+                    <div style="border-top:1px solid var(--border); padding-top:18px;">
+                        <details style="cursor:pointer;">
+                            <summary style="font-size:0.88rem; color:var(--text-secondary); font-weight:600; outline:none; user-select:none;">
+                                Atau unggah file gambar tanda tangan (Scan / PNG Transparan)
+                            </summary>
+                            <form method="POST" action="{{ route('profile.signature.update') }}" enctype="multipart/form-data" style="margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                                @csrf
+                                <input type="file" name="signature_file" accept="image/png,image/jpeg,image/jpg,image/webp" class="form-input" style="max-width:300px; padding:7px 12px; font-size:0.85rem;" required>
+                                <button type="submit" class="btn btn-primary btn-sm">Upload & Kunci Tanda Tangan</button>
+                            </form>
+                        </details>
                     </div>
                 @endif
-
-                {{-- Opsi 1: Gambar Tanda Tangan di Layar Kanvas --}}
-                <div style="margin-bottom:28px;">
-                    <label class="form-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-                        <span>✍️ Goreskan Tanda Tangan (Touchscreen / Mouse):</span>
-                        <small style="color:var(--text-muted); font-weight:normal;">Gunakan jari di layar HP</small>
-                    </label>
-
-                    <div style="border:2px dashed rgba(99,102,241,0.4); border-radius:14px; background:#ffffff; overflow:hidden; position:relative; box-shadow:0 4px 16px rgba(0,0,0,0.25);">
-                        <canvas id="signatureCanvas" style="width:100%; height:180px; display:block; cursor:crosshair; touch-action:none;"></canvas>
-                        <div id="signaturePlaceholder" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; color:#94a3b8; font-size:0.95rem; font-style:italic;">
-                            Goreskan tanda tangan di sini...
-                        </div>
-                    </div>
-
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:10px;">
-                        <button type="button" class="btn btn-sm" id="btnClearSignature" style="background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-secondary);">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.09l.343.342a7 7 0 1 0 1.258-7.904.75.75 0 1 0 1.085 1.034 5.5 5.5 0 0 1 8.126 2.781Z" clip-rule="evenodd"/></svg>
-                            Ulangi / Bersihkan
-                        </button>
-
-                        <form method="POST" action="{{ route('profile.signature.update') }}" id="canvasSignatureForm">
-                            @csrf
-                            <input type="hidden" name="signature_data" id="signatureDataInput">
-                            <button type="submit" class="btn btn-primary" id="btnSaveCanvasSignature" disabled>
-                                ✓ Simpan Tanda Tangan
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                {{-- Opsi 2: Upload File Tanda Tangan --}}
-                <div style="border-top:1px solid var(--border); padding-top:18px;">
-                    <details style="cursor:pointer;">
-                        <summary style="font-size:0.88rem; color:var(--text-secondary); font-weight:600; outline:none; user-select:none;">
-                            Atau unggah file gambar tanda tangan (Scan / PNG Transparan)
-                        </summary>
-                        <form method="POST" action="{{ route('profile.signature.update') }}" enctype="multipart/form-data" style="margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                            @csrf
-                            <input type="file" name="signature_file" accept="image/png,image/jpeg,image/jpg,image/webp" class="form-input" style="max-width:300px; padding:7px 12px; font-size:0.85rem;" required>
-                            <button type="submit" class="btn btn-primary btn-sm">Upload File Tanda Tangan</button>
-                        </form>
-                    </details>
-                </div>
             </div>
         </div>
 
@@ -801,6 +827,111 @@
             </form>
 
         </div>{{-- /tab-users --}}
+
+        {{-- Tab: Reset Tanda Tangan Pengguna (Superadmin Only) --}}
+        <div class="profile-tab" id="tab-signatures" hidden>
+            <div class="profile-section-card">
+                <div class="profile-section-header">
+                    <div class="profile-section-icon" style="background:rgba(239,68,68,0.15);color:#f87171">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1V5a3 3 0 0 0-3-3Zm1 4V5a1 1 0 1 0-2 0v1h2Zm-3 6a1 1 0 1 1 2 0v2a1 1 0 1 1-2 0v-2Z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="profile-section-title">Reset Tanda Tangan Digital Pengguna</h2>
+                        <p class="profile-section-desc">Daftar pengguna yang telah memiliki tanda tangan digital aktif. Superadmin dapat mereset tanda tangan jika pengguna memerlukan pembaruan tanda tangan.</p>
+                    </div>
+                </div>
+
+                @if(session('success') && session('active_tab') === 'signatures')
+                    <div class="alert alert-success" role="alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @php
+                    $signedUsers = \App\Models\User::whereNotNull('tanda_tangan')->orderBy('name')->get();
+                @endphp
+
+                <div class="user-table-wrap">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Pengguna</th>
+                                <th>Role & Username</th>
+                                <th>Pratinjau Tanda Tangan</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Aksi Superadmin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($signedUsers as $su)
+                            <tr>
+                                <td>
+                                    <div class="user-table-name">
+                                        <div class="user-table-avatar">
+                                            @if($su->avatar_url)
+                                                <img src="{{ $su->avatar_url }}" alt="{{ $su->name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                                            @else
+                                                {{ strtoupper(substr($su->name, 0, 1)) }}
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary);">
+                                                {{ $su->name }}
+                                                @if($su->id === auth()->id())
+                                                    <span class="you-badge">Anda</span>
+                                                @endif
+                                            </div>
+                                            <small class="text-muted">{{ $su->email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="margin-bottom:4px;">
+                                        <span class="role-badge role-badge--{{ $su->role ?? 'user' }}">
+                                            {{ $roleNames[$su->role] ?? ucfirst($su->role ?? 'user') }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ '@' . $su->username }}</small>
+                                </td>
+                                <td>
+                                    <div style="background:#ffffff; border-radius:8px; padding:6px 12px; display:inline-block; border:1px solid rgba(255,255,255,0.15); box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+                                        <img src="{{ $su->signature_url }}" alt="Tanda Tangan {{ $su->name }}" style="max-height:42px; max-width:140px; object-fit:contain; display:block;">
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-ok" style="font-size:0.75rem; padding:3px 8px; background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.25);">
+                                        🔒 Terkunci & Sah
+                                    </span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form method="POST" action="{{ route('admin.signatures.reset', $su) }}" onsubmit="return confirm('Apakah Anda yakin ingin MERESET tanda tangan milik {{ $su->name }} ({{ '@'.$su->username }})? Setelah di-reset, tanda tangan lama akan terhapus dan pengguna dapat membuat tanda tangan baru.')" style="display:inline-block;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-danger" style="display:inline-flex; align-items:center; gap:5px;" title="Reset Tanda Tangan Pengguna">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                                                <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.09l.343.342a7 7 0 1 0 1.258-7.904.75.75 0 1 0 1.085 1.034 5.5 5.5 0 0 1 8.126 2.781Z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Reset Tanda Tangan
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:36px; color:var(--text-muted);">
+                                    <div style="font-size:2rem; margin-bottom:8px;">✍️</div>
+                                    <strong style="color:var(--text-secondary); display:block; margin-bottom:4px;">Belum Ada Tanda Tangan Digital</strong>
+                                    <span style="font-size:0.85rem;">Saat ini belum ada pengguna yang menyimpan tanda tangan digital di sistem.</span>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>{{-- /tab-signatures --}}
         @endif
 
     </div>{{-- /profile-main --}}
