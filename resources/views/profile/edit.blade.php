@@ -6,7 +6,7 @@
 
 @section('panel')
 @php
-    $user = auth()->user();
+    $user = $user ?? auth()->user();
     $roleNames = [
         'admin'     => 'Administrator',
         'user'      => 'User',
@@ -22,7 +22,11 @@
     <aside class="profile-sidebar">
         <div class="profile-card">
             <div class="profile-avatar-wrap">
-                <div class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="profile-avatar" style="width:72px; height:72px; border-radius:50%; object-fit:cover;">
+                @else
+                    <div class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                @endif
                 <div class="profile-avatar-ring"></div>
             </div>
             <div class="profile-meta">
@@ -36,6 +40,14 @@
             <a href="#info" class="profile-nav-item profile-nav-item--active" data-tab="info">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-7 9a7 7 0 1 1 14 0H3Z" clip-rule="evenodd"/></svg>
                 Informasi Akun
+            </a>
+            <a href="#photo" class="profile-nav-item" data-tab="photo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" clip-rule="evenodd"/></svg>
+                Foto Profil
+            </a>
+            <a href="#signature" class="profile-nav-item" data-tab="signature">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.414.336-.75.75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z"/></svg>
+                Tanda Tangan Digital
             </a>
             <a href="#password" class="profile-nav-item" data-tab="password">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>
@@ -140,6 +152,162 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        {{-- Tab: Foto Profil --}}
+        <div class="profile-tab" id="tab-photo" hidden>
+            <div class="profile-section-card">
+                <div class="profile-section-header">
+                    <div class="profile-section-icon" style="background:rgba(236,72,153,0.15);color:#f472b6">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="profile-section-title">Foto Profil Akun</h2>
+                        <p class="profile-section-desc">Unggah foto profil Anda agar mudah dikenali oleh seluruh anggota tim di aplikasi dan logsheet.</p>
+                    </div>
+                </div>
+
+                <div class="avatar-manager-grid" style="display:flex; flex-direction:column; gap:20px; align-items:center; text-align:center; padding:12px 0;">
+                    <div style="position:relative; width:120px; height:120px;">
+                        <div id="avatarPreviewContainer" style="width:120px; height:120px; border-radius:50%; overflow:hidden; border:3px solid var(--accent); box-shadow:0 0 24px rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center; background:#1e293b;">
+                            @if($user->avatar_url)
+                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" id="avatarPreviewImg" style="width:100%; height:100%; object-fit:cover;">
+                            @else
+                                <div id="avatarPreviewInitial" style="font-size:3rem; font-weight:800; color:#fff;">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                                <img src="" alt="" id="avatarPreviewImg" style="width:100%; height:100%; object-fit:cover; display:none;">
+                            @endif
+                        </div>
+                    </div>
+
+                    <div style="max-width:440px; width:100%;">
+                        <h3 style="font-size:1.05rem; color:var(--text-primary); margin-bottom:4px;">{{ $user->name }}</h3>
+                        <p style="font-size:0.83rem; color:var(--text-muted); margin-bottom:16px;">
+                            Pilih file foto dari perangkat Anda (Maksimal 4 MB, format JPG, PNG, atau WEBP).
+                        </p>
+
+                        <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data" id="photoForm" style="display:flex; flex-direction:column; gap:12px; align-items:center;">
+                            @csrf
+                            <input type="file" name="foto_profil" id="inputFotoProfil" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" onchange="handleAvatarSelected(this)">
+                            
+                            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                                <button type="button" class="btn" onclick="document.getElementById('inputFotoProfil').click()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" clip-rule="evenodd"/></svg>
+                                    Pilih Foto
+                                </button>
+                                <button type="submit" id="btnSaveAvatar" class="btn btn-primary" style="display:none;">
+                                    ✓ Simpan Foto
+                                </button>
+                            </div>
+                            @error('foto_profil')
+                                <p class="form-error" style="margin-top:6px;">{{ $message }}</p>
+                            @enderror
+                        </form>
+
+                        @if($user->foto_profil)
+                            <form method="POST" action="{{ route('profile.photo.destroy') }}" onsubmit="return confirm('Hapus foto profil dan gunakan inisial huruf?')" style="margin-top:12px;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm" style="background:none; border:none; color:#ef4444; font-size:0.8rem; text-decoration:underline; cursor:pointer;">
+                                    Hapus Foto Profil
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tab: Tanda Tangan Digital --}}
+        <div class="profile-tab" id="tab-signature" hidden>
+            <div class="profile-section-card">
+                <div class="profile-section-header">
+                    <div class="profile-section-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/>
+                            <path d="M3.5 5.75c0-.414.336-.75.75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="profile-section-title">Tanda Tangan Digital</h2>
+                        <p class="profile-section-desc">Goreskan tanda tangan langsung di layar sentuh HP / komputer atau unggah file gambar tanda tangan Anda.</p>
+                    </div>
+                </div>
+
+                @if($user->signature_url)
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:20px; margin-bottom:24px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span class="badge badge-ok" style="font-size:0.8rem; padding:4px 10px;">✓ Tanda Tangan Aktif</span>
+                                <span style="font-size:0.82rem; color:var(--text-muted);">Tersimpan pada akun Anda</span>
+                            </div>
+                            <form method="POST" action="{{ route('profile.signature.destroy') }}" onsubmit="return confirm('Hapus tanda tangan digital yang tersimpan?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger">Hapus Tanda Tangan</button>
+                            </form>
+                        </div>
+                        <div style="background:#ffffff; border-radius:10px; padding:16px; text-align:center; max-width:320px; margin:0 auto; box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+                            <img src="{{ $user->signature_url }}" alt="Tanda Tangan {{ $user->name }}" style="max-height:90px; max-width:100%; object-fit:contain;">
+                        </div>
+                    </div>
+                @else
+                    <div style="background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.25); border-radius:12px; padding:16px; margin-bottom:24px; display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:1.5rem;">✍️</span>
+                        <div>
+                            <strong style="color:#fbbf24; font-size:0.9rem;">Belum Ada Tanda Tangan Digital</strong>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Silakan goreskan tanda tangan Anda pada kanvas di bawah ini.</p>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Opsi 1: Gambar Tanda Tangan di Layar Kanvas --}}
+                <div style="margin-bottom:28px;">
+                    <label class="form-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <span>✍️ Goreskan Tanda Tangan (Touchscreen / Mouse):</span>
+                        <small style="color:var(--text-muted); font-weight:normal;">Gunakan jari di layar HP</small>
+                    </label>
+
+                    <div style="border:2px dashed rgba(99,102,241,0.4); border-radius:14px; background:#ffffff; overflow:hidden; position:relative; box-shadow:0 4px 16px rgba(0,0,0,0.25);">
+                        <canvas id="signatureCanvas" style="width:100%; height:180px; display:block; cursor:crosshair; touch-action:none;"></canvas>
+                        <div id="signaturePlaceholder" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; color:#94a3b8; font-size:0.95rem; font-style:italic;">
+                            Goreskan tanda tangan di sini...
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:10px;">
+                        <button type="button" class="btn btn-sm" id="btnClearSignature" style="background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-secondary);">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.09l.343.342a7 7 0 1 0 1.258-7.904.75.75 0 1 0 1.085 1.034 5.5 5.5 0 0 1 8.126 2.781Z" clip-rule="evenodd"/></svg>
+                            Ulangi / Bersihkan
+                        </button>
+
+                        <form method="POST" action="{{ route('profile.signature.update') }}" id="canvasSignatureForm">
+                            @csrf
+                            <input type="hidden" name="signature_data" id="signatureDataInput">
+                            <button type="submit" class="btn btn-primary" id="btnSaveCanvasSignature" disabled>
+                                ✓ Simpan Tanda Tangan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Opsi 2: Upload File Tanda Tangan --}}
+                <div style="border-top:1px solid var(--border); padding-top:18px;">
+                    <details style="cursor:pointer;">
+                        <summary style="font-size:0.88rem; color:var(--text-secondary); font-weight:600; outline:none; user-select:none;">
+                            Atau unggah file gambar tanda tangan (Scan / PNG Transparan)
+                        </summary>
+                        <form method="POST" action="{{ route('profile.signature.update') }}" enctype="multipart/form-data" style="margin-top:14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                            @csrf
+                            <input type="file" name="signature_file" accept="image/png,image/jpeg,image/jpg,image/webp" class="form-input" style="max-width:300px; padding:7px 12px; font-size:0.85rem;" required>
+                            <button type="submit" class="btn btn-primary btn-sm">Upload File Tanda Tangan</button>
+                        </form>
+                    </details>
+                </div>
             </div>
         </div>
 
@@ -657,6 +825,7 @@ function activateTab(target) {
 
 navItems.forEach(item => {
     item.addEventListener('click', e => {
+        if (!item.dataset.tab) return;
         e.preventDefault();
         activateTab(item.dataset.tab);
     });
@@ -806,5 +975,153 @@ document.addEventListener('keydown', (e) => {
         closeEditModal();
     }
 });
+
+// ── Avatar Preview Handler ─────────────────────────────
+function handleAvatarSelected(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 4 * 1024 * 1024) {
+            alert('Ukuran file foto maksimal adalah 4 MB.');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewImg = document.getElementById('avatarPreviewImg');
+            const initial = document.getElementById('avatarPreviewInitial');
+            const saveBtn = document.getElementById('btnSaveAvatar');
+            if (previewImg) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            }
+            if (initial) initial.style.display = 'none';
+            if (saveBtn) saveBtn.style.display = 'inline-flex';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// ── Digital Signature Canvas ───────────────────────────
+const sigCanvas = document.getElementById('signatureCanvas');
+const sigPlaceholder = document.getElementById('signaturePlaceholder');
+const sigClearBtn = document.getElementById('btnClearSignature');
+const sigSaveBtn = document.getElementById('btnSaveCanvasSignature');
+const sigInputData = document.getElementById('signatureDataInput');
+const sigCanvasForm = document.getElementById('canvasSignatureForm');
+
+if (sigCanvas) {
+    const ctx = sigCanvas.getContext('2d');
+    let isDrawing = false;
+    let hasDrawn = false;
+
+    function resizeSignatureCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const rect = sigCanvas.getBoundingClientRect();
+        if (rect.width === 0) return;
+        sigCanvas.width = rect.width * ratio;
+        sigCanvas.height = 180 * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#0f172a';
+    }
+
+    window.addEventListener('resize', resizeSignatureCanvas);
+
+    function getCanvasCoordinates(e) {
+        const rect = sigCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startSignature(e) {
+        isDrawing = true;
+        const pos = getCanvasCoordinates(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        if (sigPlaceholder) sigPlaceholder.style.display = 'none';
+    }
+
+    function drawSignature(e) {
+        if (!isDrawing) return;
+        if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+        const pos = getCanvasCoordinates(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        hasDrawn = true;
+        if (sigSaveBtn) sigSaveBtn.disabled = false;
+    }
+
+    function stopSignature() {
+        if (isDrawing) {
+            isDrawing = false;
+            ctx.closePath();
+        }
+    }
+
+    // Mouse
+    sigCanvas.addEventListener('mousedown', startSignature);
+    sigCanvas.addEventListener('mousemove', drawSignature);
+    window.addEventListener('mouseup', stopSignature);
+
+    // Touch
+    sigCanvas.addEventListener('touchstart', (e) => {
+        if (e.cancelable) e.preventDefault();
+        startSignature(e);
+    }, { passive: false });
+
+    sigCanvas.addEventListener('touchmove', (e) => {
+        if (e.cancelable) e.preventDefault();
+        drawSignature(e);
+    }, { passive: false });
+
+    sigCanvas.addEventListener('touchend', stopSignature);
+    sigCanvas.addEventListener('touchcancel', stopSignature);
+
+    // Clear
+    if (sigClearBtn) {
+        sigClearBtn.addEventListener('click', () => {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            ctx.clearRect(0, 0, sigCanvas.width / ratio, sigCanvas.height / ratio);
+            hasDrawn = false;
+            if (sigSaveBtn) sigSaveBtn.disabled = true;
+            if (sigPlaceholder) sigPlaceholder.style.display = 'flex';
+        });
+    }
+
+    // Form submit
+    if (sigCanvasForm) {
+        sigCanvasForm.addEventListener('submit', (e) => {
+            if (!hasDrawn) {
+                e.preventDefault();
+                alert('Silakan goreskan tanda tangan Anda pada kanvas terlebih dahulu.');
+                return;
+            }
+            sigInputData.value = sigCanvas.toDataURL('image/png');
+        });
+    }
+
+    // Resize whenever signature tab is opened
+    document.querySelectorAll('.profile-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.dataset.tab === 'signature') {
+                setTimeout(resizeSignatureCanvas, 60);
+            }
+        });
+    });
+
+    // Auto-init if tab opened via URL hash
+    if (window.location.hash === '#signature') {
+        activateTab('signature');
+        setTimeout(resizeSignatureCanvas, 60);
+    } else if (window.location.hash === '#photo') {
+        activateTab('photo');
+    }
+}
 </script>
 @endpush

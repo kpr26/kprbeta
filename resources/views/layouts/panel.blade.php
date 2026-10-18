@@ -45,12 +45,55 @@
         </div>
 
         <div class="mobile-topbar-actions">
-            <form method="POST" action="{{ route('logout') }}" class="inline" onsubmit="return confirm('Keluar dari aplikasi?')">
-                @csrf
-                <button type="submit" class="mobile-btn-logout" title="Keluar">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-1.08a.75.75 0 1 0-1.004-1.11l-2.5 2.567a.75.75 0 0 0 0 1.086l2.5 2.567a.75.75 0 1 0 1.004-1.11l-1.048-1.08h9.546A.75.75 0 0 0 19 10Z" clip-rule="evenodd"/></svg>
+            <!-- User Avatar with Dropdown (Posisi Kanan Atas) -->
+            <div class="user-dropdown-container">
+                <button type="button" class="user-avatar-btn" id="mobileUserBtn" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
+                    <div class="user-avatar-img">
+                        @if($authUser->avatar_url)
+                            <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}">
+                        @else
+                            <span>{{ strtoupper(substr($authUser->name, 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd"/>
+                    </svg>
                 </button>
-            </form>
+
+                <!-- Mobile Dropdown Menu -->
+                <div class="user-dropdown-menu" id="mobileUserMenu" role="menu">
+                    <div class="user-dropdown-header">
+                        <div class="user-dropdown-avatar">
+                            @if($authUser->avatar_url)
+                                <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}">
+                            @else
+                                <span>{{ strtoupper(substr($authUser->name, 0, 1)) }}</span>
+                            @endif
+                        </div>
+                        <div class="user-dropdown-info">
+                            <div class="user-dropdown-name">{{ $authUser->name }}</div>
+                            <div class="user-dropdown-role">{{ $currentRoleLabel }} · {{ '@'.$authUser->username }}</div>
+                        </div>
+                    </div>
+
+                    <div class="user-dropdown-divider"></div>
+
+                    <a href="{{ route('profile.edit') }}" class="user-dropdown-item" role="menuitem">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
+                        <span>Pengaturan Profil</span>
+                    </a>
+
+                    <div class="user-dropdown-divider"></div>
+
+                    <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')">
+                        @csrf
+                        <button type="submit" class="user-dropdown-item user-dropdown-item--danger" role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-1.08a.75.75 0 1 0-1.004-1.11l-2.5 2.567a.75.75 0 0 0 0 1.086l2.5 2.567a.75.75 0 1 0 1.004-1.11l-1.048-1.08h9.546A.75.75 0 0 0 19 10Z" clip-rule="evenodd"/></svg>
+                            <span>Keluar / Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -113,12 +156,10 @@
         </nav>
 
         <div class="sidebar-bottom">
-            @if(! $isTeknisi)
             <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.*') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                 Pengaturan Akun
             </a>
-            @endif
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="nav-item nav-item--logout">
@@ -137,11 +178,56 @@
                 <p class="page-subtitle">@yield('page-subtitle', now()->translatedFormat('l, d F Y'))</p>
             </div>
             <div class="topbar-right">
-                <div class="user-badge">
-                    <div class="avatar">{{ strtoupper(substr($authUser->name, 0, 1)) }}</div>
-                    <div class="user-info">
-                        <span class="user-name">{{ $authUser->name }}</span>
-                        <span class="user-role">{{ $currentRoleLabel }} · {{ '@'.$authUser->username }}</span>
+                <div class="user-dropdown-container">
+                    <button type="button" class="user-badge user-badge--clickable" id="desktopUserBtn" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
+                        <div class="avatar" style="overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                            @if($authUser->avatar_url)
+                                <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                            @else
+                                {{ strtoupper(substr($authUser->name, 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">{{ $authUser->name }}</span>
+                            <span class="user-role">{{ $currentRoleLabel }} · {{ '@'.$authUser->username }}</span>
+                        </div>
+                        <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+
+                    <!-- Desktop Dropdown Menu -->
+                    <div class="user-dropdown-menu" id="desktopUserMenu" role="menu">
+                        <div class="user-dropdown-header">
+                            <div class="user-dropdown-avatar">
+                                @if($authUser->avatar_url)
+                                    <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}">
+                                @else
+                                    <span>{{ strtoupper(substr($authUser->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
+                            <div class="user-dropdown-info">
+                                <div class="user-dropdown-name">{{ $authUser->name }}</div>
+                                <div class="user-dropdown-role">{{ $currentRoleLabel }} · {{ '@'.$authUser->username }}</div>
+                            </div>
+                        </div>
+
+                        <div class="user-dropdown-divider"></div>
+
+                        <a href="{{ route('profile.edit') }}" class="user-dropdown-item" role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
+                            <span>Pengaturan Profil</span>
+                        </a>
+
+                        <div class="user-dropdown-divider"></div>
+
+                        <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')">
+                            @csrf
+                            <button type="submit" class="user-dropdown-item user-dropdown-item--danger" role="menuitem">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-1.08a.75.75 0 1 0-1.004-1.11l-2.5 2.567a.75.75 0 0 0 0 1.086l2.5 2.567a.75.75 0 1 0 1.004-1.11l-1.048-1.08h9.546A.75.75 0 0 0 19 10Z" clip-rule="evenodd"/></svg>
+                                <span>Keluar / Logout</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -206,8 +292,7 @@
             <span>Riwayat</span>
         </a>
 
-        {{-- 3. TAB PROFIL / KELUAR --}}
-        @if(! $isTeknisi)
+        {{-- 3. TAB PROFIL (Untuk Semua Role) --}}
         <a href="{{ route('profile.edit') }}" class="mobile-nav-link {{ request()->routeIs('profile.*') ? 'mobile-nav-link--active' : '' }}">
             <div class="mobile-nav-icon-wrap">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -217,7 +302,9 @@
             </div>
             <span>Profil</span>
         </a>
-        @else
+
+        @if($isTeknisi)
+        {{-- 4. TAB KELUAR (Khusus Layar HP Teknisi) --}}
         <form method="POST" action="{{ route('logout') }}" class="mobile-nav-link" style="margin:0;padding:0;border:none;background:none;width:auto;" onsubmit="return confirm('Keluar dari aplikasi?')">
             @csrf
             <button type="submit" class="mobile-nav-btn-action" style="background:none;border:none;color:inherit;font:inherit;display:flex;flex-direction:column;align-items:center;cursor:pointer;width:100%;">
@@ -261,6 +348,54 @@
             lb.hidden = true;
         }
     });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.hidden = true; });
+    // User Dropdown (Mobile & Desktop)
+    function setupUserDropdown(triggerId, menuId) {
+        const trigger = document.getElementById(triggerId);
+        const menu = document.getElementById(menuId);
+        if (!trigger || !menu) return;
+        const container = trigger.closest('.user-dropdown-container');
+        if (!container) return;
+
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const wasActive = container.classList.contains('is-active');
+            // Close other dropdowns
+            document.querySelectorAll('.user-dropdown-container').forEach(c => {
+                c.classList.remove('is-active');
+                const btn = c.querySelector('button');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            });
+            if (!wasActive) {
+                container.classList.add('is-active');
+                trigger.setAttribute('aria-expanded', 'true');
+            }
+        });
+    }
+
+    setupUserDropdown('mobileUserBtn', 'mobileUserMenu');
+    setupUserDropdown('desktopUserBtn', 'desktopUserMenu');
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-dropdown-container')) {
+            document.querySelectorAll('.user-dropdown-container').forEach(c => {
+                c.classList.remove('is-active');
+                const btn = c.querySelector('button');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.user-dropdown-container').forEach(c => {
+                c.classList.remove('is-active');
+                const btn = c.querySelector('button');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            });
+            if (typeof lb !== 'undefined' && lb) lb.hidden = true;
+        }
+    });
 </script>
 @endpush

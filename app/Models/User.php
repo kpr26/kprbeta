@@ -25,7 +25,19 @@ class User extends Authenticatable
         'is_active',
         'email',
         'password',
+        'foto_profil',
+        'tanda_tangan',
     ];
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->foto_profil ? asset('storage/' . $this->foto_profil) : null;
+    }
+
+    public function getSignatureUrlAttribute(): ?string
+    {
+        return $this->tanda_tangan ? asset('storage/' . $this->tanda_tangan) : null;
+    }
 
     /**
      * The attributes that should be hidden for serialization.

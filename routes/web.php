@@ -66,6 +66,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profil/info', [ProfileController::class, 'updateInfo'])->name('profile.info');
     Route::patch('/profil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profil/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo.update');
+    Route::delete('/profil/photo', [ProfileController::class, 'destroyPhoto'])->name('profile.photo.destroy');
+    Route::post('/profil/signature', [ProfileController::class, 'updateSignature'])->name('profile.signature.update');
+    Route::delete('/profil/signature', [ProfileController::class, 'destroySignature'])->name('profile.signature.destroy');
     Route::post('/profil/akun-baru', [ProfileController::class, 'storeUser'])->name('profile.storeUser');
     Route::put('/profil/user/{user}', [ProfileController::class, 'updateUser'])->name('profile.updateUser');
     Route::patch('/profil/user/{user}/toggle-status', [ProfileController::class, 'toggleUserStatus'])->name('profile.toggleUserStatus');

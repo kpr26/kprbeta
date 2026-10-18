@@ -6,20 +6,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
     /**
-     * Tampilkan halaman pengaturan akun.
+     * Tampilkan halaman pengaturan akun (untuk semua role).
      */
     public function edit()
     {
-        // Role teknisi hanya boleh mengakses menu logsheet
-        if (Auth::user()->role === 'teknisi') {
-            return redirect()->route('logsheet.create');
-        }
-
         return view('profile.edit', [
             'user' => Auth::user(),
         ]);
@@ -82,6 +78,118 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Password berhasil diperbarui.');
+    }
+
+    /**
+     * Upload / perbarui foto profil.
+     */
+    public function updatePhoto(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'foto_profil' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [
+            'foto_profil.required' => 'Silakan pilih file foto terlebih dahulu.',
+            'foto_profil.image'    => 'File harus berupa gambar.',
+            'foto_profil.mimes'    => 'Format foto harus jpg, jpeg, png, atau webp.',
+            'foto_profil.max'      => 'Ukuran foto maksimal 4 MB.',
+        ]);
+
+        if ($user->foto_profil) {
+            Storage::disk('public')->delete($user->foto_profil);
+        }
+
+        $path = $request->file('foto_profil')->store('avatars', 'public');
+        $user->update(['foto_profil' => $path]);
+
+        return back()->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus foto profil (kembali ke inisial nama).
+     */
+    public function destroyPhoto()
+    {
+        $user = Auth::user();
+        if ($user->foto_profil) {
+            Storage::disk('public')->delete($user->foto_profil);
+            $user->update(['foto_profil' => null]);
+        }
+
+        return back()->with('success', 'Foto profil berhasil dihapus.');
+    }
+
+    /**
+     * Simpan / perbarui tanda tangan digital (dari kanvas gambar atau upload file).
+     */
+    public function updateSignature(Request $request)
+    {
+        $user = Auth::user();
+
+        // 1. Upload via file gambar
+        if ($request->hasFile('signature_file')) {
+            $request->validate([
+                'signature_file' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            ], [
+                'signature_file.image' => 'File harus berupa gambar tanda tangan.',
+                'signature_file.mimes' => 'Format file tanda tangan harus png, jpg, jpeg, atau webp.',
+                'signature_file.max'   => 'Ukuran tanda tangan maksimal 2 MB.',
+            ]);
+
+            if ($user->tanda_tangan) {
+                Storage::disk('public')->delete($user->tanda_tangan);
+            }
+
+            $path = $request->file('signature_file')->store('signatures', 'public');
+            $user->update(['tanda_tangan' => $path]);
+
+            return back()->with('success', 'Tanda tangan digital berhasil disimpan.');
+        }
+
+        // 2. Gambar via Canvas (Base64)
+        if ($request->filled('signature_data')) {
+            $data = $request->input('signature_data');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $type = strtolower($type[1]);
+
+                if (! in_array($type, ['jpg', 'jpeg', 'gif', 'png'], true)) {
+                    return back()->withErrors(['signature' => 'Format tanda tangan tidak didukung.']);
+                }
+
+                $decoded = base64_decode($data);
+                if ($decoded === false) {
+                    return back()->withErrors(['signature' => 'Gagal membaca data tanda tangan digital.']);
+                }
+
+                if ($user->tanda_tangan) {
+                    Storage::disk('public')->delete($user->tanda_tangan);
+                }
+
+                $filename = 'signatures/sig_' . $user->id . '_' . time() . '.' . $type;
+                Storage::disk('public')->put($filename, $decoded);
+                $user->update(['tanda_tangan' => $filename]);
+
+                return back()->with('success', 'Tanda tangan digital berhasil disimpan.');
+            }
+        }
+
+        return back()->withErrors(['signature' => 'Silakan gambar tanda tangan pada kanvas atau unggah file tanda tangan.']);
+    }
+
+    /**
+     * Hapus tanda tangan digital.
+     */
+    public function destroySignature()
+    {
+        $user = Auth::user();
+        if ($user->tanda_tangan) {
+            Storage::disk('public')->delete($user->tanda_tangan);
+            $user->update(['tanda_tangan' => null]);
+        }
+
+        return back()->with('success', 'Tanda tangan digital berhasil dihapus.');
     }
 
     /**
