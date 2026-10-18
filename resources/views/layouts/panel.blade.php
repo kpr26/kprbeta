@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/logsheet.css') }}">
+<link rel="stylesheet" href="{{ asset('css/logsheet.css') }}?v={{ file_exists(public_path('css/logsheet.css')) ? filemtime(public_path('css/logsheet.css')) : time() }}">
 @endpush
 
 @section('content')
