@@ -1,16 +1,15 @@
 @extends('layouts.panel')
 
-@php($n = fn ($v) => number_format($v ?? 0, 2, ',', '.'))
+@php
+    $n = fn ($v) => number_format($v ?? 0, 2, ',', '.');
+    $hasElecToday  = $today && $today->foto_kwh;
+    $hasWaterToday = $today && $today->foto_air;
+@endphp
 
 @section('title', 'Dashboard')
 @section('page-title', 'Dashboard')
 
 @section('panel')
-
-@php
-    $hasElecToday  = $today && $today->foto_kwh;
-    $hasWaterToday = $today && $today->foto_air;
-@endphp
 
 @if ($hasElecToday && $hasWaterToday)
     <div class="status-banner ok">
