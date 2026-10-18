@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block access to hidden files and directories (like .env, .git)
+    RewriteRule ^\.(.*)$ - [F,L]
+
+    # Block access to composer files and artisan
+    RewriteRule ^(composer\.(json|lock)|artisan|package\.json)$ - [F,L]
+
+    # Redirect all other requests to the public/ folder
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
