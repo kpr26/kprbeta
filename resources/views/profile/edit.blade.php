@@ -47,6 +47,11 @@
                 Kelola Akun
                 <span class="nav-badge-admin">Admin</span>
             </a>
+            <a href="{{ route('admin.migrate') }}" class="profile-nav-item" onclick="return confirm('Jalankan migrasi database dan bersihkan cache?')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.75a.75.75 0 0 0-.75.75v4.482a.75.75 0 0 0 1.5 0v-2.09l.343.342a7 7 0 1 0 1.258-7.904.75.75 0 1 0 1.085 1.034 5.5 5.5 0 0 1 8.126 2.781Z" clip-rule="evenodd"/></svg>
+                Migrasi Database
+                <span class="nav-badge-admin" style="background:rgba(56,189,248,0.2);color:#38bdf8;">Sync</span>
+            </a>
             @endif
         </nav>
     </aside>

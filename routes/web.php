@@ -44,6 +44,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profil/user/{user}/toggle-status', [ProfileController::class, 'toggleUserStatus'])->name('profile.toggleUserStatus');
     Route::delete('/profil/user/{user}', [ProfileController::class, 'destroyUser'])->name('profile.destroyUser');
 
+    // ── Helper Maintenance / Migrasi Database (Khusus Admin) ──
+    Route::middleware('role:admin')->get('/admin/migrate-db', function () {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        return redirect()->route('dashboard')->with('success', 'Migrasi database berhasil dijalankan: ' . ($output ?: 'Database sudah versi terbaru.'));
+    })->name('admin.migrate');
+
     // ── Logsheet Listrik & Air ──
     Route::middleware('role:admin,eng_admin,eng_spv')->group(function () {
         Route::get('/logsheet/export/excel', [LogsheetController::class, 'exportExcel'])->name('logsheet.excel');
