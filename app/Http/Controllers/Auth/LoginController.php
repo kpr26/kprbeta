@@ -15,7 +15,7 @@ class LoginController extends Controller
     {
         if (Auth::check()) {
             if (Auth::user()->role === 'teknisi') {
-                return redirect()->route('logsheet.create');
+                return redirect()->route('logsheet.hub');
             }
             return redirect()->route('dashboard');
         }
@@ -52,8 +52,8 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             if (Auth::user()->role === 'teknisi') {
-                return redirect()->route('logsheet.create')
-                    ->with('success', 'Selamat bertugas, ' . Auth::user()->name . '! Silakan input logsheet hari ini.');
+                return redirect()->route('logsheet.hub')
+                    ->with('success', 'Selamat bertugas, ' . Auth::user()->name . '! Silakan catat meter utilitas hari ini.');
             }
 
             return redirect()->route('dashboard')

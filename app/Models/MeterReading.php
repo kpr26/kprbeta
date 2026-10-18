@@ -33,13 +33,36 @@ class MeterReading extends Model
     /** Pencatatan terakhir sebelum tanggal tertentu. */
     public static function previousOf($date): ?self
     {
-        return static::whereDate('tanggal', '<', $date)->orderByDesc('tanggal')->first();
+        return static::whereDate('tanggal', '<', $date)
+            ->orderByDesc('tanggal')
+            ->first();
     }
 
-    /** Pencatatan pertama setelah tanggal tertentu. */
+    /** Pencatatan berikutnya setelah tanggal tertentu. */
     public static function nextOf($date): ?self
     {
-        return static::whereDate('tanggal', '>', $date)->orderBy('tanggal')->first();
+        return static::whereDate('tanggal', '>', $date)
+            ->orderBy('tanggal')
+            ->first();
+    }
+
+    /** Pencatatan terakhir dengan data listrik sebelum tanggal tertentu. */
+    public static function previousElectricOf($date): ?self
+    {
+        return static::whereDate('tanggal', '<', $date)
+            ->whereNotNull('stand_lwbp')
+            ->whereNotNull('stand_wbp')
+            ->orderByDesc('tanggal')
+            ->first();
+    }
+
+    /** Pencatatan terakhir dengan data air sebelum tanggal tertentu. */
+    public static function previousWaterOf($date): ?self
+    {
+        return static::whereDate('tanggal', '<', $date)
+            ->whereNotNull('stand_air')
+            ->orderByDesc('tanggal')
+            ->first();
     }
 
     /**
@@ -55,13 +78,40 @@ class MeterReading extends Model
             ->whereBetween('tanggal', [$start, $end])
             ->orderBy('tanggal')->get();
 
-        $prev = static::previousOf($start);
+        $prevElec = static::previousElectricOf($start);
+        $prevWater = static::previousWaterOf($start);
+
         foreach ($rows as $row) {
-            $row->pakai_lwbp = $prev ? round($row->stand_lwbp - $prev->stand_lwbp, 2) : null;
-            $row->pakai_wbp  = $prev ? round($row->stand_wbp - $prev->stand_wbp, 2) : null;
-            $row->pakai_kwh  = $prev ? round($row->pakai_lwbp + $row->pakai_wbp, 2) : null;
-            $row->pakai_air  = $prev ? round($row->stand_air - $prev->stand_air, 2) : null;
-            $prev = $row;
+            if ($row->stand_lwbp !== null && $prevElec && $prevElec->stand_lwbp !== null) {
+                $row->pakai_lwbp = round($row->stand_lwbp - $prevElec->stand_lwbp, 2);
+            } else {
+                $row->pakai_lwbp = null;
+            }
+
+            if ($row->stand_wbp !== null && $prevElec && $prevElec->stand_wbp !== null) {
+                $row->pakai_wbp = round($row->stand_wbp - $prevElec->stand_wbp, 2);
+            } else {
+                $row->pakai_wbp = null;
+            }
+
+            if ($row->pakai_lwbp !== null && $row->pakai_wbp !== null) {
+                $row->pakai_kwh = round($row->pakai_lwbp + $row->pakai_wbp, 2);
+            } else {
+                $row->pakai_kwh = null;
+            }
+
+            if ($row->stand_air !== null && $prevWater && $prevWater->stand_air !== null) {
+                $row->pakai_air = round($row->stand_air - $prevWater->stand_air, 2);
+            } else {
+                $row->pakai_air = null;
+            }
+
+            if ($row->stand_lwbp !== null && $row->stand_wbp !== null) {
+                $prevElec = $row;
+            }
+            if ($row->stand_air !== null) {
+                $prevWater = $row;
+            }
         }
 
         return $rows;

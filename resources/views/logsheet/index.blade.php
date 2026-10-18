@@ -14,15 +14,34 @@
 @section('panel')
 
 {{-- Status hari ini --}}
-@if ($today)
+{{-- Status hari ini --}}
+@php
+    $hasElecToday  = $today && $today->foto_kwh;
+    $hasWaterToday = $today && $today->foto_air;
+@endphp
+
+@if ($hasElecToday && $hasWaterToday)
     <div class="status-banner ok">
-        <span><span class="dot"></span>Logsheet hari ini sudah dicatat oleh <b>{{ $today->user->name }}</b> pukul {{ $today->created_at->format('H:i') }}.</span>
-        <a href="{{ route('logsheet.show', $today) }}" class="btn btn-sm">Lihat</a>
+        <span><span class="dot"></span>Logsheet hari ini (Listrik ⚡ &amp; Air 💧) sudah lengkap dicatat oleh <b>{{ $today->user->name }}</b>.</span>
+        <a href="{{ route('logsheet.show', $today) }}" class="btn btn-sm">Lihat Detail</a>
+    </div>
+@elseif ($hasElecToday && !$hasWaterToday)
+    <div class="status-banner warn">
+        <span><span class="dot"></span>Listrik hari ini sudah dicatat. <b>Water Meter Air 💧 belum dicatat.</b></span>
+        <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm btn-primary">+ Input Stand Air Sekarang</a>
+    </div>
+@elseif (!$hasElecToday && $hasWaterToday)
+    <div class="status-banner warn">
+        <span><span class="dot"></span>Air hari ini sudah dicatat. <b>kWh Meter Listrik ⚡ belum dicatat.</b></span>
+        <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm btn-primary">+ Input Stand Listrik Sekarang</a>
     </div>
 @else
     <div class="status-banner warn">
         <span><span class="dot"></span>Logsheet hari ini (<b>{{ now()->translatedFormat('d F Y') }}</b>) belum dicatat.</span>
-        <a href="{{ route('logsheet.create') }}" class="btn btn-primary btn-sm">+ Input Sekarang</a>
+        <div style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;">
+            <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm" style="background:#fbbf24; color:#0f172a; font-weight:600;">+ Input Listrik</a>
+            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:#38bdf8; color:#0f172a; font-weight:600;">+ Input Air</a>
+        </div>
     </div>
 @endif
 

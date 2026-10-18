@@ -53,5 +53,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::delete('/logsheet/{logsheet}', [LogsheetController::class, 'destroy'])->name('logsheet.destroy');
     });
+    // ── Logsheet Input Terpisah (Listrik & Air) & Hub Card Menu ──
+    Route::get('/logsheet/hub', [LogsheetController::class, 'hub'])->name('logsheet.hub');
+    Route::get('/logsheet/input/listrik', [LogsheetController::class, 'createListrik'])->name('logsheet.create.listrik');
+    Route::post('/logsheet/input/listrik', [LogsheetController::class, 'storeListrik'])->name('logsheet.store.listrik');
+    Route::get('/logsheet/input/air', [LogsheetController::class, 'createAir'])->name('logsheet.create.air');
+    Route::post('/logsheet/input/air', [LogsheetController::class, 'storeAir'])->name('logsheet.store.air');
+
     Route::resource('logsheet', LogsheetController::class)->except('destroy');
 });
