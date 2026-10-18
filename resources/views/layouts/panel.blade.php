@@ -110,6 +110,8 @@
                 <span>KPR Beta</span>
                 @if($isTeknisi)
                     <div style="font-size:0.75rem; color:#f59e0b; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Teknisi</div>
+                @elseif($authUser->role === 'admin')
+                    <div style="font-size:0.75rem; color:#a78bfa; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Administrator</div>
                 @elseif($authUser->role === 'eng_admin')
                     <div style="font-size:0.75rem; color:#38bdf8; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Eng Admin</div>
                 @elseif($authUser->role === 'eng_spv')
@@ -137,7 +139,7 @@
             </a>
 
             @if($canManage)
-            <a href="{{ route('logsheet.create') }}" class="nav-item {{ request()->routeIs('logsheet.create') && !request()->routeIs('logsheet.create.listrik') && !request()->routeIs('logsheet.create.air') ? 'nav-item--active' : '' }}" style="opacity:0.8; font-size:0.83rem;">
+            <a href="{{ route('logsheet.create') }}" class="nav-item {{ request()->routeIs('logsheet.create') && !request()->routeIs('logsheet.create.listrik') && !request()->routeIs('logsheet.create.air') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
                 Input Sekaligus (Admin)
             </a>
@@ -146,6 +148,23 @@
             <a href="{{ route('logsheet.index') }}" class="nav-item {{ request()->routeIs('logsheet.index', 'logsheet.show', 'logsheet.edit') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>
                 Riwayat Logsheet
+            </a>
+
+            {{-- Menu Daily Log Book (Pekerjaan Harian Teknisi) --}}
+            <div class="sidebar-section-title" style="padding:14px 12px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">
+                Daily Log Book
+            </div>
+
+            @if($isTeknisi || $canManage)
+            <a href="{{ route('daily-log.create') }}" class="nav-item {{ request()->routeIs('daily-log.create') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#10b981;"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
+                + Input Daily Log
+            </a>
+            @endif
+
+            <a href="{{ route('daily-log.index') }}" class="nav-item {{ request()->routeIs('daily-log.index', 'daily-log.show', 'daily-log.edit') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#38bdf8;"><path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h2.5A2.75 2.75 0 0 1 14 3.75v.443c.572.055 1.14.122 1.706.2 1.298.18 2.294 1.29 2.294 2.607v10.5A2.5 2.5 0 0 1 15.5 20h-11A2.5 2.5 0 0 1 2 17.5V7c0-1.317.996-2.427 2.294-2.607.566-.078 1.134-.145 1.706-.2V3.75ZM8.75 2.5c-.69 0-1.25.56-1.25 1.25v.25h5V3.75c0-.69-.56-1.25-1.25-1.25h-2.5ZM14.28 9.03a.75.75 0 0 0-1.06-1.06l-4.5 4.5-1.97-1.97a.75.75 0 1 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l5.03-5.03Z" clip-rule="evenodd"/></svg>
+                Riwayat Daily Log
             </a>
 
             <!-- Tombol install PWA di sidebar desktop -->
@@ -278,6 +297,18 @@
                 </svg>
             </div>
             <span>Logsheet</span>
+        </a>
+
+        {{-- 2. TAB DAILY LOG BOOK (Pekerjaan Harian) --}}
+        <a href="{{ route('daily-log.index') }}" class="mobile-nav-link {{ request()->routeIs('daily-log.*') ? 'mobile-nav-link--active' : '' }}">
+            <div class="mobile-nav-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    <path d="M9 12l2 2 4-4"></path>
+                </svg>
+            </div>
+            <span>Daily Log</span>
         </a>
 
         {{-- 2. TAB RIWAYAT --}}

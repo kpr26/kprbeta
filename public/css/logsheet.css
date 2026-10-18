@@ -85,13 +85,29 @@
 /* ── Filter ── */
 .filter-form { display: flex; gap: 10px; align-items: center; }
 .input, .filter-form input[type=month] {
-  background: rgba(255,255,255,.04); color: var(--text-primary);
+  background: #0f172a; color: var(--text-primary);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   padding: 10px 14px; font: 500 .9rem 'Inter', sans-serif; color-scheme: dark;
   transition: var(--transition); width: 100%;
 }
 .filter-form input[type=month] { width: auto; }
 .input:focus, .filter-form input:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+
+/* Select & Dropdown Options High-Contrast Dark Styling (Mencegah teks putih di atas latar putih) */
+select.input, select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  color-scheme: dark !important;
+}
+select.input option, select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 8px 12px;
+}
+select.input option:checked, select option:checked {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
 
 /* ── Table ── */
 .table-wrap { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
@@ -377,6 +393,11 @@ table.log-table { width: 100%; border-collapse: collapse; font-size: .84rem; whi
 .logsheet-choice-card--water:hover {
   box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.35);
   border-color: rgba(6, 182, 212, 0.5);
+}
+
+.logsheet-choice-card--dailylog:hover {
+  box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.35);
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
 .choice-card-head {

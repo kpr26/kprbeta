@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DailyLogBookController;
 use App\Http\Controllers\LogsheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PwaController;
@@ -130,4 +131,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/logsheet/input/air', [LogsheetController::class, 'storeAir'])->name('logsheet.store.air');
 
     Route::resource('logsheet', LogsheetController::class)->except('destroy');
+
+    // ── Daily Log Book (Pekerjaan Harian Teknisi) ──
+    Route::get('/daily-log', [DailyLogBookController::class, 'index'])->name('daily-log.index');
+    Route::get('/daily-log/create', [DailyLogBookController::class, 'create'])->name('daily-log.create');
+    Route::post('/daily-log', [DailyLogBookController::class, 'store'])->name('daily-log.store');
+    Route::get('/daily-log/{dailyLogBook}', [DailyLogBookController::class, 'show'])->name('daily-log.show');
+    Route::get('/daily-log/{dailyLogBook}/edit', [DailyLogBookController::class, 'edit'])->name('daily-log.edit');
+    Route::put('/daily-log/{dailyLogBook}', [DailyLogBookController::class, 'update'])->name('daily-log.update');
+    Route::delete('/daily-log/{dailyLogBook}', [DailyLogBookController::class, 'destroy'])->name('daily-log.destroy');
 });

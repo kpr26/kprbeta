@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DailyLogBook;
 use App\Models\MeterReading;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,6 +35,13 @@ class DashboardController extends Controller
             'air'    => $rows->pluck('pakai_air')->values(),
         ];
 
-        return view('dashboard', compact('user', 'today', 'summary', 'chart'));
+        $todayLogs = DailyLogBook::with('user')->whereDate('tanggal', today())->latest()->take(4)->get();
+        $dailyLogStats = [
+            'today_total'    => DailyLogBook::whereDate('tanggal', today())->count(),
+            'today_done'     => DailyLogBook::whereDate('tanggal', today())->where('status', 'Done')->count(),
+            'today_continue' => DailyLogBook::whereDate('tanggal', today())->where('status', 'Continue')->count(),
+        ];
+
+        return view('dashboard', compact('user', 'today', 'summary', 'chart', 'todayLogs', 'dailyLogStats'));
     }
 }

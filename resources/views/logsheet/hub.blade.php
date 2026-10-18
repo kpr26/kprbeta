@@ -141,6 +141,54 @@
             @endif
         </div>
 
+        {{-- 3. KARTU PILIHAN DAILY LOG BOOK (Pekerjaan Harian Teknisi) --}}
+        <div class="logsheet-choice-card logsheet-choice-card--dailylog" style="display:flex;flex-direction:column;justify-content:space-between;border-radius:18px;padding:24px;background:rgba(15,23,42,0.65);border:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(16px);position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg, #10b981, #06b6d4);"></div>
+            <div>
+                <div class="choice-card-head" style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+                    <div class="choice-icon-wrap" style="width:48px;height:48px;min-width:48px;min-height:48px;max-width:48px;max-height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(16,185,129,0.12);color:#34d399;flex-shrink:0;border:1px solid rgba(16,185,129,0.3);">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;display:block;">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            <path d="M9 12l2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="choice-title" style="margin:0;font-size:1.15rem;font-weight:700;color:var(--text-primary,#f8fafc);">Daily Log Book</h3>
+                        <span class="choice-subtitle" style="display:block;font-size:0.8rem;color:#34d399;margin-top:2px;">Pekerjaan Harian &amp; Bukti Foto</span>
+                    </div>
+                </div>
+
+                <p class="choice-desc">
+                    Catat jam start &amp; selesai, hari/tanggal, lokasi, deskripsi tugas, status (Done/Continue), dan lampirkan minimal 3 foto ber-watermark otomatis.
+                </p>
+
+                <div class="choice-status-box">
+                    <div class="badge badge-ok" style="font-size:0.8rem; padding:6px 12px; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
+                        Fitur Aktif · Watermark Otomatis
+                    </div>
+                    <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:8px;">
+                        Foto awal, proses, dan akhir dilengkapi tanggal, jam, dan lokasi.
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ route('daily-log.create') }}" class="choice-btn-cta" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+                    <span>+ Input Daily Log Baru</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18" style="width:18px;height:18px;flex-shrink:0;">
+                        <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+                <a href="{{ route('daily-log.index') }}" class="choice-btn-cta" style="background:rgba(255,255,255,0.05); color:var(--text-secondary); border:1px solid var(--border); font-size:0.85rem; padding:10px 16px;">
+                    <span>Lihat Riwayat Daily Log Book</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="width:16px;height:16px;flex-shrink:0;">
+                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 @endsection

@@ -69,6 +69,55 @@
         <div class="chart-box"><canvas id="chartAir"></canvas></div>
     </section>
 </div>
+
+<section class="panel" style="margin-top:24px;">
+    <div class="panel-head">
+        <div>
+            <h2><span style="color:#10b981;">📋</span> Pekerjaan Harian Teknisi (Daily Log Book)</h2>
+            <p>Pekerjaan hari ini: <b style="color:#34d399;">{{ $dailyLogStats['today_done'] }} Done</b> &middot; <b style="color:#fbbf24;">{{ $dailyLogStats['today_continue'] }} Continue</b> (Total: {{ $dailyLogStats['today_total'] }} pekerjaan)</p>
+        </div>
+        <div class="btn-group">
+            <a href="{{ route('daily-log.index') }}" class="btn btn-sm">
+                Lihat Semua Daily Log →
+            </a>
+            <a href="{{ route('daily-log.create') }}" class="btn btn-sm btn-primary" style="background:linear-gradient(135deg, #10b981, #059669);">
+                + Input Daily Log
+            </a>
+        </div>
+    </div>
+
+    @if ($todayLogs->count() > 0)
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+            @foreach ($todayLogs as $l)
+                <div style="background:rgba(15,23,42,0.65); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                    <div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                            <span style="font-size:0.84rem; color:#38bdf8; font-weight:600;">📍 {{ $l->lokasi }}</span>
+                            <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $l->status === 'Done' ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(245,158,11,0.15); color:#fbbf24;' }}">
+                                {{ $l->status }}
+                            </span>
+                        </div>
+                        <p style="font-size:0.85rem; color:#e2e8f0; margin-top:8px; line-height:1.45; max-height:44px; overflow:hidden;">
+                            {{ $l->deskripsi }}
+                        </p>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; font-size:0.78rem; color:#cbd5e1;">
+                        <span>👤 <b>{{ $l->user->name }}</b> &middot; {{ $l->jam_mulai }} WIB</span>
+                        <a href="{{ route('daily-log.show', $l) }}" style="color:var(--accent-light); text-decoration:none; font-weight:600;">Detail →</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <div style="text-align:center; padding:28px 16px; color:var(--text-muted); font-size:0.85rem;">
+            Belum ada catatan pekerjaan teknisi yang diinput hari ini.
+            <div style="margin-top:10px;">
+                <a href="{{ route('daily-log.index') }}" class="btn btn-sm" style="display:inline-flex;">Lihat Rekap Log Book</a>
+            </div>
+        </div>
+    @endif
+</section>
 @endsection
 
 @push('scripts')
