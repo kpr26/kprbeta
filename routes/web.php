@@ -19,6 +19,24 @@ Route::get('/icons/icon-{size}.png', [PwaController::class, 'icon'])->where('siz
 Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw');
 Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
 
+// ── Storage Asset Delivery (Shared Hosting tanpa Symlink) ──
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (! file_exists($filePath)) {
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="#0f172a" rx="12"/><circle cx="70" cy="70" r="16" fill="#334155"/><path d="M40 150h120l-37.5-50-25 33.3-17.5-23.3L40 150z" fill="#475569"/><text x="100" y="175" fill="#94a3b8" font-size="11" font-family="sans-serif" text-anchor="middle">Foto Tidak Ditemukan</text></svg>';
+        return response($svg, 200, [
+            'Content-Type'  => 'image/svg+xml',
+            'Cache-Control' => 'no-cache',
+        ]);
+    }
+
+    $mime = mime_content_type($filePath) ?: 'image/jpeg';
+    return response()->file($filePath, [
+        'Content-Type'  => $mime,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('storage.fallback');
+
 // Root route: tampilkan form login jika guest (200 OK untuk PWA & crawler), atau redirect ke dashboard jika sudah login
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('home');
 
@@ -50,6 +68,17 @@ Route::middleware('auth')->group(function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         return redirect()->route('dashboard')->with('success', 'Migrasi database berhasil dijalankan: ' . ($output ?: 'Database sudah versi terbaru.'));
     })->name('admin.migrate');
+
+    Route::middleware('role:admin')->get('/admin/storage-link', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return redirect()->route('dashboard')->with('success', 'Storage link berhasil: ' . ($output ?: 'storage:link selesai.'));
+        } catch (\Throwable $e) {
+            return redirect()->route('dashboard')->with('error', 'Gagal membuat storage link: ' . $e->getMessage());
+        }
+    })->name('admin.storage.link');
+
 
     // ── Logsheet Listrik & Air ──
     Route::middleware('role:admin,eng_admin,eng_spv')->group(function () {

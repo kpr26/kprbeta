@@ -125,8 +125,15 @@
                     <td class="use use-water">{{ $n($r->pakai_air) }}</td>
                     <td class="c">
                         <span class="thumbs">
-                            <img src="{{ asset('storage/'.$r->foto_kwh) }}" alt="kWh" data-lightbox="{{ asset('storage/'.$r->foto_kwh) }}" data-caption="kWh meter — {{ $r->tanggal->format('d/m/Y') }}">
-                            <img src="{{ asset('storage/'.$r->foto_air) }}" alt="Air" data-lightbox="{{ asset('storage/'.$r->foto_air) }}" data-caption="Water meter — {{ $r->tanggal->format('d/m/Y') }}">
+                            @if ($r->foto_kwh)
+                                <img src="{{ asset('storage/'.$r->foto_kwh) }}" alt="kWh" data-lightbox="{{ asset('storage/'.$r->foto_kwh) }}" data-caption="kWh meter — {{ $r->tanggal->format('d/m/Y') }}">
+                            @endif
+                            @if ($r->foto_air)
+                                <img src="{{ asset('storage/'.$r->foto_air) }}" alt="Air" data-lightbox="{{ asset('storage/'.$r->foto_air) }}" data-caption="Water meter — {{ $r->tanggal->format('d/m/Y') }}">
+                            @endif
+                            @if (! $r->foto_kwh && ! $r->foto_air)
+                                <span style="color:var(--text-muted);font-size:0.75rem;">—</span>
+                            @endif
                         </span>
                     </td>
                     <td class="l">{{ $r->user->name }}</td>
@@ -218,8 +225,15 @@
 
                 <div class="mlc-footer">
                     <div class="thumbs">
-                        <img src="{{ asset('storage/'.$r->foto_kwh) }}" alt="kWh" data-lightbox="{{ asset('storage/'.$r->foto_kwh) }}" data-caption="kWh meter — {{ $r->tanggal->format('d/m/Y') }}">
-                        <img src="{{ asset('storage/'.$r->foto_air) }}" alt="Air" data-lightbox="{{ asset('storage/'.$r->foto_air) }}" data-caption="Water meter — {{ $r->tanggal->format('d/m/Y') }}">
+                        @if ($r->foto_kwh)
+                            <img src="{{ asset('storage/'.$r->foto_kwh) }}" alt="kWh" data-lightbox="{{ asset('storage/'.$r->foto_kwh) }}" data-caption="kWh meter — {{ $r->tanggal->format('d/m/Y') }}">
+                        @endif
+                        @if ($r->foto_air)
+                            <img src="{{ asset('storage/'.$r->foto_air) }}" alt="Air" data-lightbox="{{ asset('storage/'.$r->foto_air) }}" data-caption="Water meter — {{ $r->tanggal->format('d/m/Y') }}">
+                        @endif
+                        @if (! $r->foto_kwh && ! $r->foto_air)
+                            <span style="color:var(--text-muted);font-size:0.78rem;">Tanpa lampiran</span>
+                        @endif
                     </div>
                     <div class="btn-group">
                         <a href="{{ route('logsheet.show', $r) }}" class="btn btn-sm">Lihat Detail</a>
