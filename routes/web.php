@@ -81,9 +81,18 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->get('/admin/migrate-db', function () {
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        return redirect()->route('dashboard')->with('success', 'Migrasi database berhasil dijalankan: ' . ($output ?: 'Database sudah versi terbaru.'));
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        return redirect()->route('dashboard')->with('success', 'Migrasi database & clear cache berhasil: ' . ($output ?: 'Database sudah versi terbaru.'));
     })->name('admin.migrate');
+
+    Route::middleware('role:admin')->get('/admin/clear-cache', function () {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        return redirect()->route('dashboard')->with('success', 'Seluruh cache aplikasi (view, route, config) berhasil dibersihkan!');
+    })->name('admin.clear.cache');
 
     Route::middleware('role:admin')->get('/admin/storage-link', function () {
         $target = storage_path('app/public');
