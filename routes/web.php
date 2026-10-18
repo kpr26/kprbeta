@@ -70,13 +70,31 @@ Route::middleware('auth')->group(function () {
     })->name('admin.migrate');
 
     Route::middleware('role:admin')->get('/admin/storage-link', function () {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('storage:link');
-            $output = \Illuminate\Support\Facades\Artisan::output();
-            return redirect()->route('dashboard')->with('success', 'Storage link berhasil: ' . ($output ?: 'storage:link selesai.'));
-        } catch (\Throwable $e) {
-            return redirect()->route('dashboard')->with('error', 'Gagal membuat storage link: ' . $e->getMessage());
+        $target = storage_path('app/public');
+        $link = public_path('storage');
+
+        if (! is_dir($target)) {
+            @mkdir($target, 0755, true);
         }
+
+        // Cek jika symlink atau folder storage sudah ada
+        if (is_link($link) || (file_exists($link) && is_dir($link))) {
+            return redirect()->route('dashboard')->with('success', 'Storage link sudah aktif di server.');
+        }
+
+        // Coba buat symlink secara aman jika fungsi symlink diizinkan hosting
+        if (function_exists('symlink')) {
+            try {
+                if (@symlink($target, $link)) {
+                    return redirect()->route('dashboard')->with('success', 'Storage link berhasil dibuat via symlink.');
+                }
+            } catch (\Throwable $e) {
+                // Lanjut ke fallback route
+            }
+        }
+
+        // Jika fungsi symlink & exec dimatikan oleh hosting, route storage fallback otomatis melayani file
+        return redirect()->route('dashboard')->with('success', 'Storage aktif! Foto lampiran dilayani secara otomatis melalui storage route delivery.');
     })->name('admin.storage.link');
 
 
