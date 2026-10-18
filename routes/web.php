@@ -19,10 +19,9 @@ Route::get('/icons/icon-{size}.png', [PwaController::class, 'icon'])->where('siz
 Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw');
 Route::get('/offline', [PwaController::class, 'offline'])->name('pwa.offline');
 
-// Redirect root ke login
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Root route: tampilkan form login jika guest (200 OK untuk PWA & crawler), atau redirect ke dashboard jika sudah login
+Route::get('/', [LoginController::class, 'showLoginForm'])->name('home');
+
 
 // ── Auth Routes ──────────────────────────────────────
 Route::middleware('guest')->group(function () {

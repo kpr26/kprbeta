@@ -3,7 +3,7 @@
   "name": "KPR Beta — Logsheet Teknisi",
   "short_name": "Logsheet",
   "description": "Aplikasi Input Logsheet Harian Listrik & Air KPR Beta untuk Teknisi",
-  "start_url": "/logsheet/create",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

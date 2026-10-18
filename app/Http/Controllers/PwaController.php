@@ -16,7 +16,7 @@ class PwaController extends Controller
             'name'             => 'KPR Beta — Logsheet Teknisi',
             'short_name'       => 'Logsheet',
             'description'      => 'Aplikasi Input Logsheet Harian Listrik & Air KPR Beta untuk Teknisi',
-            'start_url'        => '/logsheet/create',
+            'start_url'        => '/?source=pwa',
             'scope'            => '/',
             'display'          => 'standalone',
             'orientation'      => 'portrait',
@@ -85,7 +85,9 @@ class PwaController extends Controller
         ];
 
         return response()->json($manifest, 200, [
-            'Content-Type' => 'application/manifest+json; charset=utf-8',
+            'Content-Type'                => 'application/manifest+json; charset=utf-8',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods'=> 'GET, OPTIONS',
         ]);
     }
 
@@ -172,9 +174,11 @@ class PwaController extends Controller
         $swPath = public_path('sw.js');
         if (file_exists($swPath)) {
             return response(file_get_contents($swPath), 200, [
-                'Content-Type'           => 'application/javascript; charset=utf-8',
-                'Service-Worker-Allowed' => '/',
-                'Cache-Control'          => 'no-cache, no-store, must-revalidate',
+                'Content-Type'                => 'application/javascript; charset=utf-8',
+                'Service-Worker-Allowed'      => '/',
+                'Cache-Control'               => 'no-cache, no-store, must-revalidate',
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Allow-Methods'=> 'GET, OPTIONS',
             ]);
         }
 
