@@ -119,7 +119,14 @@
     </div>
 
     <div class="form-foot">
-        <a href="{{ route('logsheet.hub') }}" class="btn">Batal</a>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <a href="{{ route('logsheet.hub') }}" class="btn">Batal</a>
+            @if(auth()->user()->role === 'teknisi')
+                <span style="font-size:0.78rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:5px;">
+                    <span style="color:#fbbf24;">⚡</span> Otomatis tersimpan ke HP jika tanpa sinyal
+                </span>
+            @endif
+        </div>
         <button type="submit" class="btn btn-primary" id="btn-simpan-air">
             <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
             Simpan Stand Air

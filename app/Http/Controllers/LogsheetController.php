@@ -68,19 +68,38 @@ class LogsheetController extends Controller
     public function storeListrik(Request $request)
     {
         $canManage = in_array(Auth::user()->role, ['admin', 'eng_admin', 'eng_spv'], true);
-        $todayRecord = MeterReading::whereDate('tanggal', today())->first();
+
+        // Dukungan tanggal pencatatan offline (maksimal 3 hari ke belakang s/d hari ini)
+        $recordDate = today()->toDateString();
+        if ($request->filled('tanggal_pencatatan')) {
+            try {
+                $parsedDate = \Carbon\Carbon::parse($request->input('tanggal_pencatatan'))->toDateString();
+                if ($parsedDate >= today()->subDays(3)->toDateString() && $parsedDate <= today()->toDateString()) {
+                    $recordDate = $parsedDate;
+                }
+            } catch (\Exception $e) {
+                // Gunakan hari ini jika parsing gagal
+            }
+        }
+
+        $todayRecord = MeterReading::whereDate('tanggal', $recordDate)->first();
         $isExisting = $todayRecord && $todayRecord->foto_kwh;
 
         // Teknisi dilarang memperbarui / menimpa logsheet listrik yang sudah diinput
         if (Auth::user()->role === 'teknisi' && $isExisting) {
-            abort(403, 'Role Teknisi tidak memiliki hak akses untuk merubah atau mengedit data logsheet yang sudah diinput.');
+            $msg = 'Role Teknisi tidak memiliki hak akses untuk merubah atau mengedit data logsheet yang sudah diinput.';
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            abort(403, $msg);
         }
 
         $data = $request->validate([
-            'stand_lwbp' => 'required|numeric|min:0',
-            'stand_wbp'  => 'required|numeric|min:0',
-            'foto_kwh'   => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'catatan'    => 'nullable|string|max:1000',
+            'stand_lwbp'         => 'required|numeric|min:0',
+            'stand_wbp'          => 'required|numeric|min:0',
+            'foto_kwh'           => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'catatan'            => 'nullable|string|max:1000',
+            'tanggal_pencatatan' => 'nullable|date',
         ], [
             'stand_lwbp.required' => 'Stand kWh LWBP wajib diisi.',
             'stand_wbp.required'  => 'Stand kWh WBP wajib diisi.',
@@ -90,21 +109,33 @@ class LogsheetController extends Controller
         ]);
 
         // Cek stand tidak boleh lebih kecil dari stand listrik sebelumnya
-        $prev = MeterReading::previousElectricOf(today()->toDateString());
+        $prev = MeterReading::previousElectricOf($recordDate);
         if ($prev) {
             if ($data['stand_lwbp'] < $prev->stand_lwbp) {
-                return back()->withInput()->withErrors([
-                    'stand_lwbp' => 'Stand LWBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_lwbp, 2, ',', '.') . ').'
-                ]);
+                $msg = 'Stand LWBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_lwbp, 2, ',', '.') . ').';
+                if ($request->expectsJson() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $msg,
+                        'errors'  => ['stand_lwbp' => [$msg]]
+                    ], 422);
+                }
+                return back()->withInput()->withErrors(['stand_lwbp' => $msg]);
             }
             if ($data['stand_wbp'] < $prev->stand_wbp) {
-                return back()->withInput()->withErrors([
-                    'stand_wbp' => 'Stand WBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_wbp, 2, ',', '.') . ').'
-                ]);
+                $msg = 'Stand WBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_wbp, 2, ',', '.') . ').';
+                if ($request->expectsJson() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $msg,
+                        'errors'  => ['stand_wbp' => [$msg]]
+                    ], 422);
+                }
+                return back()->withInput()->withErrors(['stand_wbp' => $msg]);
             }
         }
 
-        $record = MeterReading::firstOrNew(['tanggal' => today()->toDateString()]);
+        $record = MeterReading::firstOrNew(['tanggal' => $recordDate]);
         $record->user_id = Auth::id();
         $record->stand_lwbp = $data['stand_lwbp'];
         $record->stand_wbp = $data['stand_wbp'];
@@ -114,7 +145,7 @@ class LogsheetController extends Controller
             }
             $record->foto_kwh = $request->file('foto_kwh')->store('logsheet', 'public');
         }
-        if ($data['catatan']) {
+        if (!empty($data['catatan'])) {
             $record->catatan = $record->catatan 
                 ? $record->catatan . ' | [Listrik]: ' . $data['catatan'] 
                 : $data['catatan'];
@@ -122,7 +153,19 @@ class LogsheetController extends Controller
         $record->save();
 
         $targetRoute = Auth::user()->role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
-        return redirect($targetRoute)->with('success', 'Logsheet Listrik tanggal ' . today()->translatedFormat('d M Y') . ' berhasil disimpan.');
+        $successMsg = 'Logsheet Listrik tanggal ' . \Carbon\Carbon::parse($recordDate)->translatedFormat('d M Y') . ' berhasil disimpan.';
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMsg,
+                'target'  => $targetRoute,
+                'id'      => $record->id,
+                'type'    => 'listrik'
+            ]);
+        }
+
+        return redirect($targetRoute)->with('success', $successMsg);
     }
 
     /** Halaman Input Khusus Air (Water Meter) */
@@ -147,18 +190,37 @@ class LogsheetController extends Controller
     public function storeAir(Request $request)
     {
         $canManage = in_array(Auth::user()->role, ['admin', 'eng_admin', 'eng_spv'], true);
-        $todayRecord = MeterReading::whereDate('tanggal', today())->first();
+
+        // Dukungan tanggal pencatatan offline (maksimal 3 hari ke belakang s/d hari ini)
+        $recordDate = today()->toDateString();
+        if ($request->filled('tanggal_pencatatan')) {
+            try {
+                $parsedDate = \Carbon\Carbon::parse($request->input('tanggal_pencatatan'))->toDateString();
+                if ($parsedDate >= today()->subDays(3)->toDateString() && $parsedDate <= today()->toDateString()) {
+                    $recordDate = $parsedDate;
+                }
+            } catch (\Exception $e) {
+                // Gunakan hari ini jika parsing gagal
+            }
+        }
+
+        $todayRecord = MeterReading::whereDate('tanggal', $recordDate)->first();
         $isExisting = $todayRecord && $todayRecord->foto_air;
 
         // Teknisi dilarang memperbarui / menimpa logsheet air yang sudah diinput
         if (Auth::user()->role === 'teknisi' && $isExisting) {
-            abort(403, 'Role Teknisi tidak memiliki hak akses untuk merubah atau mengedit data logsheet yang sudah diinput.');
+            $msg = 'Role Teknisi tidak memiliki hak akses untuk merubah atau mengedit data logsheet yang sudah diinput.';
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            abort(403, $msg);
         }
 
         $data = $request->validate([
-            'stand_air' => 'required|numeric|min:0',
-            'foto_air'  => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'catatan'   => 'nullable|string|max:1000',
+            'stand_air'          => 'required|numeric|min:0',
+            'foto_air'           => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'catatan'            => 'nullable|string|max:1000',
+            'tanggal_pencatatan' => 'nullable|date',
         ], [
             'stand_air.required' => 'Stand Water Meter wajib diisi.',
             'foto_air.required'  => 'Foto water meter wajib diunggah sebagai bukti.',
@@ -167,14 +229,20 @@ class LogsheetController extends Controller
         ]);
 
         // Cek stand tidak boleh lebih kecil dari stand air sebelumnya
-        $prev = MeterReading::previousWaterOf(today()->toDateString());
+        $prev = MeterReading::previousWaterOf($recordDate);
         if ($prev && $data['stand_air'] < $prev->stand_air) {
-            return back()->withInput()->withErrors([
-                'stand_air' => 'Stand Air tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_air, 2, ',', '.') . ').'
-            ]);
+            $msg = 'Stand Air tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_air, 2, ',', '.') . ').';
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                    'errors'  => ['stand_air' => [$msg]]
+                ], 422);
+            }
+            return back()->withInput()->withErrors(['stand_air' => $msg]);
         }
 
-        $record = MeterReading::firstOrNew(['tanggal' => today()->toDateString()]);
+        $record = MeterReading::firstOrNew(['tanggal' => $recordDate]);
         $record->user_id = Auth::id();
         $record->stand_air = $data['stand_air'];
         if ($request->hasFile('foto_air')) {
@@ -183,7 +251,7 @@ class LogsheetController extends Controller
             }
             $record->foto_air = $request->file('foto_air')->store('logsheet', 'public');
         }
-        if ($data['catatan']) {
+        if (!empty($data['catatan'])) {
             $record->catatan = $record->catatan 
                 ? $record->catatan . ' | [Air]: ' . $data['catatan'] 
                 : $data['catatan'];
@@ -191,7 +259,19 @@ class LogsheetController extends Controller
         $record->save();
 
         $targetRoute = Auth::user()->role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
-        return redirect($targetRoute)->with('success', 'Logsheet Air tanggal ' . today()->translatedFormat('d M Y') . ' berhasil disimpan.');
+        $successMsg = 'Logsheet Air tanggal ' . \Carbon\Carbon::parse($recordDate)->translatedFormat('d M Y') . ' berhasil disimpan.';
+
+        if ($request->expectsJson() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMsg,
+                'target'  => $targetRoute,
+                'id'      => $record->id,
+                'type'    => 'air'
+            ]);
+        }
+
+        return redirect($targetRoute)->with('success', $successMsg);
     }
 
     /** Halaman Input Manual Khusus Listrik (Super Admin - Tanggal Terlewat) */

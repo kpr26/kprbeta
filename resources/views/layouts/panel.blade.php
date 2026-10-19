@@ -305,6 +305,11 @@
             </div>
         @endif
 
+        {{-- Container Banner Offline & Auto-Sync Khusus Role Teknisi --}}
+        @if($isTeknisi)
+            <div id="offline-sync-banner-container"></div>
+        @endif
+
         @yield('panel')
     </main>
 
@@ -461,4 +466,8 @@
         }
     });
 </script>
+
+@if($isTeknisi)
+    <script src="{{ asset('js/offline-logsheet.js') }}?v={{ file_exists(public_path('js/offline-logsheet.js')) ? filemtime(public_path('js/offline-logsheet.js')) : time() }}"></script>
+@endif
 @endpush

@@ -25,6 +25,20 @@
         </div>
     </div>
 
+    @if(auth()->user()->role === 'teknisi')
+        <div class="offline-feature-banner" style="background:rgba(200,170,110,0.08); border:1px dashed rgba(200,170,110,0.3); border-radius:12px; padding:10px 16px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-size:0.84rem; color:var(--text-secondary);">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(200,170,110,0.15); color:var(--accent-light); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div>
+                <strong style="color:var(--accent-light);">Fitur Offline Aktif:</strong>
+                Aplikasi mendukung input stand &amp; foto di basement/ruang tanpa sinyal. Data otomatis disinkronkan ke server saat HP Anda terhubung kembali ke jaringan.
+            </div>
+        </div>
+    @endif
+
     <div class="logsheet-choice-grid">
         {{-- 1. KARTU PILIHAN LOGSHEET LISTRIK --}}
         <div class="logsheet-choice-card logsheet-choice-card--elec">
