@@ -194,6 +194,264 @@ class LogsheetController extends Controller
         return redirect($targetRoute)->with('success', 'Logsheet Air tanggal ' . today()->translatedFormat('d M Y') . ' berhasil disimpan.');
     }
 
+    /** Halaman Input Manual Khusus Listrik (Super Admin - Tanggal Terlewat) */
+    public function createManualListrik(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $tanggal = $request->input('tanggal', now()->subDay()->format('Y-m-d'));
+        if (strtotime($tanggal) > strtotime(today()->toDateString())) {
+            $tanggal = today()->toDateString();
+        }
+
+        $reading = MeterReading::whereDate('tanggal', $tanggal)->first() ?? new MeterReading(['tanggal' => $tanggal]);
+        $prev = MeterReading::previousElectricOf($tanggal);
+        $next = MeterReading::nextElectricOf($tanggal);
+
+        return view('logsheet.manual-listrik', compact('reading', 'tanggal', 'prev', 'next'));
+    }
+
+    /** Simpan Input Manual Khusus Listrik (Super Admin - Tanggal Terlewat) */
+    public function storeManualListrik(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $data = $request->validate([
+            'tanggal'    => 'required|date|before_or_equal:today',
+            'stand_lwbp' => 'required|numeric|min:0',
+            'stand_wbp'  => 'required|numeric|min:0',
+            'foto_kwh'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'catatan'    => 'nullable|string|max:1000',
+        ], [
+            'tanggal.required'        => 'Tanggal pencatatan wajib dipilih.',
+            'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
+            'stand_lwbp.required'     => 'Stand kWh LWBP wajib diisi.',
+            'stand_wbp.required'      => 'Stand kWh WBP wajib diisi.',
+            'foto_kwh.image'          => 'File bukti harus berupa gambar (jpg, png, webp).',
+            'foto_kwh.max'            => 'Ukuran foto maksimal 5 MB.',
+        ]);
+
+        $prev = MeterReading::previousElectricOf($data['tanggal']);
+        $next = MeterReading::nextElectricOf($data['tanggal']);
+
+        $errors = [];
+        if ($prev) {
+            $prevDate = $prev->tanggal->translatedFormat('d/m/Y');
+            if ($data['stand_lwbp'] < $prev->stand_lwbp) {
+                $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_lwbp, 2, ',', '.') . " kWh).";
+            }
+            if ($data['stand_wbp'] < $prev->stand_wbp) {
+                $errors['stand_wbp'] = "Stand WBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_wbp, 2, ',', '.') . " kWh).";
+            }
+        }
+        if ($next) {
+            $nextDate = $next->tanggal->translatedFormat('d/m/Y');
+            if ($data['stand_lwbp'] > $next->stand_lwbp) {
+                $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_lwbp, 2, ',', '.') . " kWh).";
+            }
+            if ($data['stand_wbp'] > $next->stand_wbp) {
+                $errors['stand_wbp'] = "Stand WBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_wbp, 2, ',', '.') . " kWh).";
+            }
+        }
+
+        if (!empty($errors)) {
+            return back()->withInput()->withErrors($errors);
+        }
+
+        $record = MeterReading::whereDate('tanggal', $data['tanggal'])->first() ?? new MeterReading(['tanggal' => $data['tanggal']]);
+        if (! $record->exists) {
+            $record->user_id = Auth::id();
+        }
+        $record->stand_lwbp = $data['stand_lwbp'];
+        $record->stand_wbp  = $data['stand_wbp'];
+
+        if ($request->hasFile('foto_kwh')) {
+            if ($record->foto_kwh) {
+                Storage::disk('public')->delete($record->foto_kwh);
+            }
+            $record->foto_kwh = $request->file('foto_kwh')->store('logsheet', 'public');
+        }
+
+        if (!empty($data['catatan'])) {
+            $record->catatan = $record->catatan 
+                ? $record->catatan . ' | [Manual Listrik]: ' . $data['catatan'] 
+                : $data['catatan'];
+        }
+
+        $record->verified_at = null;
+        $record->verified_by = null;
+        $record->save();
+
+        $periode = date('Y-m', strtotime($data['tanggal']));
+        $formattedDate = \Carbon\Carbon::parse($data['tanggal'])->translatedFormat('d F Y');
+        return redirect()->route('logsheet.index', ['periode' => $periode])
+            ->with('success', "Logsheet Listrik manual tanggal {$formattedDate} berhasil disimpan.");
+    }
+
+    /** Halaman Input Manual Khusus Air (Super Admin - Tanggal Terlewat) */
+    public function createManualAir(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $tanggal = $request->input('tanggal', now()->subDay()->format('Y-m-d'));
+        if (strtotime($tanggal) > strtotime(today()->toDateString())) {
+            $tanggal = today()->toDateString();
+        }
+
+        $reading = MeterReading::whereDate('tanggal', $tanggal)->first() ?? new MeterReading(['tanggal' => $tanggal]);
+        $prev = MeterReading::previousWaterOf($tanggal);
+        $next = MeterReading::nextWaterOf($tanggal);
+
+        return view('logsheet.manual-air', compact('reading', 'tanggal', 'prev', 'next'));
+    }
+
+    /** Simpan Input Manual Khusus Air (Super Admin - Tanggal Terlewat) */
+    public function storeManualAir(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $data = $request->validate([
+            'tanggal'   => 'required|date|before_or_equal:today',
+            'stand_air' => 'required|numeric|min:0',
+            'foto_air'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'catatan'   => 'nullable|string|max:1000',
+        ], [
+            'tanggal.required'        => 'Tanggal pencatatan wajib dipilih.',
+            'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
+            'stand_air.required'      => 'Stand Water Meter (m³) wajib diisi.',
+            'foto_air.image'          => 'File bukti harus berupa gambar (jpg, png, webp).',
+            'foto_air.max'            => 'Ukuran foto maksimal 5 MB.',
+        ]);
+
+        $prev = MeterReading::previousWaterOf($data['tanggal']);
+        $next = MeterReading::nextWaterOf($data['tanggal']);
+
+        $errors = [];
+        if ($prev) {
+            $prevDate = $prev->tanggal->translatedFormat('d/m/Y');
+            if ($data['stand_air'] < $prev->stand_air) {
+                $errors['stand_air'] = "Stand Air tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_air, 2, ',', '.') . " m³).";
+            }
+        }
+        if ($next) {
+            $nextDate = $next->tanggal->translatedFormat('d/m/Y');
+            if ($data['stand_air'] > $next->stand_air) {
+                $errors['stand_air'] = "Stand Air tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_air, 2, ',', '.') . " m³).";
+            }
+        }
+
+        if (!empty($errors)) {
+            return back()->withInput()->withErrors($errors);
+        }
+
+        $record = MeterReading::whereDate('tanggal', $data['tanggal'])->first() ?? new MeterReading(['tanggal' => $data['tanggal']]);
+        if (! $record->exists) {
+            $record->user_id = Auth::id();
+        }
+        $record->stand_air = $data['stand_air'];
+
+        if ($request->hasFile('foto_air')) {
+            if ($record->foto_air) {
+                Storage::disk('public')->delete($record->foto_air);
+            }
+            $record->foto_air = $request->file('foto_air')->store('logsheet', 'public');
+        }
+
+        if (!empty($data['catatan'])) {
+            $record->catatan = $record->catatan 
+                ? $record->catatan . ' | [Manual Air]: ' . $data['catatan'] 
+                : $data['catatan'];
+        }
+
+        $record->verified_at = null;
+        $record->verified_by = null;
+        $record->save();
+
+        $periode = date('Y-m', strtotime($data['tanggal']));
+        $formattedDate = \Carbon\Carbon::parse($data['tanggal'])->translatedFormat('d F Y');
+        return redirect()->route('logsheet.index', ['periode' => $periode])
+            ->with('success', "Logsheet Air manual tanggal {$formattedDate} berhasil disimpan.");
+    }
+
+    /** Referensi Data Acuan Sebelum & Sesudah Tanggal Terpilih (AJAX API) */
+    public function referenceManual(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403);
+
+        $tanggal = $request->input('tanggal', today()->toDateString());
+        $type = $request->input('type', 'listrik');
+
+        $record = MeterReading::with('user')->whereDate('tanggal', $tanggal)->first();
+        $dateCarbon = \Carbon\Carbon::parse($tanggal);
+
+        if ($type === 'air') {
+            $prev = MeterReading::previousWaterOf($tanggal);
+            $next = MeterReading::nextWaterOf($tanggal);
+
+            return response()->json([
+                'tanggal' => $tanggal,
+                'tanggal_formatted' => $dateCarbon->translatedFormat('l, d F Y'),
+                'is_today' => $dateCarbon->isToday(),
+                'exists' => $record && $record->stand_air !== null,
+                'current' => $record ? [
+                    'id' => $record->id,
+                    'stand_air' => $record->stand_air,
+                    'foto_air_url' => $record->foto_air ? asset('storage/' . $record->foto_air) : null,
+                    'catatan' => $record->catatan,
+                    'user_name' => $record->user->name ?? '-',
+                    'created_at' => $record->created_at?->format('H:i'),
+                ] : null,
+                'prev' => $prev ? [
+                    'tanggal' => $prev->tanggal->format('Y-m-d'),
+                    'tanggal_formatted' => $prev->tanggal->translatedFormat('d F Y'),
+                    'stand_air' => $prev->stand_air,
+                    'stand_air_fmt' => number_format($prev->stand_air, 2, ',', '.'),
+                ] : null,
+                'next' => $next ? [
+                    'tanggal' => $next->tanggal->format('Y-m-d'),
+                    'tanggal_formatted' => $next->tanggal->translatedFormat('d F Y'),
+                    'stand_air' => $next->stand_air,
+                    'stand_air_fmt' => number_format($next->stand_air, 2, ',', '.'),
+                ] : null,
+            ]);
+        } else {
+            $prev = MeterReading::previousElectricOf($tanggal);
+            $next = MeterReading::nextElectricOf($tanggal);
+
+            return response()->json([
+                'tanggal' => $tanggal,
+                'tanggal_formatted' => $dateCarbon->translatedFormat('l, d F Y'),
+                'is_today' => $dateCarbon->isToday(),
+                'exists' => $record && ($record->stand_lwbp !== null || $record->stand_wbp !== null),
+                'current' => $record ? [
+                    'id' => $record->id,
+                    'stand_lwbp' => $record->stand_lwbp,
+                    'stand_wbp' => $record->stand_wbp,
+                    'foto_kwh_url' => $record->foto_kwh ? asset('storage/' . $record->foto_kwh) : null,
+                    'catatan' => $record->catatan,
+                    'user_name' => $record->user->name ?? '-',
+                    'created_at' => $record->created_at?->format('H:i'),
+                ] : null,
+                'prev' => $prev ? [
+                    'tanggal' => $prev->tanggal->format('Y-m-d'),
+                    'tanggal_formatted' => $prev->tanggal->translatedFormat('d F Y'),
+                    'stand_lwbp' => $prev->stand_lwbp,
+                    'stand_lwbp_fmt' => number_format($prev->stand_lwbp, 2, ',', '.'),
+                    'stand_wbp' => $prev->stand_wbp,
+                    'stand_wbp_fmt' => number_format($prev->stand_wbp, 2, ',', '.'),
+                ] : null,
+                'next' => $next ? [
+                    'tanggal' => $next->tanggal->format('Y-m-d'),
+                    'tanggal_formatted' => $next->tanggal->translatedFormat('d F Y'),
+                    'stand_lwbp' => $next->stand_lwbp,
+                    'stand_lwbp_fmt' => number_format($next->stand_lwbp, 2, ',', '.'),
+                    'stand_wbp' => $next->stand_wbp,
+                    'stand_wbp_fmt' => number_format($next->stand_wbp, 2, ',', '.'),
+                ] : null,
+            ]);
+        }
+    }
+
     public function store(Request $request)
     {
         $data = $this->validated($request);

@@ -65,6 +65,25 @@ class MeterReading extends Model
             ->first();
     }
 
+    /** Pencatatan berikutnya dengan data listrik setelah tanggal tertentu. */
+    public static function nextElectricOf($date): ?self
+    {
+        return static::whereDate('tanggal', '>', $date)
+            ->whereNotNull('stand_lwbp')
+            ->whereNotNull('stand_wbp')
+            ->orderBy('tanggal')
+            ->first();
+    }
+
+    /** Pencatatan berikutnya dengan data air setelah tanggal tertentu. */
+    public static function nextWaterOf($date): ?self
+    {
+        return static::whereDate('tanggal', '>', $date)
+            ->whereNotNull('stand_air')
+            ->orderBy('tanggal')
+            ->first();
+    }
+
     /**
      * Ambil data satu bulan beserta pemakaian harian
      * (stand hari ini - stand pencatatan sebelumnya).

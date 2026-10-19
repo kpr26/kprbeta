@@ -27,6 +27,11 @@
             <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
                 ⚡ Pindah ke Input Listrik
             </a>
+            @if (auth()->user()->isSuperAdmin())
+                <a href="{{ route('logsheet.manual.air') }}" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35);" title="Input tanggal yang sudah terlewat">
+                    💧 Tanggal Terlewat
+                </a>
+            @endif
             @if (auth()->user()->role === 'teknisi')
                 <span class="badge badge-role-teknisi">Teknisi</span>
             @endif

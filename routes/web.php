@@ -139,6 +139,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/logsheet/input/air', [LogsheetController::class, 'createAir'])->name('logsheet.create.air');
     Route::post('/logsheet/input/air', [LogsheetController::class, 'storeAir'])->name('logsheet.store.air');
 
+    // ── Input Manual Logsheet Listrik & Air (Khusus Super Admin untuk Tanggal Terlewat) ──
+    Route::middleware('role:admin,superadmin')->group(function () {
+        Route::get('/logsheet/manual/listrik', [LogsheetController::class, 'createManualListrik'])->name('logsheet.manual.listrik');
+        Route::post('/logsheet/manual/listrik', [LogsheetController::class, 'storeManualListrik'])->name('logsheet.manual.listrik.store');
+        Route::get('/logsheet/manual/air', [LogsheetController::class, 'createManualAir'])->name('logsheet.manual.air');
+        Route::post('/logsheet/manual/air', [LogsheetController::class, 'storeManualAir'])->name('logsheet.manual.air.store');
+        Route::get('/logsheet/manual/reference', [LogsheetController::class, 'referenceManual'])->name('logsheet.manual.reference');
+    });
+
     Route::resource('logsheet', LogsheetController::class)->except('destroy');
 
     // ── Daily Log Book (Pekerjaan Harian Teknisi) ──

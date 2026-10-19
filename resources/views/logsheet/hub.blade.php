@@ -190,5 +190,84 @@
     </div>
 
     </div>
+
+    @if (auth()->user()->isSuperAdmin())
+    {{-- 4. SECTION KHUSUS SUPER ADMIN: INPUT MANUAL TANGGAL TERLEWAT --}}
+    <div style="margin-top:36px; padding-top:24px; border-top:1px solid rgba(245,158,11,0.25);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:18px;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; text-transform:uppercase;">
+                        ★ Khusus Super Admin
+                    </span>
+                    <h3 style="font-size:1.15rem; font-weight:600; color:var(--text-primary); margin:0;">
+                        Input Manual Logsheet (Tanggal Terlewat)
+                    </h3>
+                </div>
+                <p style="font-size:0.83rem; color:var(--text-muted); margin:4px 0 0;">
+                    Gunakan menu ini jika ada data pencatatan listrik atau air pada hari-hari sebelumnya yang belum sempat diinput teknisi atau memerlukan koreksi.
+                </p>
+            </div>
+        </div>
+
+        <div class="logsheet-choice-grid">
+            {{-- Kartu Manual Listrik --}}
+            <div class="logsheet-choice-card" style="border-color:rgba(245,158,11,0.3); background:rgba(15,22,35,0.9);">
+                <div>
+                    <div class="choice-card-head">
+                        <div class="choice-icon-wrap" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="choice-title" style="color:#fbbf24;">Manual Listrik</h3>
+                            <span class="choice-subtitle">Pilih Tanggal Bebas (Lampau)</span>
+                        </div>
+                    </div>
+                    <p class="choice-desc">
+                        Masukkan stand meter LWBP &amp; WBP untuk tanggal yang terlewat lengkap dengan pengecekan data acuan tanggal sebelum dan sesudahnya.
+                    </p>
+                </div>
+                <div style="margin-top:16px;">
+                    <a href="{{ route('logsheet.manual.listrik') }}" class="choice-btn-cta" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">
+                        <span>+ Input Manual Listrik</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            {{-- Kartu Manual Air --}}
+            <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:rgba(15,22,35,0.9);">
+                <div>
+                    <div class="choice-card-head">
+                        <div class="choice-icon-wrap" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="choice-title" style="color:#38bdf8;">Manual Air</h3>
+                            <span class="choice-subtitle">Pilih Tanggal Bebas (Lampau)</span>
+                        </div>
+                    </div>
+                    <p class="choice-desc">
+                        Masukkan stand Water Meter (m³) untuk tanggal yang terlewat lengkap dengan pengecekan data acuan tanggal sebelum dan sesudahnya.
+                    </p>
+                </div>
+                <div style="margin-top:16px;">
+                    <a href="{{ route('logsheet.manual.air') }}" class="choice-btn-cta" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35);">
+                        <span>+ Input Manual Air</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection

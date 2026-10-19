@@ -10,7 +10,8 @@
     $isTeknisi = $authUser->role === 'teknisi';
     $canManage = in_array($authUser->role, ['admin', 'eng_admin', 'eng_spv'], true);
     $roleDisplayNames = [
-        'admin'     => 'Administrator',
+        'admin'     => 'Super Admin',
+        'superadmin'=> 'Super Admin',
         'user'      => 'User',
         'teknisi'   => 'Teknisi',
         'eng_admin' => 'Eng Admin',
@@ -79,6 +80,19 @@
                         <span>Pengaturan Profil</span>
                     </a>
 
+                    @if($authUser->isSuperAdmin())
+                        <div class="user-dropdown-divider"></div>
+                        <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.04em;">Input Manual (Super Admin)</div>
+                        <a href="{{ route('logsheet.manual.listrik') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#fbbf24; font-size:1.05rem; line-height:1;">⚡</span>
+                            <span>Input Manual Listrik</span>
+                        </a>
+                        <a href="{{ route('logsheet.manual.air') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">💧</span>
+                            <span>Input Manual Air</span>
+                        </a>
+                    @endif
+
                     <div class="user-dropdown-divider"></div>
 
                     <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Apakah Anda yakin ingin keluar?')">
@@ -137,6 +151,23 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>
                 Riwayat Logsheet
             </a>
+
+            @if($authUser->isSuperAdmin())
+            {{-- Menu Khusus Super Admin: Input Manual Tanggal Terlewat --}}
+            <div class="sidebar-section-title" style="padding:14px 12px 4px; font-size:0.7rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; display:flex; align-items:center; gap:6px;">
+                <span>Input Manual (Super Admin)</span>
+            </div>
+
+            <a href="{{ route('logsheet.manual.listrik') }}" class="nav-item {{ request()->routeIs('logsheet.manual.listrik*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#fbbf24;"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
+                Manual Listrik (Terlewat)
+            </a>
+
+            <a href="{{ route('logsheet.manual.air') }}" class="nav-item {{ request()->routeIs('logsheet.manual.air*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#38bdf8;"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
+                Manual Air (Terlewat)
+            </a>
+            @endif
 
             {{-- Menu Daily Log Book (Pekerjaan Harian Teknisi) --}}
             <div class="sidebar-section-title" style="padding:14px 12px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">
@@ -225,6 +256,19 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                             <span>Pengaturan Profil</span>
                         </a>
+
+                        @if($authUser->isSuperAdmin())
+                            <div class="user-dropdown-divider"></div>
+                            <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.04em;">Input Manual (Super Admin)</div>
+                            <a href="{{ route('logsheet.manual.listrik') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#fbbf24; font-size:1.05rem; line-height:1;">⚡</span>
+                                <span>Input Manual Listrik</span>
+                            </a>
+                            <a href="{{ route('logsheet.manual.air') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">💧</span>
+                                <span>Input Manual Air</span>
+                            </a>
+                        @endif
 
                         <div class="user-dropdown-divider"></div>
 
