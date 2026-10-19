@@ -32,7 +32,7 @@
                 <strong style="font-size:1.05rem;">Logsheet Hari Ini Sudah Berhasil Dicatat</strong>
             </div>
             <p style="margin:0 0 16px 20px; color:var(--text-secondary); font-size:0.88rem;">
-                Pencatatan untuk tanggal <b>{{ now()->translatedFormat('d F Y') }}</b> telah diinput oleh <b>{{ $today->user->name }}</b> pukul {{ $today->created_at->format('H:i') }}. Role Teknisi hanya dapat memasukan logsheet baru dan tidak memiliki izin untuk mengedit atau merubah data yang telah tersimpan.
+                Pencatatan untuk tanggal <b>{{ now()->translatedFormat('d F Y') }}</b> telah diinput oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b> pukul {{ $today->created_at?->format('H:i') ?? '—' }}. Role Teknisi hanya dapat memasukan logsheet baru dan tidak memiliki izin untuk mengedit atau merubah data yang telah tersimpan.
             </p>
             <div style="margin-left:20px; display:flex; gap:10px; flex-wrap:wrap;">
                 <a href="{{ route('logsheet.show', $today) }}" class="btn btn-sm btn-primary">Lihat Detail Data Hari Ini</a>

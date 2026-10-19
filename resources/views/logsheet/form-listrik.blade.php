@@ -45,7 +45,7 @@
                 <strong style="font-size:1.05rem;">Meter Listrik Hari Ini Sudah Dicatat</strong>
             </div>
             <p style="margin:0 0 12px 20px; color:var(--text-secondary); font-size:0.88rem;">
-                Tercatat pada stand LWBP: <b>{{ $n($today->stand_lwbp) }} kWh</b>, WBP: <b>{{ $n($today->stand_wbp) }} kWh</b> oleh <b>{{ $today->user->name }}</b> pukul {{ $today->updated_at->format('H:i') }}.
+                Tercatat pada stand LWBP: <b>{{ $n($today->stand_lwbp) }} kWh</b>, WBP: <b>{{ $n($today->stand_wbp) }} kWh</b> oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b> pukul {{ $today->updated_at?->format('H:i') ?? '—' }}.
             </p>
             <div style="margin-left:20px; display:flex; gap:10px; flex-wrap:wrap;">
                 @if(!$today->foto_air)

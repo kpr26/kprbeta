@@ -575,7 +575,9 @@ class LogsheetController extends Controller
 
         foreach (['foto_kwh', 'foto_air'] as $f) {
             if ($request->hasFile($f)) {
-                Storage::disk('public')->delete($logsheet->$f);
+                if (! empty($logsheet->$f)) {
+                    Storage::disk('public')->delete($logsheet->$f);
+                }
                 $data[$f] = $request->file($f)->store('logsheet', 'public');
             }
         }
@@ -590,10 +592,17 @@ class LogsheetController extends Controller
 
     public function destroy(MeterReading $logsheet)
     {
-        abort_unless(in_array(Auth::user()->role, ['admin', 'eng_admin', 'eng_spv'], true), 403, 'Role Teknisi tidak memiliki hak akses untuk menghapus data logsheet.');
-        Storage::disk('public')->delete([$logsheet->foto_kwh, $logsheet->foto_air]);
+        abort_unless(in_array(Auth::user()->role, ['admin', 'superadmin', 'eng_admin', 'eng_spv'], true), 403, 'Role Teknisi tidak memiliki hak akses untuk menghapus data logsheet.');
+        
+        $filesToDelete = array_values(array_filter([$logsheet->foto_kwh, $logsheet->foto_air]));
+        if (! empty($filesToDelete)) {
+            Storage::disk('public')->delete($filesToDelete);
+        }
+
+        $tanggalStr = $logsheet->tanggal ? $logsheet->tanggal->translatedFormat('d F Y') : 'terpilih';
         $logsheet->delete();
-        return back()->with('success', 'Logsheet berhasil dihapus.');
+
+        return redirect()->route('logsheet.index')->with('success', 'Logsheet tanggal ' . $tanggalStr . ' berhasil dihapus.');
     }
 
     /** Verifikasi: tandai data sudah dicrosscheck dengan foto (Admin, Eng Admin, Eng Spv). */

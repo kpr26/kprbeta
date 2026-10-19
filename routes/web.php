@@ -129,7 +129,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/logsheet/export/pdf', [LogsheetController::class, 'exportPdf'])->name('logsheet.pdf');
         Route::post('/logsheet/{logsheet}/verify', [LogsheetController::class, 'verify'])->name('logsheet.verify');
     });
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
         Route::delete('/logsheet/{logsheet}', [LogsheetController::class, 'destroy'])->name('logsheet.destroy');
     });
     // ── Logsheet Input Terpisah (Listrik & Air) & Hub Card Menu ──

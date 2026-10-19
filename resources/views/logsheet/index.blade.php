@@ -1,8 +1,8 @@
 @extends('layouts.panel')
 
 @php
-    $isAdmin = auth()->user()->role === 'admin';
-    $canManage = in_array(auth()->user()->role, ['admin', 'eng_admin', 'eng_spv'], true);
+    $isAdmin = in_array(auth()->user()->role, ['admin', 'superadmin'], true);
+    $canManage = in_array(auth()->user()->role, ['admin', 'superadmin', 'eng_admin', 'eng_spv'], true);
     $periode = sprintf('%04d-%02d', $year, $month);
     $n = fn ($v) => $v === null ? '—' : number_format($v, 2, ',', '.');
 @endphp
@@ -14,7 +14,6 @@
 @section('panel')
 
 {{-- Status hari ini --}}
-{{-- Status hari ini --}}
 @php
     $hasElecToday  = $today && $today->foto_kwh;
     $hasWaterToday = $today && $today->foto_air;
@@ -22,7 +21,7 @@
 
 @if ($hasElecToday && $hasWaterToday)
     <div class="status-banner ok">
-        <span><span class="dot"></span>Logsheet hari ini (Listrik ⚡ &amp; Air 💧) sudah lengkap dicatat oleh <b>{{ $today->user->name }}</b>.</span>
+        <span><span class="dot"></span>Logsheet hari ini (Listrik ⚡ &amp; Air 💧) sudah lengkap dicatat oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b>.</span>
         <a href="{{ route('logsheet.show', $today) }}" class="btn btn-sm">Lihat Detail</a>
     </div>
 @elseif ($hasElecToday && !$hasWaterToday)
@@ -144,10 +143,10 @@
                             @endif
                         </span>
                     </td>
-                    <td class="l">{{ $r->user->name }}</td>
+                    <td class="l">{{ $r->user?->name ?? 'User Terhapus' }}</td>
                     <td class="c">
                         @if ($r->verified_at)
-                            <span class="badge badge-ok" title="Oleh {{ $r->verifier?->name }}">✓ Terverifikasi</span>
+                            <span class="badge badge-ok" title="Oleh {{ $r->verifier?->name ?? 'Admin' }}">✓ Terverifikasi</span>
                         @else
                             <span class="badge badge-wait">Menunggu</span>
                         @endif
@@ -165,8 +164,8 @@
                                     </form>
                                 @endunless
                             @endif
-                            @if ($isAdmin)
-                                <form method="POST" action="{{ route('logsheet.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus logsheet {{ $r->tanggal->format('d/m/Y') }}?')">
+                            @if ($isAdmin || in_array(auth()->user()->role, ['eng_admin', 'eng_spv'], true))
+                                <form method="POST" action="{{ route('logsheet.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus permanen logsheet {{ $r->tanggal->translatedFormat('d F Y') }}?')">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-danger">Hapus</button>
                                 </form>
@@ -200,7 +199,7 @@
                 <div class="mlc-header">
                     <div>
                         <span class="mlc-date">{{ $r->tanggal->translatedFormat('D, d M Y') }}</span>
-                        <div class="mlc-tech">Oleh <b>{{ $r->user->name }}</b></div>
+                        <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b></div>
                     </div>
                     <div>
                         @if ($r->verified_at)
@@ -251,6 +250,12 @@
                         @if ($canManage && ! $r->verified_at)
                             <form method="POST" action="{{ route('logsheet.verify', $r) }}" class="inline">@csrf
                                 <button class="btn btn-sm btn-success">Verifikasi</button>
+                            </form>
+                        @endif
+                        @if ($isAdmin || in_array(auth()->user()->role, ['eng_admin', 'eng_spv'], true))
+                            <form method="POST" action="{{ route('logsheet.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus permanen logsheet {{ $r->tanggal->translatedFormat('d F Y') }}?')">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-danger">Hapus</button>
                             </form>
                         @endif
                     </div>

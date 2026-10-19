@@ -142,4 +142,52 @@ class OfflineLogsheetSyncTest extends TestCase
             'success' => false,
         ]);
     }
+
+    public function test_super_admin_can_delete_logsheet_with_null_photos(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $reading = MeterReading::create([
+            'tanggal'    => '2026-05-01',
+            'stand_lwbp' => 10,
+            'stand_wbp'  => 5,
+            'user_id'    => $admin->id,
+            'foto_kwh'   => null,
+            'foto_air'   => null,
+        ]);
+
+        $response = $this->actingAs($admin)->delete(route('logsheet.destroy', $reading));
+        $response->assertRedirect(route('logsheet.index'));
+        $this->assertDatabaseMissing('meter_readings', ['id' => $reading->id]);
+    }
+
+    public function test_super_admin_can_delete_logsheet_with_existing_photos(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Storage::disk('public')->put('logsheet/test_kwh.jpg', 'fake-image');
+        Storage::disk('public')->put('logsheet/test_air.jpg', 'fake-image');
+
+        $reading = MeterReading::create([
+            'tanggal'    => '2026-05-02',
+            'stand_lwbp' => 20,
+            'stand_wbp'  => 10,
+            'user_id'    => $admin->id,
+            'foto_kwh'   => 'logsheet/test_kwh.jpg',
+            'foto_air'   => 'logsheet/test_air.jpg',
+        ]);
+
+        $response = $this->actingAs($admin)->delete(route('logsheet.destroy', $reading));
+        $response->assertRedirect(route('logsheet.index'));
+        $this->assertDatabaseMissing('meter_readings', ['id' => $reading->id]);
+        Storage::disk('public')->assertMissing('logsheet/test_kwh.jpg');
+        Storage::disk('public')->assertMissing('logsheet/test_air.jpg');
+    }
+
+    public function test_accessing_deleted_logsheet_redirects_to_index_with_warning(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $response = $this->actingAs($admin)->get('/logsheet/999999');
+
+        $response->assertRedirect(route('logsheet.index'));
+        $response->assertSessionHas('warning', 'Data logsheet tidak ditemukan atau telah dihapus sebelumnya.');
+    }
 }

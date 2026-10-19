@@ -13,7 +13,7 @@
 
 @if ($hasElecToday && $hasWaterToday)
     <div class="status-banner ok">
-        <span><span class="dot"></span>Logsheet hari ini (Listrik ⚡ &amp; Air 💧) sudah lengkap dicatat oleh <b>{{ $today->user->name }}</b>.</span>
+        <span><span class="dot"></span>Logsheet hari ini (Listrik ⚡ &amp; Air 💧) sudah lengkap dicatat oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b>.</span>
         <a href="{{ route('logsheet.show', $today) }}" class="btn btn-sm">Lihat Detail</a>
     </div>
 @elseif ($hasElecToday && !$hasWaterToday)
@@ -103,7 +103,7 @@
                     </div>
 
                     <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(200,170,110,0.1); padding-top:10px; font-size:0.78rem; color:var(--text-secondary);">
-                        <span>👤 <b>{{ $l->user->name }}</b> &middot; {{ $l->jam_mulai }} WIB</span>
+                        <span>👤 <b>{{ $l->user?->name ?? 'Teknisi' }}</b> &middot; {{ $l->jam_mulai }} WIB</span>
                         <a href="{{ route('daily-log.show', $l) }}" style="color:var(--accent-light); text-decoration:none; font-weight:600;">Detail →</a>
                     </div>
                 </div>
