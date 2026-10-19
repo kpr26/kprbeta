@@ -39,8 +39,8 @@
     <div class="status-banner warn">
         <span><span class="dot"></span>Logsheet hari ini (<b>{{ now()->translatedFormat('d F Y') }}</b>) belum dicatat.</span>
         <div style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;">
-            <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm" style="background:#fbbf24; color:#0f172a; font-weight:600;">+ Input Listrik</a>
-            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:#38bdf8; color:#0f172a; font-weight:600;">+ Input Air</a>
+            <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm btn-primary">+ Input Listrik</a>
+            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:rgba(6,182,212,0.18); border-color:rgba(6,182,212,0.4); color:#38bdf8; font-weight:600;">+ Input Air</a>
         </div>
     </div>
 @endif

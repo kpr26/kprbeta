@@ -32,14 +32,10 @@
             <div class="mobile-topbar-info">
                 <div style="display:flex; align-items:center; gap:6px;">
                     <span class="mobile-brand-title">KPR Beta</span>
-                    @if($isTeknisi)
-                        <span class="badge-role-pill">Teknisi</span>
-                    @else
-                        <span class="badge-role-pill badge-role-pill--{{ $authUser->role }}">{{ $currentRoleLabel }}</span>
-                    @endif
+                    <span class="badge-role-pill">{{ $currentRoleLabel }}</span>
                 </div>
                 <div class="mobile-topbar-user" style="font-size:0.75rem; color:var(--text-secondary); font-weight:500; margin-top:2px;">
-                    <span style="color:var(--text-muted);">Akun:</span> <strong style="color:#f8fafc;">{{ $authUser->name }}</strong>
+                    <span style="color:var(--text-muted);">Akun:</span> <strong style="color:var(--accent-light);">{{ $authUser->name }}</strong>
                 </div>
             </div>
         </div>
@@ -107,16 +103,8 @@
                 </svg>
             </div>
             <div>
-                <span>KPR Beta</span>
-                @if($isTeknisi)
-                    <div style="font-size:0.75rem; color:#f59e0b; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Teknisi</div>
-                @elseif($authUser->role === 'admin')
-                    <div style="font-size:0.75rem; color:#a78bfa; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Administrator</div>
-                @elseif($authUser->role === 'eng_admin')
-                    <div style="font-size:0.75rem; color:#38bdf8; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Eng Admin</div>
-                @elseif($authUser->role === 'eng_spv')
-                    <div style="font-size:0.75rem; color:#c084fc; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Role Eng Spv</div>
-                @endif
+                <span style="font-size:1.15rem; font-family:var(--font-serif); font-weight:600; color:var(--accent-light); letter-spacing:0.03em;">KPR Beta</span>
+                <div style="font-size:0.7rem; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Role {{ $currentRoleLabel }}</div>
             </div>
         </div>
 

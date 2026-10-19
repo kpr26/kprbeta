@@ -30,8 +30,8 @@
     <div class="status-banner warn">
         <span><span class="dot"></span>Logsheet hari ini belum dicatat. Teknisi harap melakukan pencatatan stand meter.</span>
         <div style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;">
-            <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm" style="background:#fbbf24; color:#0f172a; font-weight:600;">+ Input Listrik</a>
-            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:#38bdf8; color:#0f172a; font-weight:600;">+ Input Air</a>
+            <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm btn-primary">+ Input Listrik</a>
+            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:rgba(6,182,212,0.18); border-color:rgba(6,182,212,0.4); color:#38bdf8; font-weight:600;">+ Input Air</a>
         </div>
     </div>
 @endif
@@ -73,14 +73,14 @@
 <section class="panel" style="margin-top:24px;">
     <div class="panel-head">
         <div>
-            <h2><span style="color:#10b981;">📋</span> Pekerjaan Harian Teknisi (Daily Log Book)</h2>
-            <p>Pekerjaan hari ini: <b style="color:#34d399;">{{ $dailyLogStats['today_done'] }} Done</b> &middot; <b style="color:#fbbf24;">{{ $dailyLogStats['today_continue'] }} Continue</b> (Total: {{ $dailyLogStats['today_total'] }} pekerjaan)</p>
+            <h2><span style="color:var(--accent);">📋</span> Pekerjaan Harian Teknisi (Daily Log Book)</h2>
+            <p>Pekerjaan hari ini: <b style="color:#34d399;">{{ $dailyLogStats['today_done'] }} Done</b> &middot; <b style="color:var(--accent-light);">{{ $dailyLogStats['today_continue'] }} Continue</b> (Total: {{ $dailyLogStats['today_total'] }} pekerjaan)</p>
         </div>
         <div class="btn-group">
             <a href="{{ route('daily-log.index') }}" class="btn btn-sm">
                 Lihat Semua Daily Log →
             </a>
-            <a href="{{ route('daily-log.create') }}" class="btn btn-sm btn-primary" style="background:linear-gradient(135deg, #10b981, #059669);">
+            <a href="{{ route('daily-log.create') }}" class="btn btn-sm btn-primary">
                 + Input Daily Log
             </a>
         </div>
@@ -89,11 +89,11 @@
     @if ($todayLogs->count() > 0)
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
             @foreach ($todayLogs as $l)
-                <div style="background:rgba(15,23,42,0.65); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                <div style="background:rgba(9,13,21,0.65); border:1px solid rgba(200,170,110,0.15); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px; box-shadow:0 4px 16px rgba(0,0,0,0.3);">
                     <div>
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                            <span style="font-size:0.84rem; color:#38bdf8; font-weight:600;">📍 {{ $l->lokasi }}</span>
-                            <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $l->status === 'Done' ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(245,158,11,0.15); color:#fbbf24;' }}">
+                            <span style="font-size:0.84rem; color:var(--accent-light); font-weight:600;">📍 {{ $l->lokasi }}</span>
+                            <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $l->status === 'Done' ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(200,170,110,0.15); color:var(--accent-light); border:1px solid rgba(200,170,110,0.3);' }}">
                                 {{ $l->status }}
                             </span>
                         </div>
@@ -102,7 +102,7 @@
                         </p>
                     </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px; font-size:0.78rem; color:#cbd5e1;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(200,170,110,0.1); padding-top:10px; font-size:0.78rem; color:var(--text-secondary);">
                         <span>👤 <b>{{ $l->user->name }}</b> &middot; {{ $l->jam_mulai }} WIB</span>
                         <a href="{{ route('daily-log.show', $l) }}" style="color:var(--accent-light); text-decoration:none; font-weight:600;">Detail →</a>
                     </div>
@@ -124,9 +124,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     const data = @json($chart);
-    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.color = 'rgba(200,170,110,0.6)';
     Chart.defaults.font.family = 'Inter';
-    const grid = { color: 'rgba(255,255,255,.06)' };
+    const grid = { color: 'rgba(200,170,110,0.08)' };
     const opts = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
         scales: { x: { grid, stacked: true }, y: { grid, stacked: true, beginAtZero: true } },
         plugins: { legend: { labels: { usePointStyle: true } } } };
@@ -134,7 +134,7 @@
     new Chart(document.getElementById('chartListrik'), {
         type: 'bar',
         data: { labels: data.labels, datasets: [
-            { label: 'LWBP', data: data.lwbp, backgroundColor: '#f59e0b', borderRadius: 4 },
+            { label: 'LWBP', data: data.lwbp, backgroundColor: '#c8aa6e', borderRadius: 4 },
             { label: 'WBP',  data: data.wbp,  backgroundColor: '#f43f5e', borderRadius: 4 },
         ]},
         options: opts,
@@ -142,11 +142,11 @@
 
     const ctx = document.getElementById('chartAir').getContext('2d');
     const g = ctx.createLinearGradient(0, 0, 0, 300);
-    g.addColorStop(0, 'rgba(6,182,212,.45)'); g.addColorStop(1, 'rgba(6,182,212,0)');
+    g.addColorStop(0, 'rgba(56,189,248,.35)'); g.addColorStop(1, 'rgba(56,189,248,0)');
     new Chart(ctx, {
         type: 'line',
         data: { labels: data.labels, datasets: [
-            { label: 'Air (m³)', data: data.air, borderColor: '#22d3ee', backgroundColor: g, fill: true, tension: .35, pointRadius: 3 },
+            { label: 'Air (m³)', data: data.air, borderColor: '#38bdf8', backgroundColor: g, fill: true, tension: .35, pointRadius: 3 },
         ]},
         options: { ...opts, scales: { x: { grid }, y: { grid, beginAtZero: true } } },
     });

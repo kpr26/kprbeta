@@ -23,8 +23,8 @@
     }
 }
 .job-card {
-    background: rgba(15, 23, 42, 0.65);
-    border: 1px solid var(--border);
+    background: rgba(15, 22, 35, 0.85);
+    border: 1px solid rgba(200, 170, 110, 0.15);
     border-radius: var(--radius-lg);
     padding: 20px;
     display: flex;
@@ -35,11 +35,12 @@
     position: relative;
     overflow: hidden;
     backdrop-filter: blur(14px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 .job-card:hover {
     transform: translateY(-3px);
-    border-color: rgba(99, 102, 241, 0.45);
-    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+    border-color: rgba(200, 170, 110, 0.4);
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(200, 170, 110, 0.12);
 }
 .job-card-indicator-done {
     position: absolute;
@@ -55,7 +56,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #f59e0b, #d97706);
+    background: linear-gradient(90deg, #d4a359, #f3dfa2);
 }
 
 .job-card-head {
@@ -65,16 +66,17 @@
     gap: 12px;
 }
 .job-card-date {
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent-light);
+    font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
 }
 .job-card-time {
     display: inline-flex;
     align-items: center;
     gap: 5px;
     font-size: 0.8rem;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     margin-top: 4px;
     font-weight: 500;
 }
@@ -97,9 +99,9 @@
     border: 1px solid rgba(16, 185, 129, 0.35);
 }
 .badge-status-continue {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.35);
+    background: rgba(200, 170, 110, 0.15);
+    color: var(--accent-light);
+    border: 1px solid rgba(200, 170, 110, 0.35);
 }
 
 .job-meta-row {
@@ -107,20 +109,20 @@
     align-items: center;
     gap: 8px;
     font-size: 0.84rem;
-    color: #e2e8f0;
+    color: var(--text-primary);
 }
 .job-location-badge {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: #38bdf8;
+    color: var(--accent-light);
     font-weight: 600;
     font-size: 0.86rem;
 }
 
 .job-desc-box {
-    background: rgba(0, 0, 0, 0.38);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(9, 13, 21, 0.65);
+    border: 1px solid rgba(200, 170, 110, 0.12);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
     font-size: 0.88rem;
@@ -137,37 +139,37 @@
 
 /* ── Filter Form Box & High-Contrast Inputs / Dropdown ── */
 .filter-form-box {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 22, 35, 0.85);
+    border: 1px solid rgba(200, 170, 110, 0.15);
     border-radius: var(--radius-md);
     padding: 18px;
     margin-bottom: 22px;
 }
 .filter-form-box label {
     font-size: 0.8rem !important;
-    color: #cbd5e1 !important;
+    color: var(--text-secondary) !important;
     font-weight: 600 !important;
     display: block;
     margin-bottom: 6px;
 }
 .filter-form-box select.input,
 select.input {
-    background-color: #0f172a !important;
-    color: #f8fafc !important;
+    background-color: #0c1220 !important;
+    color: var(--accent-light) !important;
     color-scheme: dark !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(200, 170, 110, 0.2) !important;
     cursor: pointer;
 }
 .filter-form-box select.input option,
 select.input option {
-    background-color: #0f172a !important;
+    background-color: #0c1220 !important;
     color: #f8fafc !important;
     padding: 10px 14px !important;
     font-size: 0.9rem !important;
 }
 .filter-form-box select.input option:checked,
 select.input option:checked {
-    background-color: #4f46e5 !important;
+    background-color: var(--accent-dark, #a08845) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
 }
@@ -177,7 +179,7 @@ select.input option:hover {
     color: #ffffff !important;
 }
 .filter-form-box input.input {
-    background-color: #0f172a !important;
+    background-color: #0c1220 !important;
     color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
