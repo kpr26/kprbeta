@@ -251,4 +251,65 @@ class PublicAreaLogsheetTest extends TestCase
         $pdfRes->assertStatus(200);
         $pdfRes->assertSee('LOGSHEET REKAPITULASI WATER METER PUBLIC AREA');
     }
+
+    public function test_superadmin_can_access_and_store_manual_water_back_date(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        $pastDate = now()->subDays(5)->toDateString();
+
+        $pageRes = $this->actingAs($superadmin)->get(route('public-area.manual.water', ['tanggal' => $pastDate]));
+        $pageRes->assertOk();
+        $pageRes->assertSee('Input Manual Water Meter Public Area (Back Date)');
+
+        $storeRes = $this->actingAs($superadmin)->post(route('public-area.manual.water.store'), [
+            'tanggal' => $pastDate,
+            'stand'   => [
+                'cooling_tower'     => 120.50,
+                'toilet_sky_lobby'  => 85.00,
+                'pantry_office'     => 45.20,
+            ],
+            'catatan' => [
+                'cooling_tower' => 'Input manual back date CT',
+            ],
+        ]);
+        $storeRes->assertRedirect(route('public-area.manual.water', ['tanggal' => $pastDate]));
+
+        $this->assertTrue(
+            PublicAreaMeterReading::whereDate('tanggal', $pastDate)
+                ->where('category', 'water')
+                ->where('meter_key', 'cooling_tower')
+                ->where('stand_meter', 120.50)
+                ->exists()
+        );
+    }
+
+    public function test_non_superadmin_cannot_access_manual_water_back_date(): void
+    {
+        $teknisi = User::factory()->create(['role' => 'teknisi']);
+        $res = $this->actingAs($teknisi)->get(route('public-area.manual.water'));
+        $res->assertForbidden();
+    }
+
+    public function test_water_export_with_custom_date_interval(): void
+    {
+        $engAdmin = User::factory()->create(['role' => 'eng_admin']);
+        $startDate = now()->subMonths(2)->format('Y-m-d');
+        $endDate = now()->format('Y-m-d');
+
+        $excelRes = $this->actingAs($engAdmin)->get(route('public-area.excel', [
+            'category'   => 'water',
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $excelRes->assertOk();
+        $excelRes->assertHeader('content-disposition');
+
+        $pdfRes = $this->actingAs($engAdmin)->get(route('public-area.pdf', [
+            'category'   => 'water',
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $pdfRes->assertOk();
+        $pdfRes->assertSee('LAPORAN LOGSHEET REKAPITULASI WATER METER PUBLIC AREA');
+    }
 }

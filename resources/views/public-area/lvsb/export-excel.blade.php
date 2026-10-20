@@ -1,6 +1,40 @@
 @php
     $n = fn ($v, $d = 2) => ($v !== null && $v !== '') ? number_format((float)$v, $d, ',', '.') : '';
-    $judul = 'LOGSHEET LVSB PUBLIC AREA — ' . strtoupper(\Carbon\Carbon::create($year, $month)->translatedFormat('F Y'));
+    $periodeLabel = $startDate->translatedFormat('d M Y') . ' s/d ' . $endDate->translatedFormat('d M Y');
+    $judul = 'LOGSHEET LVSB PUBLIC AREA — ' . strtoupper($periodeLabel);
+
+    // Hitung Metrik Statistik Interval
+    $vList = [];
+    $pList = [];
+    $cList = [];
+    $pfList = [];
+    foreach ($rows as $r) {
+        $v = $r->val('incoming_trafo', 'voltage_3p');
+        $p = $r->val('incoming_trafo', 'power');
+        $c = $r->val('incoming_trafo', 'current');
+        $pf = $r->val('incoming_capacitor', 'power_factor');
+
+        if ($v !== null && $v !== '') $vList[] = (float)$v;
+        if ($p !== null && $p !== '') $pList[] = (float)$p;
+        if ($c !== null && $c !== '') $cList[] = (float)$c;
+        if ($pf !== null && $pf !== '') $pfList[] = (float)$pf;
+    }
+
+    $avgVolt = count($vList) > 0 ? round(array_sum($vList) / count($vList), 1) : null;
+    $maxVolt = count($vList) > 0 ? max($vList) : null;
+    $minVolt = count($vList) > 0 ? min($vList) : null;
+
+    $avgPower = count($pList) > 0 ? round(array_sum($pList) / count($pList), 2) : null;
+    $maxPower = count($pList) > 0 ? max($pList) : null;
+    $minPower = count($pList) > 0 ? min($pList) : null;
+
+    $avgCurr = count($cList) > 0 ? round(array_sum($cList) / count($cList), 2) : null;
+    $maxCurr = count($cList) > 0 ? max($cList) : null;
+    $minCurr = count($cList) > 0 ? min($cList) : null;
+
+    $avgPf = count($pfList) > 0 ? round(array_sum($pfList) / count($pfList), 2) : null;
+    $minPf = count($pfList) > 0 ? min($pfList) : null;
+    $maxPf = count($pfList) > 0 ? max($pfList) : null;
 @endphp
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
 <head>
@@ -9,16 +43,76 @@
     th, td { border: 1px solid #000; padding: 4px 6px; font-family: Calibri, Arial; font-size: 9pt; }
     th { background: #1e293b; color: #fff; font-weight: bold; text-align: center; }
     .th-sub { background: #334155; color: #fff; font-size: 8pt; }
+    .kpi-hdr { background: #d97706; color: #ffffff; font-weight: bold; }
     .num { mso-number-format: "\#\,\#\#0\.00"; text-align: right; }
+    .num1 { mso-number-format: "\#\,\#\#0\.0"; text-align: right; }
     .num4 { mso-number-format: "\#\,\#\#0\.0000"; text-align: right; }
 </style>
 </head>
 <body>
 <table>
-    <tr><td colspan="20" style="border:0;font-size:14pt;font-weight:bold">{{ $judul }}</td></tr>
-    <tr><td colspan="20" style="border:0;font-size:10pt;">Dicetak: {{ now()->format('d/m/Y H:i') }} oleh {{ auth()->user()->name }}</td></tr>
-    <tr><td colspan="20" style="border:0"></td></tr>
+    <tr><td colspan="15" style="border:0;font-size:14pt;font-weight:bold">{{ $judul }}</td></tr>
+    <tr><td colspan="15" style="border:0;font-size:10pt;">Rentang Interval: {{ $periodeLabel }} (Maks. 12 Bulan)</td></tr>
+    <tr><td colspan="15" style="border:0;font-size:10pt;">Dicetak: {{ now()->translatedFormat('d F Y H:i') }} oleh {{ auth()->user()->name }}</td></tr>
+    <tr><td colspan="15" style="border:0"></td></tr>
 
+    {{-- TABEL 1: RANGKUMAN STATISTIK LVSB --}}
+    <tr><td colspan="15" class="kpi-hdr" style="font-size:11pt;">I. TABEL RANGKUMAN STATISTIK LVSB (INTERVAL {{ $periodeLabel }})</td></tr>
+    <tr>
+        <th>No</th>
+        <th colspan="3">Parameter LVSB</th>
+        <th colspan="2">Satuan</th>
+        <th colspan="2">Rata-rata</th>
+        <th colspan="2">Nilai Tertinggi (Max)</th>
+        <th colspan="2">Nilai Terendah (Min)</th>
+        <th colspan="3">Keterangan</th>
+    </tr>
+    <tr>
+        <td style="text-align:center;">1</td>
+        <td colspan="3" style="font-weight:bold;">Tegangan Incoming Trafo (3-Phase)</td>
+        <td colspan="2" style="text-align:center;">Volt</td>
+        <td colspan="2" class="num1" style="font-weight:bold;">{{ $avgVolt }}</td>
+        <td colspan="2" class="num1">{{ $maxVolt }}</td>
+        <td colspan="2" class="num1">{{ $minVolt }}</td>
+        <td colspan="3">Tegangan incoming trafo Apart A/B</td>
+    </tr>
+    <tr>
+        <td style="text-align:center;">2</td>
+        <td colspan="3" style="font-weight:bold;">Beban Daya Incoming Trafo (Power)</td>
+        <td colspan="2" style="text-align:center;">kW Total</td>
+        <td colspan="2" class="num" style="font-weight:bold;">{{ $avgPower }}</td>
+        <td colspan="2" class="num" style="color:#d97706;font-weight:bold;">{{ $maxPower }}</td>
+        <td colspan="2" class="num">{{ $minPower }}</td>
+        <td colspan="3">Beban puncak (kW) incoming trafo</td>
+    </tr>
+    <tr>
+        <td style="text-align:center;">3</td>
+        <td colspan="3" style="font-weight:bold;">Arus Incoming Trafo (Current)</td>
+        <td colspan="2" style="text-align:center;">Ampere</td>
+        <td colspan="2" class="num">{{ $avgCurr }}</td>
+        <td colspan="2" class="num" style="font-weight:bold;">{{ $maxCurr }}</td>
+        <td colspan="2" class="num">{{ $minCurr }}</td>
+        <td colspan="3">Arus operasional trafo</td>
+    </tr>
+    <tr>
+        <td style="text-align:center;">4</td>
+        <td colspan="3" style="font-weight:bold;">Power Factor (PF) Kapasitor Bank</td>
+        <td colspan="2" style="text-align:center;">Cos φ</td>
+        <td colspan="2" class="num" style="font-weight:bold;">{{ $avgPf }}</td>
+        <td colspan="2" class="num">{{ $maxPf }}</td>
+        <td colspan="2" class="num">{{ $minPf }}</td>
+        <td colspan="3">Efisiensi cos φ kapasitor bank</td>
+    </tr>
+    <tr style="background:#fef3c7;font-weight:bold;">
+        <td colspan="4" style="text-align:center;">TOTAL HARI PENCATATAN TERCATAT</td>
+        <td colspan="11" style="text-align:left;padding-left:12px;">{{ $rows->count() }} hari logsheet tercatat</td>
+    </tr>
+
+    <tr><td colspan="15" style="border:0"></td></tr>
+    <tr><td colspan="15" style="border:0"></td></tr>
+
+    {{-- TABEL 2: RINCIAN LOGSHEET SEMUA FEEDER --}}
+    <tr><td colspan="15" class="kpi-hdr" style="font-size:11pt;">II. RINCIAN PENCATATAN LOGSHEET HARIAN LVSB (SEMUA FEEDER)</td></tr>
     {{-- Header Baris 1: Grup --}}
     <tr>
         <th rowspan="2">No</th>

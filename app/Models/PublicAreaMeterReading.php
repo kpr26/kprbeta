@@ -142,9 +142,17 @@ class PublicAreaMeterReading extends Model
         $start = Carbon::create($year, $month, 1)->startOfMonth();
         $end   = (clone $start)->endOfMonth();
 
+        return static::intervalWithUsage($start->toDateString(), $end->toDateString(), $category);
+    }
+
+    /**
+     * Rekap data rentang interval tanggal (hingga 12 bulan) per kategori beserta kalkulasi pemakaian dan akumulatif
+     */
+    public static function intervalWithUsage(string $startDate, string $endDate, string $category): Collection
+    {
         $rows = static::with(['user', 'verifier'])
             ->where('category', $category)
-            ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()])
+            ->whereBetween('tanggal', [$startDate, $endDate])
             ->orderBy('tanggal')
             ->get();
 
@@ -154,7 +162,7 @@ class PublicAreaMeterReading extends Model
         $cumSums = [];
 
         foreach ($meters as $key => $meta) {
-            $prevReadings[$key] = static::previousOf($start->toDateString(), $category, $key);
+            $prevReadings[$key] = static::previousOf($startDate, $category, $key);
             $cumSums[$key] = 0;
         }
 

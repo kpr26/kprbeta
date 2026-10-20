@@ -268,4 +268,32 @@ class PublicAreaLvsbReading extends Model
         return $query->whereYear('tanggal', $year)
                      ->whereMonth('tanggal', $month);
     }
+
+    /**
+     * Scope filter rentang tanggal interval
+     */
+    public function scopeForInterval($query, string $startDate, string $endDate)
+    {
+        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+    }
+
+    /**
+     * Cari pembacaan sebelum tanggal tertentu
+     */
+    public static function previousOf(string $tanggal): ?self
+    {
+        return static::whereDate('tanggal', '<', $tanggal)
+                     ->latest('tanggal')
+                     ->first();
+    }
+
+    /**
+     * Cari pembacaan sesudah tanggal tertentu
+     */
+    public static function nextOf(string $tanggal): ?self
+    {
+        return static::whereDate('tanggal', '>', $tanggal)
+                     ->orderBy('tanggal')
+                     ->first();
+    }
 }

@@ -41,12 +41,30 @@ class PublicAreaMvsbReading extends Model
     }
 
     /**
+     * Scope untuk rentang interval tanggal
+     */
+    public function scopeForInterval($query, string $startDate, string $endDate)
+    {
+        return $query->whereBetween('tanggal', [$startDate, $endDate]);
+    }
+
+    /**
      * Cari pembacaan terakhir sebelum tanggal tertentu
      */
     public static function previousOf(string $tanggal): ?self
     {
         return static::whereDate('tanggal', '<', $tanggal)
                      ->latest('tanggal')
+                     ->first();
+    }
+
+    /**
+     * Cari pembacaan sesudah tanggal tertentu
+     */
+    public static function nextOf(string $tanggal): ?self
+    {
+        return static::whereDate('tanggal', '>', $tanggal)
+                     ->orderBy('tanggal')
                      ->first();
     }
 

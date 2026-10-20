@@ -3,7 +3,9 @@
 @php
     $n = fn ($v, $d = 2) => ($v !== null && $v !== '') ? number_format((float)$v, $d, ',', '.') : '—';
     $canManage = auth()->user()->isSuperAdmin() || auth()->user()->isSupervisor() || auth()->user()->isAdmin();
+    $isSuperAdmin = auth()->user()->isSuperAdmin();
     $todayStr = \Carbon\Carbon::today()->translatedFormat('l, d F Y');
+    $intervalDays = (int) round($startDate->diffInDays($endDate) + 1);
 @endphp
 
 @section('title', 'Logsheet LVSB Public Area')
@@ -24,7 +26,7 @@
             </p>
         </div>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <a href="{{ route('public-area.index') }}" class="btn btn-sm">
                 ← Menu Public Area
             </a>
@@ -35,11 +37,68 @@
                 ⚡ MVSB 20kV
             </a>
 
-            {{-- Filter Bulan --}}
-            <form method="GET" action="{{ route('public-area.lvsb.index') }}" style="display:flex; align-items:center; gap:6px;">
-                <input type="month" name="period" value="{{ sprintf('%04d-%02d', $year, $month) }}" class="input" style="padding:6px 10px; font-size:0.84rem;" onchange="this.form.submit()">
+            {{-- Tombol Khusus Super Admin: Input Back Date (Data Terlewat) --}}
+            @if ($isSuperAdmin)
+                <a href="{{ route('public-area.manual.lvsb') }}" class="btn btn-sm" style="background:rgba(234,179,8,0.18); color:#facc15; border:1px solid rgba(234,179,8,0.45); font-weight:700; display:inline-flex; align-items:center; gap:6px;" title="Input data back date secara manual (Khusus Super Admin)">
+                    <span>📅 Input Back Date (Terlewat)</span>
+                </a>
+            @endif
+
+            {{-- Export Buttons --}}
+            @if ($canManage)
+                <a href="{{ route('public-area.lvsb.excel', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString(), 'preset' => $preset]) }}" class="btn btn-excel btn-sm" title="Export Excel Rekapitulasi Data LVSB">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>Export to Excel
+                </a>
+                <a href="{{ route('public-area.lvsb.pdf', ['start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString(), 'preset' => $preset]) }}" target="_blank" class="btn btn-pdf btn-sm" title="Export PDF Rekapitulasi Data (Grafik & Tabel)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153A2.212 2.212 0 0 1 18 8.653v4.097A2.25 2.25 0 0 1 15.75 15h-.241l.305 1.984A1.75 1.75 0 0 1 14.084 19H5.915a1.75 1.75 0 0 1-1.73-2.016L4.492 15H4.25A2.25 2.25 0 0 1 2 12.75V8.653c0-1.082.775-2.034 1.874-2.198.374-.056.75-.107 1.127-.153L5 6.25v-3.5Zm8.5 3.397a41.533 41.533 0 0 0-7 0V2.75a.25.25 0 0 1 .25-.25h6.5a.25.25 0 0 1 .25.25v3.397ZM6.608 12.5a.25.25 0 0 0-.247.212l-.693 4.5a.25.25 0 0 0 .247.288h8.17a.25.25 0 0 0 .246-.288l-.692-4.5a.25.25 0 0 0-.247-.212H6.608Z" clip-rule="evenodd"/></svg>Export to PDF
+                </a>
+            @endif
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- TOOLBAR FILTER INTERVAL DATA LVSB (MAKSIMAL 12 BULAN / 1 TAHUN)        --}}
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.22); border-radius:12px; padding:14px 18px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            {{-- Quick Presets --}}
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.04em;">Preset Interval:</span>
+                <a href="{{ route('public-area.lvsb.index') }}" class="btn btn-sm {{ empty($preset) && !request()->filled('start_date') ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#d97706; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    Bulan Ini
+                </a>
+                <a href="{{ route('public-area.lvsb.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#d97706; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    3 Bulan
+                </a>
+                <a href="{{ route('public-area.lvsb.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#d97706; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    6 Bulan
+                </a>
+                <a href="{{ route('public-area.lvsb.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#d97706; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    1 Tahun (Maks)
+                </a>
+            </div>
+
+            {{-- Custom Date Range Form --}}
+            <form method="GET" action="{{ route('public-area.lvsb.index') }}" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0;">
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Rentang:</span>
+                <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" max="{{ today()->toDateString() }}" class="input" style="padding:4px 8px; font-size:0.8rem; width:135px;" title="Tanggal Mulai">
+                <span style="color:var(--text-muted); font-size:0.8rem;">s/d</span>
+                <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" max="{{ today()->toDateString() }}" class="input" style="padding:4px 8px; font-size:0.8rem; width:135px;" title="Tanggal Selesai">
+                <button type="submit" class="btn btn-sm btn-primary" style="padding:5px 12px; font-size:0.8rem; background:#d97706; border-color:#d97706;">
+                    Filter
+                </button>
             </form>
         </div>
+
+        {{-- Active Interval Info Pill --}}
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem;">
+            <div style="color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#fbbf24;"></span>
+                <span>Interval Aktif: <strong style="color:var(--text-primary);">{{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}</strong> ({{ $intervalDays }} hari)</span>
+            </div>
+            <span style="color:var(--text-muted); font-size:0.74rem;">* Ekspor Excel & PDF otomatis mengikuti interval aktif (maksimal 12 bulan / 1 tahun).</span>
+        </div>
+    </div>
     </div>
 
     {{-- Pill Mode Offline --}}
@@ -220,27 +279,144 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    {{-- TABEL RIWAYAT PENCATATAN BULANAN LVSB                                  --}}
+    {{-- RANGKUMAN STATISTIK LVSB (TABEL & GRAFIK)                              --}}
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:20px; margin-bottom:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <div>
+                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; font-weight:700;">Rangkuman & Visualisasi Parameter LVSB</span>
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin:2px 0 0; font-weight:700;">
+                    Rangkuman Panel LVSB — Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}
+                </h3>
+            </div>
+            <span class="badge" style="background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-size:0.76rem;">
+                {{ $intervalDays }} Hari Terpilih
+            </span>
+        </div>
+
+        {{-- Metric KPI Cards --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Avg Voltage Trafo</span>
+                <div style="font-size:1.5rem; font-weight:700; color:#fbbf24; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($summary['avg_voltage'], 1) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Volt</small>
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Tegangan 3-P Trafo</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Beban Puncak (Max kW)</span>
+                <div style="font-size:1.5rem; font-weight:700; color:#f87171; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($summary['max_power'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">kW</small>
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Daya aktif tertinggi</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Rata-rata Daya (Avg kW)</span>
+                <div style="font-size:1.5rem; font-weight:700; color:#38bdf8; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($summary['avg_power'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">kW</small>
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Konsumsi beban rata-rata</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Arus Puncak (Max A)</span>
+                <div style="font-size:1.5rem; font-weight:700; color:#c084fc; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($summary['max_current'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Ampere</small>
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Arus incoming trafo</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Avg PF Kapasitor</span>
+                <div style="font-size:1.5rem; font-weight:700; color:#34d399; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($summary['avg_pf'], 2) }}
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Kompensasi cos φ</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Hari Pencatatan</span>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin:4px 0;">
+                    {{ $summary['count'] }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">hari</small>
+                </div>
+                <span style="font-size:0.74rem; color:var(--text-secondary);">Dalam interval terpilih</span>
+            </div>
+        </div>
+
+        {{-- TABEL RANGKUMAN PARAMETER LVSB --}}
+        <div style="margin-bottom:20px;">
+            <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                <span>📊</span> Tabel Rangkuman Statistik Panel LVSB
+            </h4>
+            <div class="table-wrap">
+                <table class="log-table" style="font-size:0.84rem;">
+                    <thead>
+                        <tr>
+                            <th class="l">Parameter Kunci</th>
+                            <th class="c">Satuan</th>
+                            <th class="r">Rata-rata (Avg)</th>
+                            <th class="r">Nilai Tertinggi (Max)</th>
+                            <th class="l">Keterangan / Posisi Panel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="l" style="font-weight:700; color:#fbbf24;">Incoming Trafo Voltage 3-P</td>
+                            <td class="c">Volt</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#fbbf24;">{{ $n($summary['avg_voltage'], 1) }} V</td>
+                            <td class="r">—</td>
+                            <td class="l" style="color:var(--text-secondary);">Tegangan incoming trafo Apart A/B</td>
+                        </tr>
+                        <tr>
+                            <td class="l" style="font-weight:700; color:#38bdf8;">Incoming Trafo Power (kW Total)</td>
+                            <td class="c">kW</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#38bdf8;">{{ $n($summary['avg_power'], 2) }} kW</td>
+                            <td class="r" style="font-weight:700; color:#f87171;">{{ $n($summary['max_power'], 2) }} kW</td>
+                            <td class="l" style="color:var(--text-secondary);">Beban aktif trafo gedung</td>
+                        </tr>
+                        <tr>
+                            <td class="l" style="font-weight:700; color:#c084fc;">Incoming Trafo Current (Arus)</td>
+                            <td class="c">Ampere</td>
+                            <td class="r">—</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#c084fc;">{{ $n($summary['max_current'], 2) }} A</td>
+                            <td class="l" style="color:var(--text-secondary);">Arus incoming operasional</td>
+                        </tr>
+                        <tr>
+                            <td class="l" style="font-weight:700; color:#34d399;">Incoming Capacitor Bank Power Factor</td>
+                            <td class="c">Cos φ</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#34d399;">{{ $n($summary['avg_pf'], 2) }}</td>
+                            <td class="r">—</td>
+                            <td class="l" style="color:var(--text-secondary);">Faktor daya kapasitor bank</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- GRAFIK VISUALISASI CHART.JS --}}
+        <div>
+            <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                <span>📈</span> Grafik Tren Beban Daya (kW), Tegangan (V), & PF Kapasitor
+            </h4>
+            <div style="position:relative; height:260px; background:rgba(10,15,25,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+                <canvas id="chartLvsbInterval"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- TABEL RIWAYAT PENCATATAN INTERVAL LVSB                                 --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     <div style="margin-top:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
             <div>
                 <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin:0;">
-                    Riwayat Pencatatan LVSB Periode {{ \Carbon\Carbon::create($year, $month)->translatedFormat('F Y') }}
+                    Riwayat Pencatatan LVSB — Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}
                 </h3>
-                <span style="font-size:0.78rem; color:var(--text-muted);">{{ $rows->count() }} hari pencatatan tercatat</span>
+                <span style="font-size:0.78rem; color:var(--text-muted);">{{ $rows->count() }} hari logsheet tercatat</span>
             </div>
-
-            @if($canManage && $rows->count())
-                <div style="display:flex; gap:8px;">
-                    <a href="{{ route('public-area.lvsb.excel', ['year' => $year, 'month' => $month]) }}" class="btn btn-sm" style="background:#10b981; color:#fff; border:none;">
-                        ⬇ Unduh Excel
-                    </a>
-                    <a href="{{ route('public-area.lvsb.pdf', ['year' => $year, 'month' => $month]) }}" target="_blank" class="btn btn-sm" style="background:#6366f1; color:#fff; border:none;">
-                        🖨 Cetak PDF
-                    </a>
-                </div>
-            @endif
         </div>
 
         <div class="table-wrap">
@@ -310,7 +486,7 @@
                 @empty
                     <tr>
                         <td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">
-                            Belum ada catatan logsheet LVSB pada bulan {{ \Carbon\Carbon::create($year, $month)->translatedFormat('F Y') }}.
+                            Belum ada catatan logsheet LVSB pada interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}.
                         </td>
                     </tr>
                 @endforelse
@@ -322,6 +498,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     // Handler Upload Foto (Pilih dari Galeri & Buka Kamera)
     document.querySelectorAll('.photo-upload-group').forEach(group => {
@@ -376,6 +553,101 @@
                 if (previewWrap) previewWrap.style.display = 'none';
                 if (imgPreview) imgPreview.src = '';
                 if (namePreview) namePreview.textContent = '';
+            });
+        }
+    });
+
+    // Inisialisasi Grafik Visualisasi Chart.js Tren Interval LVSB
+    document.addEventListener('DOMContentLoaded', function() {
+        const chartData = @json($chartData);
+        const ctx = document.getElementById('chartLvsbInterval');
+        if (ctx && chartData && chartData.labels && chartData.labels.length > 0) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Incoming Power (kW)',
+                            data: chartData.power,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56,189,248,0.12)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.25,
+                            yAxisID: 'y',
+                            pointRadius: chartData.labels.length > 35 ? 0 : 3,
+                        },
+                        {
+                            label: 'Incoming Voltage (V)',
+                            data: chartData.voltage,
+                            borderColor: '#fbbf24',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.25,
+                            yAxisID: 'yVolt',
+                            pointRadius: chartData.labels.length > 35 ? 0 : 2,
+                        },
+                        {
+                            label: 'Capacitor PF',
+                            data: chartData.pf,
+                            borderColor: '#34d399',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.2,
+                            yAxisID: 'yPF',
+                            pointRadius: chartData.labels.length > 35 ? 0 : 2,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(255,255,255,0.75)',
+                                font: { size: 11 },
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'Power (kW)', color: '#38bdf8', font: { size: 10 } },
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                        },
+                        yVolt: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: 'Voltage (V)', color: '#fbbf24', font: { size: 10 } },
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                        },
+                        yPF: {
+                            type: 'linear',
+                            position: 'right',
+                            min: 0.7,
+                            max: 1.0,
+                            title: { display: true, text: 'PF', color: '#34d399', font: { size: 10 } },
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                        }
+                    }
+                }
             });
         }
     });

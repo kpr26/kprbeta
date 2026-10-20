@@ -47,8 +47,8 @@ class PublicAreaMvsbTest extends TestCase
     {
         $res = $this->actingAs($this->teknisi)->get(route('public-area.mvsb.index'));
         $res->assertOk();
-        $res->assertSee('Sub Menu: MVSB Incoming From PLN');
-        $res->assertSee('MVSB Incoming From PLN');
+        $res->assertSee('Sub Menu: MVSB');
+        $res->assertSee('MVSB');
         $res->assertSee('Voltage 20kV');
         $res->assertSee('Current');
     }
@@ -158,7 +158,57 @@ class PublicAreaMvsbTest extends TestCase
     {
         $res = $this->actingAs($this->teknisi)->get(route('public-area.index'));
         $res->assertOk();
-        $res->assertSee('MVSB Incoming From PLN');
+        $res->assertSee('MVSB');
         $res->assertSee('Buka Sub Menu MVSB');
+    }
+
+    public function test_superadmin_can_access_and_store_manual_mvsb_back_date()
+    {
+        $pastDate = Carbon::today()->subDays(3)->toDateString();
+
+        $pageRes = $this->actingAs($this->superadmin)->get(route('public-area.manual.mvsb', ['tanggal' => $pastDate]));
+        $pageRes->assertOk();
+        $pageRes->assertSee('Input Manual MVSB (Back Date)');
+
+        $storeRes = $this->actingAs($this->superadmin)->post(route('public-area.manual.mvsb.store'), [
+            'tanggal'      => $pastDate,
+            'voltage_20kv' => 20120.0,
+            'current'      => 28.5,
+            'catatan'      => 'Kondisi incoming PLN stabil',
+        ]);
+        $storeRes->assertRedirect(route('public-area.manual.mvsb', ['tanggal' => $pastDate]));
+
+        $this->assertTrue(
+            PublicAreaMvsbReading::whereDate('tanggal', $pastDate)
+                ->where('voltage_20kv', 20120.0)
+                ->where('current', 28.5)
+                ->exists()
+        );
+    }
+
+    public function test_non_superadmin_cannot_access_manual_mvsb_back_date()
+    {
+        $res = $this->actingAs($this->teknisi)->get(route('public-area.manual.mvsb'));
+        $res->assertForbidden();
+    }
+
+    public function test_mvsb_export_with_custom_date_interval()
+    {
+        $startDate = Carbon::today()->subMonths(6)->toDateString();
+        $endDate = Carbon::today()->toDateString();
+
+        $resExcel = $this->actingAs($this->spv)->get(route('public-area.mvsb.excel', [
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $resExcel->assertOk();
+        $resExcel->assertHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+
+        $resPdf = $this->actingAs($this->spv)->get(route('public-area.mvsb.pdf', [
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $resPdf->assertOk();
+        $resPdf->assertSee('LOGSHEET MVSB INCOMING FROM PLN');
     }
 }

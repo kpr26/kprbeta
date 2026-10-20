@@ -5,8 +5,8 @@
     $canManage = auth()->user()->isSuperAdmin() || auth()->user()->isSupervisor();
 @endphp
 
-@section('title', 'Detail Logsheet MVSB Incoming From PLN')
-@section('page-title', 'Detail MVSB Incoming From PLN')
+@section('title', 'Detail Logsheet MVSB')
+@section('page-title', 'Detail MVSB')
 @section('page-subtitle', 'Rincian Pembacaan Parameter Panel MVSB ' . $reading->tanggal->translatedFormat('l, d F Y'))
 
 @section('panel')

@@ -4,15 +4,15 @@
     $n = fn ($v, $d = 2) => ($v !== null && $v !== '') ? number_format((float)$v, $d, ',', '.') : '—';
 @endphp
 
-@section('title', 'Input Logsheet MVSB Incoming From PLN')
-@section('page-title', 'Input Logsheet MVSB Incoming From PLN')
+@section('title', 'Input Logsheet MVSB')
+@section('page-title', 'Input Logsheet MVSB')
 @section('page-subtitle', 'Pencatatan Parameter Tegangan Menengah 20kV & Arus Panel Incoming PLN')
 
 @section('panel')
 <section class="panel" style="max-width:800px; margin:0 auto;">
     <div class="panel-head" style="align-items:flex-start; flex-wrap:wrap; gap:12px;">
         <div>
-            <h2 style="margin:0; font-size:1.25rem;">Form Input MVSB Incoming From PLN</h2>
+            <h2 style="margin:0; font-size:1.25rem;">Form Input MVSB</h2>
             <p style="color:var(--text-secondary); margin:4px 0 0; font-size:0.86rem;">
                 Pastikan data Voltage 20kV dan Current yang diinput sesuai dengan display meteran panel gardu PLN.
             </p>
@@ -31,7 +31,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('public-area.mvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-mvsb" data-offline-type="public_area_mvsb" data-meter-label="MVSB Incoming From PLN" data-target-redirect="{{ route('public-area.mvsb.index') }}" style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px;">
+    <form method="POST" action="{{ route('public-area.mvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-mvsb" data-offline-type="public_area_mvsb" data-meter-label="MVSB" data-target-redirect="{{ route('public-area.mvsb.index') }}" style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px;">
         @csrf
 
         {{-- Tanggal Pencatatan --}}

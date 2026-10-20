@@ -91,6 +91,18 @@
                             <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">💧</span>
                             <span>Input Manual Air</span>
                         </a>
+                        <a href="{{ route('public-area.manual.water') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#06b6d4; font-size:1.05rem; line-height:1;">💧</span>
+                            <span>Manual Water PA</span>
+                        </a>
+                        <a href="{{ route('public-area.manual.lvsb') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#fbbf24; font-size:1.05rem; line-height:1;">⚡</span>
+                            <span>Manual LVSB</span>
+                        </a>
+                        <a href="{{ route('public-area.manual.mvsb') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#c084fc; font-size:1.05rem; line-height:1;">⚡</span>
+                            <span>Manual MVSB 20kV</span>
+                        </a>
                     @endif
 
                     <div class="user-dropdown-divider"></div>
@@ -174,7 +186,7 @@
 
             <a href="{{ route('public-area.mvsb.index') }}" class="nav-item {{ request()->routeIs('public-area.mvsb.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#a855f7; width:16px; height:16px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.381Z" clip-rule="evenodd"/></svg>
-                MVSB Incoming From PLN
+                MVSB
             </a>
 
             @if($authUser->isSuperAdmin())
@@ -196,6 +208,21 @@
             <a href="{{ route('logsheet.manual.air') }}" class="nav-item {{ request()->routeIs('logsheet.manual.air*') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#38bdf8;"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
                 Manual Air (Terlewat)
+            </a>
+
+            <a href="{{ route('public-area.manual.water') }}" class="nav-item {{ request()->routeIs('public-area.manual.water*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#06b6d4;"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
+                Manual Water PA (Terlewat)
+            </a>
+
+            <a href="{{ route('public-area.manual.lvsb') }}" class="nav-item {{ request()->routeIs('public-area.manual.lvsb*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#fbbf24;"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
+                Manual LVSB (Terlewat)
+            </a>
+
+            <a href="{{ route('public-area.manual.mvsb') }}" class="nav-item {{ request()->routeIs('public-area.manual.mvsb*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#c084fc;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.381Z" clip-rule="evenodd"/></svg>
+                Manual MVSB (Terlewat)
             </a>
             @endif
 
@@ -297,6 +324,18 @@
                             <a href="{{ route('logsheet.manual.air') }}" class="user-dropdown-item" role="menuitem">
                                 <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">💧</span>
                                 <span>Input Manual Air</span>
+                            </a>
+                            <a href="{{ route('public-area.manual.water') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#06b6d4; font-size:1.05rem; line-height:1;">💧</span>
+                                <span>Manual Water PA</span>
+                            </a>
+                            <a href="{{ route('public-area.manual.lvsb') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#fbbf24; font-size:1.05rem; line-height:1;">⚡</span>
+                                <span>Manual LVSB</span>
+                            </a>
+                            <a href="{{ route('public-area.manual.mvsb') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#c084fc; font-size:1.05rem; line-height:1;">⚡</span>
+                                <span>Manual MVSB 20kV</span>
                             </a>
                         @endif
 

@@ -194,6 +194,24 @@ Route::middleware('auth')->group(function () {
             Route::get('/export/excel/{category}', [PublicAreaLogsheetController::class, 'exportExcel'])->name('excel');
             Route::get('/export/pdf/{category}', [PublicAreaLogsheetController::class, 'exportPdf'])->name('pdf');
         });
+
+        // ── Input Manual Back Date (Khusus Super Admin untuk Tanggal Terlewat) ──
+        Route::middleware('role:admin,superadmin')->group(function () {
+            // Manual Water Public Area
+            Route::get('/manual/water', [PublicAreaLogsheetController::class, 'createManualWater'])->name('manual.water');
+            Route::post('/manual/water', [PublicAreaLogsheetController::class, 'storeManualWater'])->name('manual.water.store');
+            Route::get('/manual/water/reference', [PublicAreaLogsheetController::class, 'referenceManualWater'])->name('manual.water.reference');
+
+            // Manual LVSB
+            Route::get('/manual/lvsb', [PublicAreaLvsbController::class, 'createManual'])->name('manual.lvsb');
+            Route::post('/manual/lvsb', [PublicAreaLvsbController::class, 'storeManual'])->name('manual.lvsb.store');
+            Route::get('/manual/lvsb/reference', [PublicAreaLvsbController::class, 'referenceManual'])->name('manual.lvsb.reference');
+
+            // Manual MVSB
+            Route::get('/manual/mvsb', [PublicAreaMvsbController::class, 'createManual'])->name('manual.mvsb');
+            Route::post('/manual/mvsb', [PublicAreaMvsbController::class, 'storeManual'])->name('manual.mvsb.store');
+            Route::get('/manual/mvsb/reference', [PublicAreaMvsbController::class, 'referenceManual'])->name('manual.mvsb.reference');
+        });
     });
 
     // ── Daily Log Book (Pekerjaan Harian Teknisi) ──

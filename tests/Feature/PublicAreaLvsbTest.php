@@ -223,4 +223,64 @@ class PublicAreaLvsbTest extends TestCase
         $res = $this->actingAs($this->teknisi)->get('/logsheet-public-area/electricity');
         $res->assertRedirect('/logsheet-public-area/lvsb');
     }
+
+    public function test_superadmin_can_access_and_store_manual_lvsb_back_date()
+    {
+        $pastDate = Carbon::today()->subDays(7)->toDateString();
+
+        $pageRes = $this->actingAs($this->superadmin)->get(route('public-area.manual.lvsb', ['tanggal' => $pastDate]));
+        $pageRes->assertOk();
+        $pageRes->assertSee('Input Manual Logsheet LVSB (Back Date)');
+
+        $storeRes = $this->actingAs($this->superadmin)->post(route('public-area.manual.lvsb.store'), [
+            'tanggal' => $pastDate,
+            'catatan' => 'Back date LVSB catatan',
+            'readings' => [
+                'incoming_trafo' => [
+                    'voltage_3p'   => 382.5,
+                    'current'      => 410.0,
+                    'power'        => 260.0,
+                    'energy'       => 10.5000,
+                    'power_factor' => 0.95,
+                    'frequency'    => 50.0,
+                ],
+                'incoming_capacitor' => [
+                    'power_factor' => 0.98,
+                ],
+            ],
+        ]);
+        $storeRes->assertRedirect(route('public-area.manual.lvsb', ['tanggal' => $pastDate]));
+
+        $this->assertTrue(
+            PublicAreaLvsbReading::whereDate('tanggal', $pastDate)
+                ->where('catatan', 'Back date LVSB catatan')
+                ->exists()
+        );
+    }
+
+    public function test_non_superadmin_cannot_access_manual_lvsb_back_date()
+    {
+        $res = $this->actingAs($this->teknisi)->get(route('public-area.manual.lvsb'));
+        $res->assertForbidden();
+    }
+
+    public function test_lvsb_export_with_custom_date_interval()
+    {
+        $startDate = Carbon::today()->subMonths(3)->toDateString();
+        $endDate = Carbon::today()->toDateString();
+
+        $resExcel = $this->actingAs($this->spv)->get(route('public-area.lvsb.excel', [
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $resExcel->assertOk();
+        $resExcel->assertHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+
+        $resPdf = $this->actingAs($this->spv)->get(route('public-area.lvsb.pdf', [
+            'start_date' => $startDate,
+            'end_date'   => $endDate,
+        ]));
+        $resPdf->assertOk();
+        $resPdf->assertSee('LOGSHEET LVSB');
+    }
 }

@@ -144,8 +144,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="choice-title">MVSB Incoming From PLN</h3>
-                        <span class="choice-subtitle">Medium Voltage Switchboard 20kV</span>
+                        <h3 class="choice-title">MVSB</h3>
+                        <span class="choice-subtitle">Medium Voltage Switchboard 20kV (Incoming PLN)</span>
                     </div>
                 </div>
 

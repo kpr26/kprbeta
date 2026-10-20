@@ -3,8 +3,11 @@
 @php
     $canManage = in_array(auth()->user()->role, ['admin', 'superadmin', 'eng_admin', 'eng_spv'], true);
     $isAdmin = in_array(auth()->user()->role, ['admin', 'superadmin'], true);
+    $isSuperAdmin = auth()->user()->isSuperAdmin();
     $n = fn ($v) => $v !== null ? number_format($v, 2, ',', '.') : '—';
     $isTeknisi = auth()->user()->role === 'teknisi';
+    $intervalDays = (int) round($startDate->diffInDays($endDate) + 1);
+    $avgDailyUsage = $intervalDays > 0 ? round($grandTotalUsage / max(count($chartData['labels']), 1), 2) : 0;
 @endphp
 
 @section('title', 'Water Meter Public Area')
@@ -14,12 +17,12 @@
 @section('panel')
 <section class="panel">
     {{-- Header Sub Menu --}}
-    <div class="panel-head">
+    <div class="panel-head" style="align-items:flex-start; flex-wrap:wrap; gap:16px;">
         <div>
             <h2><span style="color:#38bdf8;">💧</span> Sub Menu: Water Meter Public Area</h2>
-            <p>Pencatatan stand meter air publik secara terpisah untuk setiap titik area publik gedung.</p>
+            <p>Pencatatan stand meter air publik terpisah untuk setiap titik area publik gedung.</p>
         </div>
-        <div class="btn-group">
+        <div class="btn-group" style="flex-wrap:wrap; gap:8px;">
             <a href="{{ route('public-area.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.06); color:var(--text-secondary);">
                 ← Menu Public Area
             </a>
@@ -29,17 +32,67 @@
             <a href="{{ route('public-area.mvsb.index') }}" class="btn btn-sm" style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
                 ⚡ MVSB 20kV
             </a>
-            <form class="filter-form" method="GET" style="margin:0;">
-                <input type="month" name="periode" value="{{ $periode }}" max="{{ now()->format('Y-m') }}" onchange="this.form.submit()" aria-label="Periode" style="padding:6px 12px; font-size:0.82rem;">
-            </form>
-            @if ($canManage)
-                <a href="{{ route('public-area.excel', ['category' => 'water', 'periode' => $periode]) }}" class="btn btn-excel btn-sm" title="Export Excel">
-                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>Excel
-                </a>
-                <a href="{{ route('public-area.pdf', ['category' => 'water', 'periode' => $periode]) }}" target="_blank" class="btn btn-pdf btn-sm" title="Export PDF">
-                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153A2.212 2.212 0 0 1 18 8.653v4.097A2.25 2.25 0 0 1 15.75 15h-.241l.305 1.984A1.75 1.75 0 0 1 14.084 19H5.915a1.75 1.75 0 0 1-1.73-2.016L4.492 15H4.25A2.25 2.25 0 0 1 2 12.75V8.653c0-1.082.775-2.034 1.874-2.198.374-.056.75-.107 1.127-.153L5 6.25v-3.5Zm8.5 3.397a41.533 41.533 0 0 0-7 0V2.75a.25.25 0 0 1 .25-.25h6.5a.25.25 0 0 1 .25.25v3.397ZM6.608 12.5a.25.25 0 0 0-.247.212l-.693 4.5a.25.25 0 0 0 .247.288h8.17a.25.25 0 0 0 .246-.288l-.692-4.5a.25.25 0 0 0-.247-.212H6.608Z" clip-rule="evenodd"/></svg>PDF
+
+            {{-- Tombol Khusus Super Admin: Input Back Date (Data Terlewat) --}}
+            @if ($isSuperAdmin)
+                <a href="{{ route('public-area.manual.water') }}" class="btn btn-sm" style="background:rgba(234,179,8,0.18); color:#facc15; border:1px solid rgba(234,179,8,0.45); font-weight:700; display:inline-flex; align-items:center; gap:6px;" title="Input data back date secara manual (Khusus Super Admin)">
+                    <span>📅 Input Back Date (Terlewat)</span>
                 </a>
             @endif
+
+            {{-- Export Buttons --}}
+            @if ($canManage)
+                <a href="{{ route('public-area.excel', ['category' => 'water', 'start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString(), 'preset' => $preset]) }}" class="btn btn-excel btn-sm" title="Export Excel Rekapitulasi Data">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z"/><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>Export to Excel
+                </a>
+                <a href="{{ route('public-area.pdf', ['category' => 'water', 'start_date' => $startDate->toDateString(), 'end_date' => $endDate->toDateString(), 'preset' => $preset]) }}" target="_blank" class="btn btn-pdf btn-sm" title="Export PDF Rekapitulasi Data (Grafik & Tabel)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;"><path fill-rule="evenodd" d="M5 2.75C5 1.784 5.784 1 6.75 1h6.5c.966 0 1.75.784 1.75 1.75v3.552c.377.046.752.097 1.126.153A2.212 2.212 0 0 1 18 8.653v4.097A2.25 2.25 0 0 1 15.75 15h-.241l.305 1.984A1.75 1.75 0 0 1 14.084 19H5.915a1.75 1.75 0 0 1-1.73-2.016L4.492 15H4.25A2.25 2.25 0 0 1 2 12.75V8.653c0-1.082.775-2.034 1.874-2.198.374-.056.75-.107 1.127-.153L5 6.25v-3.5Zm8.5 3.397a41.533 41.533 0 0 0-7 0V2.75a.25.25 0 0 1 .25-.25h6.5a.25.25 0 0 1 .25.25v3.397ZM6.608 12.5a.25.25 0 0 0-.247.212l-.693 4.5a.25.25 0 0 0 .247.288h8.17a.25.25 0 0 0 .246-.288l-.692-4.5a.25.25 0 0 0-.247-.212H6.608Z" clip-rule="evenodd"/></svg>Export to PDF
+                </a>
+            @endif
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- TOOLBAR FILTER INTERVAL DATA (MAKSIMAL 12 BULAN / 1 TAHUN)              --}}
+    {{-- ══════════════════════════════════════════════════════════════════════ --}}
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(56,189,248,0.22); border-radius:12px; padding:14px 18px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            {{-- Quick Presets --}}
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.04em;">Preset Interval:</span>
+                <a href="{{ route('public-area.water.index') }}" class="btn btn-sm {{ empty($preset) && !$startDate->isSameDay($startDate->copy()->subMonths(3)) ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    Bulan Ini
+                </a>
+                <a href="{{ route('public-area.water.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    3 Bulan
+                </a>
+                <a href="{{ route('public-area.water.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    6 Bulan
+                </a>
+                <a href="{{ route('public-area.water.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                    1 Tahun (Maks)
+                </a>
+            </div>
+
+            {{-- Custom Date Range Form --}}
+            <form method="GET" action="{{ route('public-area.water.index') }}" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0;">
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Rentang:</span>
+                <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" max="{{ today()->toDateString() }}" class="input" style="padding:4px 8px; font-size:0.8rem; width:135px;" title="Tanggal Mulai">
+                <span style="color:var(--text-muted); font-size:0.8rem;">s/d</span>
+                <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" max="{{ today()->toDateString() }}" class="input" style="padding:4px 8px; font-size:0.8rem; width:135px;" title="Tanggal Selesai">
+                <button type="submit" class="btn btn-sm btn-primary" style="padding:5px 12px; font-size:0.8rem;">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        {{-- Active Interval Info Pill --}}
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem;">
+            <div style="color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#38bdf8;"></span>
+                <span>Interval Aktif: <strong style="color:var(--text-primary);">{{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}</strong> ({{ $intervalDays }} hari)</span>
+            </div>
+            <span style="color:var(--text-muted); font-size:0.74rem;">* Ekspor Excel & PDF otomatis mengikuti interval aktif (maksimal 12 bulan / 1 tahun).</span>
         </div>
     </div>
 
@@ -212,36 +265,129 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    {{-- RINGKASAN PEMAKAIAN BULANAN (SUMMARY CARDS)                            --}}
+    {{-- RANGKUMAN STATISTIK PEMAKAIAN INTERVAL (TABEL & GRAFIK)                --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="margin-bottom:24px;">
-        <h3 style="font-size:1.05rem; color:var(--text-primary); margin:0 0 12px; font-weight:700;">
-            Ringkasan Pemakaian Bulanan Periode {{ \Carbon\Carbon::create($year, $month)->translatedFormat('F Y') }}
-        </h3>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;">
-            @foreach($waterMeters as $k => $m)
-                @php
-                    $u = $summaryPerMeter[$k]['totalUsage'] ?? 0;
-                @endphp
-                <div style="background:rgba(15,22,35,0.7); border:1px solid {{ $m['color'] }}33; border-radius:10px; padding:14px 16px;">
-                    <span style="font-size:0.72rem; text-transform:uppercase; color:{{ $m['color'] }}; font-weight:700;">{{ $m['name'] }}</span>
-                    <div style="font-size:1.6rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin:4px 0;">
-                        {{ $n($u) }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">m³</small>
-                    </div>
-                    <span style="font-size:0.76rem; color:var(--text-muted);">{{ $summaryPerMeter[$k]['count'] ?? 0 }} hari tercatat</span>
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:20px; margin-bottom:28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <div>
+                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#38bdf8; font-weight:700;">Rangkuman & Visualisasi Data</span>
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin:2px 0 0; font-weight:700;">
+                    Rangkuman Pemakaian Air — Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}
+                </h3>
+            </div>
+            <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.76rem;">
+                {{ $intervalDays }} Hari Terpilih
+            </span>
+        </div>
+
+        {{-- Metric Cards --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:20px;">
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Grand Total Pemakaian</span>
+                <div style="font-size:1.6rem; font-weight:700; color:#38bdf8; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($grandTotalUsage) }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">m³</small>
                 </div>
-            @endforeach
+                <span style="font-size:0.75rem; color:var(--text-secondary);">Total seluruh titik meteran</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Rata-rata Pemakaian Harian</span>
+                <div style="font-size:1.6rem; font-weight:700; color:#34d399; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $n($avgDailyUsage) }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">m³/hari</small>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">Dihitung dari hari aktif</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Jumlah Titik Area Publik</span>
+                <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-family:var(--font-serif); margin:4px 0;">
+                    3 <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">Titik Meteran</small>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">CT 12A, Toilet Sky, Pantry</span>
+            </div>
+
+            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 14px;">
+                <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Log Tercatat</span>
+                <div style="font-size:1.6rem; font-weight:700; color:#c084fc; font-family:var(--font-serif); margin:4px 0;">
+                    {{ $rows->count() }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">catatan</small>
+                </div>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">Dalam interval terpilih</span>
+            </div>
+        </div>
+
+        {{-- TABEL RANGKUMAN STATISTIK PER TITIK METER --}}
+        <div style="margin-bottom:20px;">
+            <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                <span>📊</span> Tabel Rangkuman Statistik per Titik Meteran
+            </h4>
+            <div class="table-wrap">
+                <table class="log-table" style="font-size:0.84rem;">
+                    <thead>
+                        <tr>
+                            <th class="l">Titik Meteran Air</th>
+                            <th class="l">Lokasi</th>
+                            <th class="r">Total Pemakaian (m³)</th>
+                            <th class="r">Rata-rata (m³/hari)</th>
+                            <th class="r">Min Harian (m³)</th>
+                            <th class="r">Max Harian (m³)</th>
+                            <th class="c">Hari Tercatat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($waterMeters as $k => $m)
+                            @php $s = $summaryPerMeter[$k] ?? null; @endphp
+                            <tr>
+                                <td class="l" style="font-weight:700; color:{{ $m['color'] }};">
+                                    {{ $m['name'] }}
+                                </td>
+                                <td class="l" style="color:var(--text-muted); font-size:0.78rem;">
+                                    {{ $m['location'] }}
+                                </td>
+                                <td class="r" style="font-weight:700; color:var(--text-primary); font-family:var(--font-serif);">
+                                    {{ $n($s['totalUsage'] ?? 0) }} m³
+                                </td>
+                                <td class="r">{{ $n($s['avgUsage'] ?? 0) }} m³</td>
+                                <td class="r">{{ $n($s['minUsage'] ?? 0) }} m³</td>
+                                <td class="r" style="color:#fbbf24; font-weight:600;">{{ $n($s['maxUsage'] ?? 0) }} m³</td>
+                                <td class="c">{{ $s['count'] ?? 0 }} hari</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:rgba(56,189,248,0.08); font-weight:700;">
+                            <td class="l" colspan="2">GRAND TOTAL PEMAKAIAN AIR</td>
+                            <td class="r" style="color:#38bdf8; font-size:1rem;">{{ $n($grandTotalUsage) }} m³</td>
+                            <td class="r">{{ $n($avgDailyUsage) }} m³</td>
+                            <td colspan="2"></td>
+                            <td class="c">{{ $rows->count() }} data</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        {{-- GRAFIK VISUALISASI CHART.JS --}}
+        <div>
+            <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
+                <span>📈</span> Grafik Tren Pemakaian Air Harian (Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }})
+            </h4>
+            <div style="position:relative; height:260px; background:rgba(10,15,25,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+                <canvas id="chartWaterPublicArea"></canvas>
+            </div>
         </div>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    {{-- TABEL REKAPITULASI DATA WATER METER PUBLIC AREA                        --}}
+    {{-- TABEL REKAPITULASI RINCIAN DATA HARIAN                                  --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     <div style="margin-top:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0;">
-                Tabel Rincian Pencatatan Water Meter Public Area
-            </h3>
+            <div>
+                <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0;">
+                    Tabel Rincian Pencatatan Water Meter Public Area
+                </h3>
+                <span style="font-size:0.78rem; color:var(--text-muted);">Menampilkan seluruh data logsheet dalam interval terpilih</span>
+            </div>
         </div>
 
         <div class="table-wrap">
@@ -306,7 +452,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="empty">Belum ada data pencatatan water meter public area pada periode ini.</td>
+                        <td colspan="9" class="empty">Belum ada data pencatatan water meter public area pada interval ini.</td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -317,6 +463,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     // Kalkulasi selisih stand hari ini dengan stand kemarin
     document.querySelectorAll('.input-stand-meter').forEach(inp => {
@@ -393,6 +540,97 @@
                 if (previewWrap) previewWrap.style.display = 'none';
                 if (imgPreview) imgPreview.src = '';
                 if (namePreview) namePreview.textContent = '';
+            });
+        }
+    });
+
+    // Inisialisasi Grafik Visualisasi Chart.js Tren Interval
+    document.addEventListener('DOMContentLoaded', function() {
+        const chartData = @json($chartData);
+        const ctx = document.getElementById('chartWaterPublicArea');
+        if (ctx && chartData && chartData.labels && chartData.labels.length > 0) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: 'Cooling Tower 12A',
+                            data: chartData.cooling_tower,
+                            backgroundColor: '#0284c7',
+                            borderRadius: 4,
+                            stack: 'waterStack',
+                        },
+                        {
+                            label: 'Toilet & Mushola Sky Lobby',
+                            data: chartData.toilet_sky,
+                            backgroundColor: '#06b6d4',
+                            borderRadius: 4,
+                            stack: 'waterStack',
+                        },
+                        {
+                            label: 'Pantry Office',
+                            data: chartData.pantry_office,
+                            backgroundColor: '#38bdf8',
+                            borderRadius: 4,
+                            stack: 'waterStack',
+                        },
+                        {
+                            label: 'Total Harian (m³)',
+                            data: chartData.total_daily,
+                            type: 'line',
+                            borderColor: '#f59e0b',
+                            backgroundColor: '#f59e0b',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: chartData.labels.length > 40 ? 0 : 3,
+                            fill: false,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(255,255,255,0.75)',
+                                font: { size: 11 },
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} m³`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: {
+                                color: 'rgba(255,255,255,0.6)',
+                                font: { size: 10 },
+                                callback: function(value) { return value + ' m³'; }
+                            }
+                        }
+                    }
+                }
             });
         }
     });
