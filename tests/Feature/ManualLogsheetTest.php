@@ -27,7 +27,7 @@ class ManualLogsheetTest extends TestCase
 
         $responseListrik = $this->actingAs($admin)->get(route('logsheet.manual.listrik'));
         $responseListrik->assertStatus(200);
-        $responseListrik->assertSee('Input Manual Logsheet Listrik');
+        $responseListrik->assertSee('AMR PLN');
 
         $responseAir = $this->actingAs($admin)->get(route('logsheet.manual.air'));
         $responseAir->assertStatus(200);

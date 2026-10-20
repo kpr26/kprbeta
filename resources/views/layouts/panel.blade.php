@@ -159,8 +159,13 @@
             </div>
 
             <a href="{{ route('logsheet.manual.listrik') }}" class="nav-item {{ request()->routeIs('logsheet.manual.listrik*') ? 'nav-item--active' : '' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#fbbf24;"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
-                Manual Listrik (Terlewat)
+                <span style="display:inline-flex; width:18px; height:18px; margin-right:4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" style="width:18px; height:18px;">
+                        <polygon points="32,3 61,32 32,61 3,32" fill="#FFC90E" stroke="#D32F2F" stroke-width="2.5"/>
+                        <polygon points="36,11 23,33 31,33 26,53 43,28 34,28" fill="#D32F2F"/>
+                    </svg>
+                </span>
+                Manual AMR PLN (Terlewat)
             </a>
 
             <a href="{{ route('logsheet.manual.air') }}" class="nav-item {{ request()->routeIs('logsheet.manual.air*') ? 'nav-item--active' : '' }}">

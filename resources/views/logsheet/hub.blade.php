@@ -26,37 +26,38 @@
     </div>
 
     @if(auth()->user()->role === 'teknisi')
-        <div class="offline-feature-banner" style="background:rgba(200,170,110,0.08); border:1px dashed rgba(200,170,110,0.3); border-radius:12px; padding:10px 16px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-size:0.84rem; color:var(--text-secondary);">
-            <div style="width:32px; height:32px; border-radius:8px; background:rgba(200,170,110,0.15); color:var(--accent-light); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <div>
-                <strong style="color:var(--accent-light);">Fitur Offline Aktif:</strong>
-                Aplikasi mendukung input stand &amp; foto di basement/ruang tanpa sinyal. Data otomatis disinkronkan ke server saat HP Anda terhubung kembali ke jaringan.
-            </div>
+        <div class="offline-feature-pill" style="display:inline-flex; align-items:center; gap:8px; background:rgba(200,170,110,0.06); border:1px solid rgba(200,170,110,0.22); border-radius:20px; padding:4px 12px; margin-bottom:14px; font-size:0.78rem; color:var(--text-secondary);">
+            <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span>
+            <span><strong style="color:var(--accent-light);">Mode Offline Aktif:</strong> Otomatis sinkron saat HP kembali terhubung ke jaringan</span>
         </div>
     @endif
 
     <div class="logsheet-choice-grid">
-        {{-- 1. KARTU PILIHAN LOGSHEET LISTRIK --}}
+        {{-- 1. KARTU PILIHAN LOGSHEET AMR PLN T33N --}}
         <div class="logsheet-choice-card logsheet-choice-card--elec">
             <div>
                 <div class="choice-card-head">
-                    <div class="choice-icon-wrap choice-icon-wrap--elec">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/>
+                    <div class="choice-icon-wrap choice-icon-wrap--pln" style="background:rgba(255,201,14,0.12); border:1px solid rgba(255,201,14,0.3); padding:4px; display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:12px; flex-shrink:0;">
+                        {{-- Logo PLN Indonesia --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" style="width:34px; height:34px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                            <!-- Yellow diamond with red border -->
+                            <polygon points="32,3 61,32 32,61 3,32" fill="#FFC90E" stroke="#D32F2F" stroke-width="2.5" stroke-linejoin="round"/>
+                            <!-- 3 Blue waves -->
+                            <path d="M14 36c4-2 7 2 11 0s7-2 11 0 7 2 11 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                            <path d="M16 41c4-2 7 2 11 0s7-2 11 0 7 2 9 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                            <path d="M19 46c3.5-1.8 6.5 1.8 10 0s6.5-1.8 10 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                            <!-- Red lightning bolt -->
+                            <polygon points="36,11 23,33 31,33 26,53 43,28 34,28" fill="#D32F2F"/>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="choice-title">Logsheet Listrik</h3>
-                        <span class="choice-subtitle">kWh Meter (LWBP &amp; WBP)</span>
+                        <h3 class="choice-title">Logsheet AMR PLN T33N</h3>
+                        <span class="choice-subtitle">kWh Meter (BP, LBP1, LBP2, Total)</span>
                     </div>
                 </div>
 
                 <p class="choice-desc">
-                    Catat angka stand meteran listrik LWBP dan WBP pada gardu serta lampirkan foto fisik kWh meter.
+                    Catat angka stand AMR PLN T33N: BP, LBP 1, LBP 2, dan Total (kWh) pada gardu utama dengan 1 foto fisik meteran.
                 </p>
 
                 <div class="choice-status-box">
@@ -64,16 +65,25 @@
                         <div class="badge badge-ok" style="font-size:0.8rem; padding:6px 12px;">
                             ✓ Sudah Dicatat Hari Ini
                         </div>
-                        <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:8px;">
-                            LWBP: <b>{{ $n($today->stand_lwbp) }} kWh</b> · WBP: <b>{{ $n($today->stand_wbp) }} kWh</b>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px; line-height:1.5;">
+                            @if($today->stand_bp !== null || $today->stand_total !== null)
+                                BP: <b>{{ $n($today->stand_bp) }}</b> · LBP1: <b>{{ $n($today->stand_lbp1) }}</b><br>
+                                LBP2: <b>{{ $n($today->stand_lbp2) }}</b> · Total: <b>{{ $n($today->stand_total) }} kWh</b>
+                            @else
+                                LWBP: <b>{{ $n($today->stand_lwbp) }} kWh</b> · WBP: <b>{{ $n($today->stand_wbp) }} kWh</b>
+                            @endif
                         </div>
                     @else
                         <div class="badge badge-wait" style="font-size:0.8rem; padding:6px 12px;">
                             Belum Dicatat Hari Ini
                         </div>
                         @if ($prevElec)
-                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:8px;">
-                                Stand kemarin: LWBP {{ $n($prevElec->stand_lwbp) }} · WBP {{ $n($prevElec->stand_wbp) }}
+                            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:8px; line-height:1.4;">
+                                @if($prevElec->stand_total !== null)
+                                    Stand kemarin: Total <b>{{ $n($prevElec->stand_total) }} kWh</b> (BP {{ $n($prevElec->stand_bp) }} · LBP1 {{ $n($prevElec->stand_lbp1) }} · LBP2 {{ $n($prevElec->stand_lbp2) }})
+                                @else
+                                    Stand kemarin: LWBP {{ $n($prevElec->stand_lwbp) }} · WBP {{ $n($prevElec->stand_wbp) }}
+                                @endif
                             </div>
                         @endif
                     @endif
@@ -82,14 +92,14 @@
 
             @if ($hasElecToday && auth()->user()->role === 'teknisi')
                 <a href="{{ route('logsheet.show', $today) }}" class="choice-btn-cta" style="background:rgba(200,170,110,0.08); color:var(--accent-light); border:1px solid rgba(200,170,110,0.25);">
-                    <span>Lihat Detail Catatan Listrik</span>
+                    <span>Lihat Detail AMR PLN T33N</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
                     </svg>
                 </a>
             @else
                 <a href="{{ route('logsheet.create.listrik') }}" class="choice-btn-cta choice-btn-cta--elec">
-                    <span>{{ $hasElecToday ? 'Perbarui Stand Listrik' : 'Input Stand Listrik' }}</span>
+                    <span>{{ $hasElecToday ? 'Perbarui AMR PLN T33N' : 'Input AMR PLN T33N' }}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
                     </svg>
@@ -225,27 +235,32 @@
         </div>
 
         <div class="logsheet-choice-grid">
-            {{-- Kartu Manual Listrik --}}
+            {{-- Kartu Manual AMR PLN T33N --}}
             <div class="logsheet-choice-card" style="border-color:rgba(245,158,11,0.3); background:rgba(15,22,35,0.9);">
                 <div>
                     <div class="choice-card-head">
-                        <div class="choice-icon-wrap" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/>
+                        <div class="choice-icon-wrap" style="background:rgba(255,201,14,0.12); border:1px solid rgba(255,201,14,0.3); padding:4px; display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:12px; flex-shrink:0;">
+                            {{-- Logo PLN Indonesia --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" style="width:32px; height:32px;">
+                                <polygon points="32,3 61,32 32,61 3,32" fill="#FFC90E" stroke="#D32F2F" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M14 36c4-2 7 2 11 0s7-2 11 0 7 2 11 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                                <path d="M16 41c4-2 7 2 11 0s7-2 11 0 7 2 9 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                                <path d="M19 46c3.5-1.8 6.5 1.8 10 0s6.5-1.8 10 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                                <polygon points="36,11 23,33 31,33 26,53 43,28 34,28" fill="#D32F2F"/>
                             </svg>
                         </div>
                         <div>
-                            <h3 class="choice-title" style="color:#fbbf24;">Manual Listrik</h3>
+                            <h3 class="choice-title" style="color:#fbbf24;">Manual AMR PLN T33N</h3>
                             <span class="choice-subtitle">Pilih Tanggal Bebas (Lampau)</span>
                         </div>
                     </div>
                     <p class="choice-desc">
-                        Masukkan stand meter LWBP &amp; WBP untuk tanggal yang terlewat lengkap dengan pengecekan data acuan tanggal sebelum dan sesudahnya.
+                        Masukkan stand AMR PLN T33N: BP, LBP 1, LBP 2, dan Total (kWh) untuk tanggal yang terlewat lengkap dengan pengecekan data acuan sebelum dan sesudahnya.
                     </p>
                 </div>
                 <div style="margin-top:16px;">
                     <a href="{{ route('logsheet.manual.listrik') }}" class="choice-btn-cta" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">
-                        <span>+ Input Manual Listrik</span>
+                        <span>+ Input Manual AMR PLN</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
                         </svg>

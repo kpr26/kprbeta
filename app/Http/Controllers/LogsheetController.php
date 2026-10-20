@@ -17,7 +17,46 @@ class LogsheetController extends Controller
         $summary = $this->summary($rows);
         $today   = MeterReading::whereDate('tanggal', today())->first();
 
-        return view('logsheet.index', compact('rows', 'summary', 'year', 'month', 'today'));
+        // Data grafik harian (mengacu langsung dari tabel pemakaian & akumulatif)
+        $chartData = [
+            'labels'      => $rows->map(fn ($r) => $r->tanggal->format('d'))->values(),
+            'dates'       => $rows->map(fn ($r) => $r->tanggal->translatedFormat('d M'))->values(),
+            'bp'          => $rows->map(fn ($r) => (float)($r->pakai_bp ?? 0))->values(),
+            'lbp'         => $rows->map(fn ($r) => (float)($r->pakai_lbp ?? 0))->values(),
+            'total_kwh'   => $rows->map(fn ($r) => (float)($r->pakai_kwh ?? 0))->values(),
+            'cum_bp'      => $rows->map(fn ($r) => (float)($r->cum_bp ?? 0))->values(),
+            'cum_lbp'     => $rows->map(fn ($r) => (float)($r->cum_lbp ?? 0))->values(),
+            'cum_kwh'     => $rows->map(fn ($r) => (float)($r->cum_kwh ?? 0))->values(),
+            'air'         => $rows->map(fn ($r) => (float)($r->pakai_air ?? 0))->values(),
+            'cum_air'     => $rows->map(fn ($r) => (float)($r->cum_air ?? 0))->values(),
+        ];
+
+        // KPI & metrik performa untuk bahan paparan manajemen
+        $countKwh = $rows->filter(fn ($r) => $r->pakai_kwh !== null)->count();
+        $countAir = $rows->filter(fn ($r) => $r->pakai_air !== null)->count();
+        $peakKwhRow = $rows->whereNotNull('pakai_kwh')->sortByDesc('pakai_kwh')->first();
+        $peakAirRow = $rows->whereNotNull('pakai_air')->sortByDesc('pakai_air')->first();
+
+        $kpi = [
+            'total_kwh'   => $summary['kwh'] ?? 0,
+            'total_bp'    => $summary['bp'] ?? 0,
+            'total_lbp'   => $summary['lbp'] ?? 0,
+            'total_air'   => $summary['air'] ?? 0,
+            'avg_kwh'     => $countKwh > 0 ? round(($summary['kwh'] ?? 0) / $countKwh, 2) : 0,
+            'avg_air'     => $countAir > 0 ? round(($summary['air'] ?? 0) / $countAir, 2) : 0,
+            'peak_kwh'    => $peakKwhRow ? [
+                'tanggal' => $peakKwhRow->tanggal->translatedFormat('d F Y'),
+                'nilai'   => $peakKwhRow->pakai_kwh,
+            ] : null,
+            'peak_air'    => $peakAirRow ? [
+                'tanggal' => $peakAirRow->tanggal->translatedFormat('d F Y'),
+                'nilai'   => $peakAirRow->pakai_air,
+            ] : null,
+            'pct_bp'      => ($summary['kwh'] > 0) ? round((($summary['bp'] ?? 0) / $summary['kwh']) * 100, 1) : 0,
+            'pct_lbp'     => ($summary['kwh'] > 0) ? round((($summary['lbp'] ?? 0) / $summary['kwh']) * 100, 1) : 0,
+        ];
+
+        return view('logsheet.index', compact('rows', 'summary', 'year', 'month', 'today', 'chartData', 'kpi'));
     }
 
     /** Halaman Hub / Menu Pilihan Logsheet (Khusus Mobile/Teknisi) */
@@ -94,51 +133,112 @@ class LogsheetController extends Controller
             abort(403, $msg);
         }
 
-        $data = $request->validate([
-            'stand_lwbp'         => 'required|numeric|min:0',
-            'stand_wbp'          => 'required|numeric|min:0',
-            'foto_kwh'           => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'catatan'            => 'nullable|string|max:1000',
-            'tanggal_pencatatan' => 'nullable|date',
-        ], [
-            'stand_lwbp.required' => 'Stand kWh LWBP wajib diisi.',
-            'stand_wbp.required'  => 'Stand kWh WBP wajib diisi.',
-            'foto_kwh.required'   => 'Foto kWh meter wajib diunggah sebagai bukti.',
-            'image'               => 'File harus berupa gambar (jpg, png, webp).',
-            'max'                 => 'Ukuran foto maksimal 5 MB.',
-        ]);
+        $isAmr = $request->has('stand_bp') || $request->has('stand_total');
 
-        // Cek stand tidak boleh lebih kecil dari stand listrik sebelumnya
-        $prev = MeterReading::previousElectricOf($recordDate);
-        if ($prev) {
-            if ($data['stand_lwbp'] < $prev->stand_lwbp) {
-                $msg = 'Stand LWBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_lwbp, 2, ',', '.') . ').';
-                if ($request->expectsJson() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => $msg,
-                        'errors'  => ['stand_lwbp' => [$msg]]
-                    ], 422);
+        if ($isAmr) {
+            $data = $request->validate([
+                'stand_bp'           => 'required|numeric|min:0',
+                'stand_lbp1'         => 'required|numeric|min:0',
+                'stand_lbp2'         => 'required|numeric|min:0',
+                'stand_total'        => 'required|numeric|min:0',
+                'foto_kwh'           => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'catatan'            => 'nullable|string|max:1000',
+                'tanggal_pencatatan' => 'nullable|date',
+            ], [
+                'stand_bp.required'    => 'Stand BP (Beban Puncak) wajib diisi.',
+                'stand_lbp1.required'  => 'Stand LBP 1 wajib diisi.',
+                'stand_lbp2.required'  => 'Stand LBP 2 wajib diisi.',
+                'stand_total.required' => 'Stand Total wajib diisi.',
+                'foto_kwh.required'    => 'Foto fisik meteran AMR PLN T33N wajib diunggah sebagai bukti.',
+                'image'                => 'File harus berupa gambar (jpg, png, webp).',
+                'max'                  => 'Ukuran foto maksimal 5 MB.',
+            ]);
+
+            // Cek stand tidak boleh lebih kecil dari stand listrik sebelumnya
+            $prev = MeterReading::previousElectricOf($recordDate);
+            if ($prev) {
+                $checks = [
+                    'stand_bp'    => ['field' => 'stand_bp', 'label' => 'Stand BP'],
+                    'stand_lbp1'  => ['field' => 'stand_lbp1', 'label' => 'Stand LBP 1'],
+                    'stand_lbp2'  => ['field' => 'stand_lbp2', 'label' => 'Stand LBP 2'],
+                    'stand_total' => ['field' => 'stand_total', 'label' => 'Stand Total'],
+                ];
+
+                foreach ($checks as $key => $conf) {
+                    if ($prev->{$conf['field']} !== null && $data[$key] < $prev->{$conf['field']}) {
+                        $msg = $conf['label'] . ' tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->{$conf['field']}, 2, ',', '.') . ' kWh).';
+                        if ($request->expectsJson() || $request->wantsJson()) {
+                            return response()->json([
+                                'success' => false,
+                                'message' => $msg,
+                                'errors'  => [$key => [$msg]]
+                            ], 422);
+                        }
+                        return back()->withInput()->withErrors([$key => $msg]);
+                    }
                 }
-                return back()->withInput()->withErrors(['stand_lwbp' => $msg]);
             }
-            if ($data['stand_wbp'] < $prev->stand_wbp) {
-                $msg = 'Stand WBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_wbp, 2, ',', '.') . ').';
-                if ($request->expectsJson() || $request->wantsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => $msg,
-                        'errors'  => ['stand_wbp' => [$msg]]
-                    ], 422);
+
+            $record = MeterReading::firstOrNew(['tanggal' => $recordDate]);
+            $record->user_id = Auth::id();
+            $record->stand_bp = $data['stand_bp'];
+            $record->stand_lbp1 = $data['stand_lbp1'];
+            $record->stand_lbp2 = $data['stand_lbp2'];
+            $record->stand_total = $data['stand_total'];
+            // Sinkronisasi stand_wbp & stand_lwbp untuk kompatibilitas data historis
+            $record->stand_wbp = $data['stand_bp'];
+            $record->stand_lwbp = round($data['stand_lbp1'] + $data['stand_lbp2'], 2);
+        } else {
+            $data = $request->validate([
+                'stand_lwbp'         => 'required|numeric|min:0',
+                'stand_wbp'          => 'required|numeric|min:0',
+                'foto_kwh'           => ($isExisting ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'catatan'            => 'nullable|string|max:1000',
+                'tanggal_pencatatan' => 'nullable|date',
+            ], [
+                'stand_lwbp.required' => 'Stand kWh LWBP wajib diisi.',
+                'stand_wbp.required'  => 'Stand kWh WBP wajib diisi.',
+                'foto_kwh.required'   => 'Foto kWh meter wajib diunggah sebagai bukti.',
+                'image'               => 'File harus berupa gambar (jpg, png, webp).',
+                'max'                 => 'Ukuran foto maksimal 5 MB.',
+            ]);
+
+            $prev = MeterReading::previousElectricOf($recordDate);
+            if ($prev) {
+                if ($prev->stand_lwbp !== null && $data['stand_lwbp'] < $prev->stand_lwbp) {
+                    $msg = 'Stand LWBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_lwbp, 2, ',', '.') . ').';
+                    if ($request->expectsJson() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $msg,
+                            'errors'  => ['stand_lwbp' => [$msg]]
+                        ], 422);
+                    }
+                    return back()->withInput()->withErrors(['stand_lwbp' => $msg]);
                 }
-                return back()->withInput()->withErrors(['stand_wbp' => $msg]);
+                if ($prev->stand_wbp !== null && $data['stand_wbp'] < $prev->stand_wbp) {
+                    $msg = 'Stand WBP tidak boleh lebih kecil dari sebelumnya (' . number_format($prev->stand_wbp, 2, ',', '.') . ').';
+                    if ($request->expectsJson() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => $msg,
+                            'errors'  => ['stand_wbp' => [$msg]]
+                        ], 422);
+                    }
+                    return back()->withInput()->withErrors(['stand_wbp' => $msg]);
+                }
             }
+
+            $record = MeterReading::firstOrNew(['tanggal' => $recordDate]);
+            $record->user_id = Auth::id();
+            $record->stand_lwbp = $data['stand_lwbp'];
+            $record->stand_wbp = $data['stand_wbp'];
+            $record->stand_bp = $data['stand_wbp'];
+            $record->stand_lbp1 = $data['stand_lwbp'];
+            $record->stand_lbp2 = 0;
+            $record->stand_total = round($data['stand_lwbp'] + $data['stand_wbp'], 2);
         }
 
-        $record = MeterReading::firstOrNew(['tanggal' => $recordDate]);
-        $record->user_id = Auth::id();
-        $record->stand_lwbp = $data['stand_lwbp'];
-        $record->stand_wbp = $data['stand_wbp'];
         if ($request->hasFile('foto_kwh')) {
             if ($record->foto_kwh) {
                 Storage::disk('public')->delete($record->foto_kwh);
@@ -147,13 +247,13 @@ class LogsheetController extends Controller
         }
         if (!empty($data['catatan'])) {
             $record->catatan = $record->catatan 
-                ? $record->catatan . ' | [Listrik]: ' . $data['catatan'] 
+                ? $record->catatan . ' | [AMR PLN T33N]: ' . $data['catatan'] 
                 : $data['catatan'];
         }
         $record->save();
 
         $targetRoute = Auth::user()->role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
-        $successMsg = 'Logsheet Listrik tanggal ' . \Carbon\Carbon::parse($recordDate)->translatedFormat('d M Y') . ' berhasil disimpan.';
+        $successMsg = 'Logsheet AMR PLN T33N tanggal ' . \Carbon\Carbon::parse($recordDate)->translatedFormat('d M Y') . ' berhasil disimpan.';
 
         if ($request->expectsJson() || $request->wantsJson()) {
             return response()->json([
@@ -291,59 +391,129 @@ class LogsheetController extends Controller
         return view('logsheet.manual-listrik', compact('reading', 'tanggal', 'prev', 'next'));
     }
 
-    /** Simpan Input Manual Khusus Listrik (Super Admin - Tanggal Terlewat) */
+    /** Simpan Input Manual Khusus AMR PLN T33N (Super Admin - Tanggal Terlewat) */
     public function storeManualListrik(Request $request)
     {
         abort_unless(Auth::user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
 
-        $data = $request->validate([
-            'tanggal'    => 'required|date|before_or_equal:today',
-            'stand_lwbp' => 'required|numeric|min:0',
-            'stand_wbp'  => 'required|numeric|min:0',
-            'foto_kwh'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
-            'catatan'    => 'nullable|string|max:1000',
-        ], [
-            'tanggal.required'        => 'Tanggal pencatatan wajib dipilih.',
-            'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
-            'stand_lwbp.required'     => 'Stand kWh LWBP wajib diisi.',
-            'stand_wbp.required'      => 'Stand kWh WBP wajib diisi.',
-            'foto_kwh.image'          => 'File bukti harus berupa gambar (jpg, png, webp).',
-            'foto_kwh.max'            => 'Ukuran foto maksimal 5 MB.',
-        ]);
+        $isAmr = $request->has('stand_bp') || $request->has('stand_total');
 
-        $prev = MeterReading::previousElectricOf($data['tanggal']);
-        $next = MeterReading::nextElectricOf($data['tanggal']);
+        if ($isAmr) {
+            $data = $request->validate([
+                'tanggal'     => 'required|date|before_or_equal:today',
+                'stand_bp'    => 'required|numeric|min:0',
+                'stand_lbp1'  => 'required|numeric|min:0',
+                'stand_lbp2'  => 'required|numeric|min:0',
+                'stand_total' => 'required|numeric|min:0',
+                'foto_kwh'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'catatan'     => 'nullable|string|max:1000',
+            ], [
+                'tanggal.required'        => 'Tanggal pencatatan wajib dipilih.',
+                'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
+                'stand_bp.required'       => 'Stand BP (Beban Puncak) wajib diisi.',
+                'stand_lbp1.required'     => 'Stand LBP 1 wajib diisi.',
+                'stand_lbp2.required'     => 'Stand LBP 2 wajib diisi.',
+                'stand_total.required'    => 'Stand Total wajib diisi.',
+                'foto_kwh.image'          => 'File bukti harus berupa gambar (jpg, png, webp).',
+                'foto_kwh.max'            => 'Ukuran foto maksimal 5 MB.',
+            ]);
 
-        $errors = [];
-        if ($prev) {
-            $prevDate = $prev->tanggal->translatedFormat('d/m/Y');
-            if ($data['stand_lwbp'] < $prev->stand_lwbp) {
-                $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_lwbp, 2, ',', '.') . " kWh).";
-            }
-            if ($data['stand_wbp'] < $prev->stand_wbp) {
-                $errors['stand_wbp'] = "Stand WBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_wbp, 2, ',', '.') . " kWh).";
-            }
-        }
-        if ($next) {
-            $nextDate = $next->tanggal->translatedFormat('d/m/Y');
-            if ($data['stand_lwbp'] > $next->stand_lwbp) {
-                $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_lwbp, 2, ',', '.') . " kWh).";
-            }
-            if ($data['stand_wbp'] > $next->stand_wbp) {
-                $errors['stand_wbp'] = "Stand WBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_wbp, 2, ',', '.') . " kWh).";
-            }
-        }
+            $prev = MeterReading::previousElectricOf($data['tanggal']);
+            $next = MeterReading::nextElectricOf($data['tanggal']);
 
-        if (!empty($errors)) {
-            return back()->withInput()->withErrors($errors);
-        }
+            $errors = [];
+            $checkFields = [
+                'stand_bp'    => 'Stand BP',
+                'stand_lbp1'  => 'Stand LBP 1',
+                'stand_lbp2'  => 'Stand LBP 2',
+                'stand_total' => 'Stand Total',
+            ];
 
-        $record = MeterReading::whereDate('tanggal', $data['tanggal'])->first() ?? new MeterReading(['tanggal' => $data['tanggal']]);
-        if (! $record->exists) {
-            $record->user_id = Auth::id();
+            if ($prev) {
+                $prevDate = $prev->tanggal->translatedFormat('d/m/Y');
+                foreach ($checkFields as $f => $lbl) {
+                    if ($prev->$f !== null && $data[$f] < $prev->$f) {
+                        $errors[$f] = "{$lbl} tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->$f, 2, ',', '.') . " kWh).";
+                    }
+                }
+            }
+            if ($next) {
+                $nextDate = $next->tanggal->translatedFormat('d/m/Y');
+                foreach ($checkFields as $f => $lbl) {
+                    if ($next->$f !== null && $data[$f] > $next->$f) {
+                        $errors[$f] = "{$lbl} tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->$f, 2, ',', '.') . " kWh).";
+                    }
+                }
+            }
+
+            if (!empty($errors)) {
+                return back()->withInput()->withErrors($errors);
+            }
+
+            $record = MeterReading::whereDate('tanggal', $data['tanggal'])->first() ?? new MeterReading(['tanggal' => $data['tanggal']]);
+            if (! $record->exists) {
+                $record->user_id = Auth::id();
+            }
+            $record->stand_bp    = $data['stand_bp'];
+            $record->stand_lbp1  = $data['stand_lbp1'];
+            $record->stand_lbp2  = $data['stand_lbp2'];
+            $record->stand_total = $data['stand_total'];
+            $record->stand_wbp   = $data['stand_bp'];
+            $record->stand_lwbp  = round($data['stand_lbp1'] + $data['stand_lbp2'], 2);
+        } else {
+            $data = $request->validate([
+                'tanggal'    => 'required|date|before_or_equal:today',
+                'stand_lwbp' => 'required|numeric|min:0',
+                'stand_wbp'  => 'required|numeric|min:0',
+                'foto_kwh'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'catatan'    => 'nullable|string|max:1000',
+            ], [
+                'tanggal.required'        => 'Tanggal pencatatan wajib dipilih.',
+                'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
+                'stand_lwbp.required'     => 'Stand kWh LWBP wajib diisi.',
+                'stand_wbp.required'      => 'Stand kWh WBP wajib diisi.',
+                'foto_kwh.image'          => 'File bukti harus berupa gambar (jpg, png, webp).',
+                'foto_kwh.max'            => 'Ukuran foto maksimal 5 MB.',
+            ]);
+
+            $prev = MeterReading::previousElectricOf($data['tanggal']);
+            $next = MeterReading::nextElectricOf($data['tanggal']);
+
+            $errors = [];
+            if ($prev) {
+                $prevDate = $prev->tanggal->translatedFormat('d/m/Y');
+                if ($prev->stand_lwbp !== null && $data['stand_lwbp'] < $prev->stand_lwbp) {
+                    $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_lwbp, 2, ',', '.') . " kWh).";
+                }
+                if ($prev->stand_wbp !== null && $data['stand_wbp'] < $prev->stand_wbp) {
+                    $errors['stand_wbp'] = "Stand WBP tidak boleh lebih kecil dari pencatatan sebelumnya pada tanggal {$prevDate} (" . number_format($prev->stand_wbp, 2, ',', '.') . " kWh).";
+                }
+            }
+            if ($next) {
+                $nextDate = $next->tanggal->translatedFormat('d/m/Y');
+                if ($next->stand_lwbp !== null && $data['stand_lwbp'] > $next->stand_lwbp) {
+                    $errors['stand_lwbp'] = "Stand LWBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_lwbp, 2, ',', '.') . " kWh).";
+                }
+                if ($next->stand_wbp !== null && $data['stand_wbp'] > $next->stand_wbp) {
+                    $errors['stand_wbp'] = "Stand WBP tidak boleh lebih besar dari pencatatan berikutnya pada tanggal {$nextDate} (" . number_format($next->stand_wbp, 2, ',', '.') . " kWh).";
+                }
+            }
+
+            if (!empty($errors)) {
+                return back()->withInput()->withErrors($errors);
+            }
+
+            $record = MeterReading::whereDate('tanggal', $data['tanggal'])->first() ?? new MeterReading(['tanggal' => $data['tanggal']]);
+            if (! $record->exists) {
+                $record->user_id = Auth::id();
+            }
+            $record->stand_lwbp  = $data['stand_lwbp'];
+            $record->stand_wbp   = $data['stand_wbp'];
+            $record->stand_bp    = $data['stand_wbp'];
+            $record->stand_lbp1  = $data['stand_lwbp'];
+            $record->stand_lbp2  = 0;
+            $record->stand_total = round($data['stand_lwbp'] + $data['stand_wbp'], 2);
         }
-        $record->stand_lwbp = $data['stand_lwbp'];
-        $record->stand_wbp  = $data['stand_wbp'];
 
         if ($request->hasFile('foto_kwh')) {
             if ($record->foto_kwh) {
@@ -354,7 +524,7 @@ class LogsheetController extends Controller
 
         if (!empty($data['catatan'])) {
             $record->catatan = $record->catatan 
-                ? $record->catatan . ' | [Manual Listrik]: ' . $data['catatan'] 
+                ? $record->catatan . ' | [Manual AMR PLN]: ' . $data['catatan'] 
                 : $data['catatan'];
         }
 
@@ -365,7 +535,7 @@ class LogsheetController extends Controller
         $periode = date('Y-m', strtotime($data['tanggal']));
         $formattedDate = \Carbon\Carbon::parse($data['tanggal'])->translatedFormat('d F Y');
         return redirect()->route('logsheet.index', ['periode' => $periode])
-            ->with('success', "Logsheet Listrik manual tanggal {$formattedDate} berhasil disimpan.");
+            ->with('success', "Logsheet AMR PLN T33N manual tanggal {$formattedDate} berhasil disimpan.");
     }
 
     /** Halaman Input Manual Khusus Air (Super Admin - Tanggal Terlewat) */
@@ -498,13 +668,19 @@ class LogsheetController extends Controller
             $prev = MeterReading::previousElectricOf($tanggal);
             $next = MeterReading::nextElectricOf($tanggal);
 
+            $fmt = fn ($v) => $v !== null ? number_format($v, 2, ',', '.') : '—';
+
             return response()->json([
                 'tanggal' => $tanggal,
                 'tanggal_formatted' => $dateCarbon->translatedFormat('l, d F Y'),
                 'is_today' => $dateCarbon->isToday(),
-                'exists' => $record && ($record->stand_lwbp !== null || $record->stand_wbp !== null),
+                'exists' => $record && ($record->stand_total !== null || $record->stand_bp !== null || $record->stand_lwbp !== null || $record->stand_wbp !== null),
                 'current' => $record ? [
                     'id' => $record->id,
+                    'stand_bp' => $record->stand_bp ?? $record->stand_wbp,
+                    'stand_lbp1' => $record->stand_lbp1,
+                    'stand_lbp2' => $record->stand_lbp2,
+                    'stand_total' => $record->stand_total,
                     'stand_lwbp' => $record->stand_lwbp,
                     'stand_wbp' => $record->stand_wbp,
                     'foto_kwh_url' => $record->foto_kwh ? asset('storage/' . $record->foto_kwh) : null,
@@ -515,18 +691,34 @@ class LogsheetController extends Controller
                 'prev' => $prev ? [
                     'tanggal' => $prev->tanggal->format('Y-m-d'),
                     'tanggal_formatted' => $prev->tanggal->translatedFormat('d F Y'),
+                    'stand_bp' => $prev->stand_bp ?? $prev->stand_wbp,
+                    'stand_bp_fmt' => $fmt($prev->stand_bp ?? $prev->stand_wbp),
+                    'stand_lbp1' => $prev->stand_lbp1,
+                    'stand_lbp1_fmt' => $fmt($prev->stand_lbp1),
+                    'stand_lbp2' => $prev->stand_lbp2,
+                    'stand_lbp2_fmt' => $fmt($prev->stand_lbp2),
+                    'stand_total' => $prev->stand_total,
+                    'stand_total_fmt' => $fmt($prev->stand_total),
                     'stand_lwbp' => $prev->stand_lwbp,
-                    'stand_lwbp_fmt' => number_format($prev->stand_lwbp, 2, ',', '.'),
+                    'stand_lwbp_fmt' => $fmt($prev->stand_lwbp),
                     'stand_wbp' => $prev->stand_wbp,
-                    'stand_wbp_fmt' => number_format($prev->stand_wbp, 2, ',', '.'),
+                    'stand_wbp_fmt' => $fmt($prev->stand_wbp),
                 ] : null,
                 'next' => $next ? [
                     'tanggal' => $next->tanggal->format('Y-m-d'),
                     'tanggal_formatted' => $next->tanggal->translatedFormat('d F Y'),
+                    'stand_bp' => $next->stand_bp ?? $next->stand_wbp,
+                    'stand_bp_fmt' => $fmt($next->stand_bp ?? $next->stand_wbp),
+                    'stand_lbp1' => $next->stand_lbp1,
+                    'stand_lbp1_fmt' => $fmt($next->stand_lbp1),
+                    'stand_lbp2' => $next->stand_lbp2,
+                    'stand_lbp2_fmt' => $fmt($next->stand_lbp2),
+                    'stand_total' => $next->stand_total,
+                    'stand_total_fmt' => $fmt($next->stand_total),
                     'stand_lwbp' => $next->stand_lwbp,
-                    'stand_lwbp_fmt' => number_format($next->stand_lwbp, 2, ',', '.'),
+                    'stand_lwbp_fmt' => $fmt($next->stand_lwbp),
                     'stand_wbp' => $next->stand_wbp,
-                    'stand_wbp_fmt' => number_format($next->stand_wbp, 2, ',', '.'),
+                    'stand_wbp_fmt' => $fmt($next->stand_wbp),
                 ] : null,
             ]);
         }
@@ -649,11 +841,21 @@ class LogsheetController extends Controller
 
     private function summary($rows): array
     {
+        $bp = $rows->sum(fn ($r) => $r->pakai_bp ?? 0);
+        $lbp = $rows->sum(fn ($r) => $r->pakai_lbp ?? 0);
+        $kwh = $rows->sum(fn ($r) => $r->pakai_kwh ?? 0);
+        $air = $rows->sum(fn ($r) => $r->pakai_air ?? 0);
+
         return [
-            'lwbp'   => $rows->sum('pakai_lwbp'),
-            'wbp'    => $rows->sum('pakai_wbp'),
-            'kwh'    => $rows->sum('pakai_kwh'),
-            'air'    => $rows->sum('pakai_air'),
+            'bp'     => round($bp, 2),
+            'lbp'    => round($lbp, 2),
+            'lbp1'   => round($rows->sum('pakai_lbp1'), 2),
+            'lbp2'   => round($rows->sum('pakai_lbp2'), 2),
+            'lwbp'   => round($rows->sum('pakai_lwbp'), 2),
+            'wbp'    => round($rows->sum('pakai_wbp'), 2),
+            'total'  => round($rows->sum('pakai_total'), 2),
+            'kwh'    => round($kwh, 2),
+            'air'    => round($air, 2),
             'jumlah' => $rows->count(),
         ];
     }
@@ -676,22 +878,35 @@ class LogsheetController extends Controller
         $foto      = ($current ? 'nullable' : 'required') . '|image|mimes:jpg,jpeg,png,webp|max:5120';
 
         $data = $request->validate([
-            'tanggal'    => ['required', 'date', 'before_or_equal:today',
-                             'unique:meter_readings,tanggal' . ($current ? ',' . $current->id : '')],
-            'stand_lwbp' => 'required|numeric|min:0',
-            'stand_wbp'  => 'required|numeric|min:0',
-            'stand_air'  => 'required|numeric|min:0',
-            'foto_kwh'   => $foto,
-            'foto_air'   => $foto,
-            'catatan'    => 'nullable|string|max:1000',
+            'tanggal'     => ['required', 'date', 'before_or_equal:today',
+                              'unique:meter_readings,tanggal' . ($current ? ',' . $current->id : '')],
+            'stand_bp'    => 'nullable|numeric|min:0',
+            'stand_lbp1'  => 'nullable|numeric|min:0',
+            'stand_lbp2'  => 'nullable|numeric|min:0',
+            'stand_total' => 'nullable|numeric|min:0',
+            'stand_lwbp'  => 'nullable|numeric|min:0',
+            'stand_wbp'   => 'nullable|numeric|min:0',
+            'stand_air'   => 'required|numeric|min:0',
+            'foto_kwh'    => $foto,
+            'foto_air'    => $foto,
+            'catatan'     => 'nullable|string|max:1000',
         ], [
             'tanggal.unique'          => 'Logsheet untuk tanggal ini sudah diinput.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh melebihi hari ini.',
-            'foto_kwh.required'       => 'Foto kWh meter wajib diunggah sebagai bukti.',
+            'stand_air.required'      => 'Stand water meter wajib diisi.',
+            'foto_kwh.required'       => 'Foto meteran listrik wajib diunggah sebagai bukti.',
             'foto_air.required'       => 'Foto water meter wajib diunggah sebagai bukti.',
             'image'                   => 'File harus berupa gambar (jpg, png, webp).',
             'max'                     => 'Ukuran foto maksimal 5 MB.',
         ]);
+
+        // Jika input menggunakan AMR PLN T33N, sinkronkan ke stand_wbp dan stand_lwbp
+        if (isset($data['stand_bp']) && $data['stand_bp'] !== null) {
+            $data['stand_wbp'] = $data['stand_bp'];
+        }
+        if (isset($data['stand_lbp1'], $data['stand_lbp2']) && $data['stand_lbp1'] !== null && $data['stand_lbp2'] !== null) {
+            $data['stand_lwbp'] = round($data['stand_lbp1'] + $data['stand_lbp2'], 2);
+        }
 
         // Teknisi hanya boleh input untuk hari ini
         if (! $canManage && $data['tanggal'] !== today()->toDateString()) {
@@ -701,12 +916,13 @@ class LogsheetController extends Controller
         // Stand meter tidak boleh mundur / melompati pencatatan berikutnya
         $prev   = MeterReading::previousOf($data['tanggal']);
         $next   = MeterReading::nextOf($data['tanggal']);
-        $labels = ['stand_lwbp' => 'LWBP', 'stand_wbp' => 'WBP', 'stand_air' => 'Air'];
+        $labels = ['stand_bp' => 'Stand BP', 'stand_lbp1' => 'Stand LBP 1', 'stand_lbp2' => 'Stand LBP 2', 'stand_total' => 'Stand Total', 'stand_air' => 'Air'];
         $errors = [];
         foreach ($labels as $k => $label) {
-            if ($prev && $data[$k] < $prev->$k) {
+            if (! isset($data[$k]) || $data[$k] === null) continue;
+            if ($prev && $prev->$k !== null && $data[$k] < $prev->$k) {
                 $errors[$k] = "Stand $label tidak boleh lebih kecil dari pencatatan sebelumnya (" . number_format($prev->$k, 2, ',', '.') . ').';
-            } elseif ($next && $data[$k] > $next->$k) {
+            } elseif ($next && $next->$k !== null && $data[$k] > $next->$k) {
                 $errors[$k] = "Stand $label tidak boleh lebih besar dari pencatatan berikutnya (" . number_format($next->$k, 2, ',', '.') . ').';
             }
         }

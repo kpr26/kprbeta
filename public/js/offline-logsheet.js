@@ -135,7 +135,7 @@
 
     // Modal sukses simpan offline
     function showOfflineSavedModal(type, targetUrl) {
-        const typeLabel = type === 'listrik' ? 'Logsheet Listrik (kWh Meter)' : 'Logsheet Air (Water Meter)';
+        const typeLabel = type === 'listrik' ? 'Logsheet AMR PLN T33N' : 'Logsheet Air (Water Meter)';
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.25s ease;';
 
@@ -470,16 +470,28 @@
     async function processOfflineSubmission(form, type) {
         // Validasi input di sisi klien
         if (type === 'listrik') {
-            const lwbp = form.querySelector('#stand_lwbp');
-            const wbp = form.querySelector('#stand_wbp');
+            const bp = form.querySelector('#stand_bp');
+            const lbp1 = form.querySelector('#stand_lbp1');
+            const lbp2 = form.querySelector('#stand_lbp2');
+            const total = form.querySelector('#stand_total');
             const file = form.querySelector('input[name="foto_kwh"]');
 
-            if (!lwbp || !lwbp.value || !wbp || !wbp.value) {
-                alert('Stand kWh LWBP dan Stand kWh WBP wajib diisi.');
-                return;
+            if (bp) {
+                if (!bp.value || !lbp1?.value || !lbp2?.value || !total?.value) {
+                    alert('Semua angka stand AMR PLN (BP, LBP 1, LBP 2, dan Total) wajib diisi.');
+                    return;
+                }
+            } else {
+                const lwbp = form.querySelector('#stand_lwbp');
+                const wbp = form.querySelector('#stand_wbp');
+                if (!lwbp || !lwbp.value || !wbp || !wbp.value) {
+                    alert('Stand kWh wajib diisi.');
+                    return;
+                }
             }
+
             if (file && file.hasAttribute('required') && (!file.files || !file.files[0])) {
-                alert('Foto kWh meter wajib dilampirkan.');
+                alert('Foto fisik meteran AMR PLN T33N wajib dilampirkan.');
                 return;
             }
         } else if (type === 'air') {

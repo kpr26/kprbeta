@@ -67,32 +67,54 @@
     </div>
 
     <div class="form-grid">
-        {{-- LISTRIK --}}
+        {{-- AMR PLN T33N --}}
         <div class="meter-section elec">
-            <h3><span class="ico"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg></span>kWh Meter Listrik</h3>
+            <h3 style="display:flex; align-items:center; gap:8px;">
+                <span class="ico" style="background:rgba(255,201,14,0.12); padding:3px; border-radius:6px; display:inline-flex;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" style="width:20px; height:20px;">
+                        <polygon points="32,3 61,32 32,61 3,32" fill="#FFC90E" stroke="#D32F2F" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M14 36c4-2 7 2 11 0s7-2 11 0" fill="none" stroke="#0288D1" stroke-width="2.2" stroke-linecap="round"/>
+                        <polygon points="36,11 23,33 31,33 26,53 43,28 34,28" fill="#D32F2F"/>
+                    </svg>
+                </span>
+                AMR PLN T33N (kWh)
+            </h3>
 
-            @foreach (['stand_lwbp' => 'Stand kWh LWBP', 'stand_wbp' => 'Stand kWh WBP'] as $key => $label)
+            @php
+                $amrFormFields = [
+                    'stand_bp'    => ['label' => 'Stand BP', 'fallback' => 'stand_wbp'],
+                    'stand_lbp1'  => ['label' => 'Stand LBP 1', 'fallback' => 'stand_lwbp'],
+                    'stand_lbp2'  => ['label' => 'Stand LBP 2', 'fallback' => null],
+                    'stand_total' => ['label' => 'Stand Total', 'fallback' => null],
+                ];
+            @endphp
+
+            @foreach ($amrFormFields as $key => $info)
+            @php
+                $prevVal = $last ? ($last->$key ?? ($info['fallback'] ? $last->{$info['fallback']} : null)) : null;
+                $val = old($key, $reading->$key ?? ($info['fallback'] ? $reading->{$info['fallback']} : null));
+            @endphp
             <div class="field">
-                <label for="{{ $key }}">{{ $label }} <span class="req">*</span></label>
+                <label for="{{ $key }}">{{ $info['label'] }} <span class="req">*</span></label>
                 <div class="input-unit">
                     <input type="number" step="0.01" min="0" inputmode="decimal" id="{{ $key }}" name="{{ $key }}" class="input"
-                           value="{{ old($key, $reading->$key) }}" data-prev="{{ $last?->$key }}" data-unit="kWh" placeholder="0,00" required>
+                           value="{{ $val }}" data-prev="{{ $prevVal }}" data-unit="kWh" placeholder="0,00" required>
                     <span>kWh</span>
                 </div>
-                @if ($last)<p class="hint">Stand sebelumnya: <b>{{ $n($last->$key) }}</b></p>@endif
+                @if ($prevVal !== null)<p class="hint">Stand sebelumnya: <b>{{ $n($prevVal) }} kWh</b></p>@endif
                 <p class="calc" data-calc-for="{{ $key }}"></p>
                 @error($key)<p class="err">{{ $message }}</p>@enderror
             </div>
             @endforeach
 
             <div class="field">
-                <label>Foto kWh Meter <span class="req">{{ $editing ? '' : '*' }}</span></label>
+                <label>Foto Fisik Meteran AMR PLN <span class="req">{{ $editing ? '' : '*' }}</span></label>
                 <label class="upload {{ $editing ? 'has-img' : '' }}">
                     <input type="file" name="foto_kwh" accept="image/*" capture="environment" {{ $editing ? '' : 'required' }}>
                     @if ($editing)<img class="preview" src="{{ asset('storage/'.$reading->foto_kwh) }}" alt="Foto kWh">@endif
                     <span class="upload-text">
                         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg><br>
-                        Ambil foto / pilih gambar<br><small>Pastikan angka LWBP &amp; WBP terbaca jelas · maks 5 MB</small>
+                        Ambil foto / pilih gambar<br><small>Cukup 1 foto fisik meteran AMR PLN T33N mencakup register stand · maks 5 MB</small>
                     </span>
                     <span class="change">Ganti foto</span>
                 </label>
