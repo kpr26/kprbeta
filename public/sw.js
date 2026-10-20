@@ -1,5 +1,5 @@
 /* KPR Beta PWA Service Worker */
-const CACHE_NAME = 'kprbeta-logsheet-v4';
+const CACHE_NAME = 'kprbeta-logsheet-v5';
 
 const STATIC_ASSETS = [
   '/',

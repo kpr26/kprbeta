@@ -177,12 +177,12 @@
                     </div>
                     <div>
                         <h3 class="choice-title" style="color:#38bdf8;">Logsheet Public Area</h3>
-                        <span class="choice-subtitle">Water Meter (3 Area) &amp; KWh Meter</span>
+                        <span class="choice-subtitle">Water Meter (3 Area) &amp; LVSB</span>
                     </div>
                 </div>
 
                 <p class="choice-desc">
-                    Pencatatan terpisah untuk <b>Cooling Tower 12A</b>, <b>Toilet Sky Lobby 11 &amp; Mushola 12</b>, <b>Pantry Office</b>, serta KWh Meter Public Area.
+                    Pencatatan terpisah untuk <b>Cooling Tower 12A</b>, <b>Toilet Sky Lobby 11 &amp; Mushola 12</b>, <b>Pantry Office</b>, serta Panel <b>LVSB (Low Voltage Switchboard)</b>.
                 </p>
 
                 <div class="choice-status-box">

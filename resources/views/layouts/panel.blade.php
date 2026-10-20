@@ -167,9 +167,9 @@
                 Water Meter Public Area
             </a>
 
-            <a href="{{ route('public-area.electricity.index') }}" class="nav-item {{ request()->routeIs('public-area.electricity.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
+            <a href="{{ route('public-area.lvsb.index') }}" class="nav-item {{ request()->routeIs('public-area.lvsb.*', 'public-area.electricity.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#fbbf24; width:16px; height:16px;"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
-                KWh Meter Public Area
+                LVSB
             </a>
 
             @if($authUser->isSuperAdmin())

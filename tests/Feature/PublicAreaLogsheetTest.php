@@ -33,7 +33,7 @@ class PublicAreaLogsheetTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Menu Logsheet Public Area');
         $response->assertSee('Water Meter Public Area');
-        $response->assertSee('KWh Meter Public Area');
+        $response->assertSee('LVSB (Low Voltage Switchboard)');
         $response->assertSee('Cooling Tower 12A');
         $response->assertSee('Toilet Sky Lobby 11 &amp; Mushola 12', false);
         $response->assertSee('Pantry Office');
@@ -143,30 +143,6 @@ class PublicAreaLogsheetTest extends TestCase
         $this->assertNotNull($rowDay2);
         $this->assertEquals(25.50, $rowDay2->pemakaian);
         $this->assertEquals(25.50, $rowDay2->cum_usage);
-    }
-
-    public function test_teknisi_can_input_kwh_meter_public_area(): void
-    {
-        $teknisi = User::factory()->create(['role' => 'teknisi']);
-        $file = $this->createFakePng('kwh_pa.png');
-
-        $response = $this->actingAs($teknisi)->post(route('public-area.electricity.store'), [
-            'stand_meter' => 8420.50,
-            'foto'        => $file,
-            'catatan'     => 'Panel LP normal',
-        ]);
-
-        $response->assertRedirect(route('public-area.electricity.index'));
-
-        $this->assertDatabaseHas('public_area_meter_readings', [
-            'category'    => 'electricity',
-            'meter_key'   => 'kwh_public_area',
-            'stand_meter' => 8420.50,
-        ]);
-
-        $reading = PublicAreaMeterReading::where('category', 'electricity')->first();
-        $this->assertNotNull($reading->foto);
-        Storage::disk('public')->assertExists($reading->foto);
     }
 
     public function test_offline_sync_via_json_response(): void

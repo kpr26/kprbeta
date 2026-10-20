@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DailyLogBookController;
 use App\Http\Controllers\LogsheetController;
 use App\Http\Controllers\PublicAreaLogsheetController;
+use App\Http\Controllers\PublicAreaLvsbController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PwaController;
 
@@ -160,10 +161,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/water/input/{meterKey}', [PublicAreaLogsheetController::class, 'waterCreate'])->name('water.create');
         Route::post('/water/store', [PublicAreaLogsheetController::class, 'waterStore'])->name('water.store');
 
-        // Sub Menu 2: KWh Meter Public Area (Listrik)
-        Route::get('/electricity', [PublicAreaLogsheetController::class, 'electricityIndex'])->name('electricity.index');
-        Route::get('/electricity/input', [PublicAreaLogsheetController::class, 'electricityCreate'])->name('electricity.create');
-        Route::post('/electricity/store', [PublicAreaLogsheetController::class, 'electricityStore'])->name('electricity.store');
+        // Sub Menu 2: LVSB (Low Voltage Switchboard - Pengganti KWh Meter Public Area)
+        Route::get('/lvsb', [PublicAreaLvsbController::class, 'index'])->name('lvsb.index');
+        Route::get('/lvsb/input', [PublicAreaLvsbController::class, 'create'])->name('lvsb.create');
+        Route::post('/lvsb/store', [PublicAreaLvsbController::class, 'store'])->name('lvsb.store');
+        Route::get('/lvsb/detail/{reading}', [PublicAreaLvsbController::class, 'show'])->name('lvsb.show');
+        Route::post('/lvsb/verify/{reading}', [PublicAreaLvsbController::class, 'verify'])->name('lvsb.verify');
+        Route::delete('/lvsb/destroy/{reading}', [PublicAreaLvsbController::class, 'destroy'])->name('lvsb.destroy');
+        Route::get('/lvsb/export/excel', [PublicAreaLvsbController::class, 'exportExcel'])->name('lvsb.excel');
+        Route::get('/lvsb/export/pdf', [PublicAreaLvsbController::class, 'exportPdf'])->name('lvsb.pdf');
+
+        // Alias URL electricity lama dialihkan langsung ke LVSB
+        Route::redirect('/electricity', '/logsheet-public-area/lvsb')->name('electricity.index');
+        Route::redirect('/electricity/input', '/logsheet-public-area/lvsb/input')->name('electricity.create');
 
         // Detail, Verify & Delete
         Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show');

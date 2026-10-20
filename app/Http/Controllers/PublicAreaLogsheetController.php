@@ -29,17 +29,14 @@ class PublicAreaLogsheetController extends Controller
             ->get()
             ->keyBy('meter_key');
 
-        // Ambil data hari ini untuk listrik
-        $todayElec = PublicAreaMeterReading::where('category', 'electricity')
-            ->whereDate('tanggal', $today)
-            ->first();
+        // Ambil data hari ini untuk LVSB
+        $todayLvsb = \App\Models\PublicAreaLvsbReading::whereDate('tanggal', $today)->first();
 
         // Stand terakhir sebelumnya
         $prevWater = [];
         foreach ($waterMeters as $key => $meta) {
             $prevWater[$key] = PublicAreaMeterReading::previousOf($today, 'water', $key);
         }
-        $prevElec = PublicAreaMeterReading::previousOf($today, 'electricity', 'kwh_public_area');
 
         $waterCountDone = $todayWater->count();
         $waterTotalCount = count($waterMeters);
@@ -48,9 +45,8 @@ class PublicAreaLogsheetController extends Controller
             'waterMeters',
             'elecMeters',
             'todayWater',
-            'todayElec',
+            'todayLvsb',
             'prevWater',
-            'prevElec',
             'waterCountDone',
             'waterTotalCount'
         ));

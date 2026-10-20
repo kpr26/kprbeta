@@ -44,6 +44,16 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'superadmin'], true);
     }
 
+    public function isSupervisor(): bool
+    {
+        return in_array($this->role, ['eng_spv', 'supervisor'], true);
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'superadmin', 'eng_admin'], true);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

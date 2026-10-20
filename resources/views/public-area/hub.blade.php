@@ -85,7 +85,7 @@
             </a>
         </div>
 
-        {{-- 2. SUB MENU: KWH METER PUBLIC AREA --}}
+        {{-- 2. SUB MENU: LVSB (LOW VOLTAGE SWITCHBOARD) --}}
         <div class="logsheet-choice-card logsheet-choice-card--elec">
             <div>
                 <div class="choice-card-head">
@@ -95,19 +95,19 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="choice-title">KWh Meter Public Area</h3>
-                        <span class="choice-subtitle">Listrik Penerangan &amp; Daya</span>
+                        <h3 class="choice-title">LVSB (Low Voltage Switchboard)</h3>
+                        <span class="choice-subtitle">Panel Utama &amp; Distribusi Feeder</span>
                     </div>
                 </div>
 
                 <p class="choice-desc">
-                    Pencatatan angka stand KWh meteran listrik untuk penerangan dan beban daya area publik gedung.
+                    Pencatatan parameter panel tegangan rendah (Voltage 3-P, Current, Power kW, Energy GWh, PF, Frequency) untuk 6 grup: <b>Incoming Trafo</b>, <b>Feeder Riser 1-5</b>, <b>AC Sky Lobby &amp; Trafo</b>, <b>DB Fire</b>, serta <b>Kapasitor</b>.
                 </p>
 
                 <div class="choice-status-box" style="margin-top:14px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                         <span style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.06em;">Status Hari Ini</span>
-                        @if($todayElec)
+                        @if($todayLvsb)
                             <span class="badge badge-ok" style="font-size:0.75rem;">✓ Sudah Dicatat</span>
                         @else
                             <span class="badge badge-wait" style="font-size:0.75rem;">Belum Dicatat</span>
@@ -115,20 +115,19 @@
                     </div>
 
                     <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
-                        @if($todayElec)
-                            Stand hari ini: <b>{{ $n($todayElec->stand_meter) }} kWh</b><br>
-                            <span style="font-size:0.75rem; color:var(--text-muted);">Dicatat oleh {{ $todayElec->user?->name ?? 'Teknisi' }}</span>
-                        @elseif($prevElec)
-                            Stand sebelumnya: <b>{{ $n($prevElec->stand_meter) }} kWh</b> ({{ $prevElec->tanggal->translatedFormat('d M') }})
+                        @if($todayLvsb)
+                            Incoming Trafo: <b>{{ $n($todayLvsb->val('incoming_trafo', 'voltage_3p'), 1) }} V</b> · <b>{{ $n($todayLvsb->val('incoming_trafo', 'power')) }} kW</b><br>
+                            Capacitor PF: <b>{{ $n($todayLvsb->val('incoming_capacitor', 'power_factor')) }}</b><br>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Dicatat oleh {{ $todayLvsb->user?->name ?? 'Teknisi' }}</span>
                         @else
-                            Belum ada riwayat stand sebelumnya.
+                            Belum ada pencatatan LVSB hari ini.
                         @endif
                     </div>
                 </div>
             </div>
 
-            <a href="{{ route('public-area.electricity.index') }}" class="choice-btn-cta choice-btn-cta--elec" style="margin-top:20px;">
-                <span>Buka Sub Menu KWh Meter</span>
+            <a href="{{ route('public-area.lvsb.index') }}" class="choice-btn-cta choice-btn-cta--elec" style="margin-top:20px;">
+                <span>Buka Sub Menu LVSB</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
                 </svg>
