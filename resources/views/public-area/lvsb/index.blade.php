@@ -156,55 +156,54 @@
                                     @endforeach
                                 </div>
                             @endif
+
+                            {{-- Lampiran Foto Kompak Per-Grup (Total 6 Foto) --}}
+                            @php
+                                $groupFoto = $todayReading?->getFoto($gKey);
+                            @endphp
+                            <div class="photo-upload-group" style="margin-top:14px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">
+                                        📷 Foto Panel {{ $group['title'] }} <span style="font-size:0.68rem; font-weight:normal; color:var(--text-muted);">(Opsional)</span>
+                                    </span>
+                                </div>
+
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    {{-- Tombol Galeri --}}
+                                    <label class="btn-pick-gallery" style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:5px 10px; border-radius:6px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;" title="Pilih foto dari galeri HP">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:#38bdf8;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                                        <span>Galeri</span>
+                                        <input type="file" name="fotos[{{ $gKey }}]" accept="image/*" class="input-file-main" style="display:none;">
+                                    </label>
+
+                                    {{-- Tombol Kamera --}}
+                                    <label class="btn-pick-camera" style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:5px 10px; border-radius:6px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;" title="Ambil foto langsung dari kamera">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:#fbbf24;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
+                                        <span>Kamera</span>
+                                        <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
+                                    </label>
+
+                                    {{-- Chip Pratinjau Ringkas --}}
+                                    <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:rgba(0,0,0,0.45); padding:4px 8px; border-radius:6px; border:1px solid rgba(251,191,36,0.3);">
+                                        <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.15);">
+                                        <span class="photo-preview-name" style="font-size:0.72rem; color:var(--text-primary); max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                            {{ $groupFoto ? 'Foto tersimpan' : '' }}
+                                        </span>
+                                        <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:0.95rem; cursor:pointer; line-height:1; padding:0 2px;" title="Batalkan foto">✕</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            {{-- Lampiran Foto & Catatan --}}
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
-                {{-- Foto Fisik Panel --}}
-                <div class="photo-upload-group">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
-                        Foto Fisik Panel LVSB <span style="font-size:0.72rem; color:var(--text-muted); font-weight:normal;">(Opsional)</span>
-                    </label>
-
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        {{-- Opsi 1: Dari Galeri --}}
-                        <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); padding:8px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); text-align:center;">
-                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:#38bdf8;flex-shrink:0;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
-                            <span>🖼️ Dari Galeri</span>
-                            <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;">
-                        </label>
-
-                        {{-- Opsi 2: Buka Kamera --}}
-                        <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); padding:8px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); text-align:center;">
-                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;color:#fbbf24;flex-shrink:0;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
-                            <span>📷 Buka Kamera</span>
-                            <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
-                        </label>
-                    </div>
-
-                    {{-- Pratinjau Foto --}}
-                    <div class="photo-preview-wrap" style="{{ $todayReading?->foto ? 'display:flex;' : 'display:none;' }} margin-top:8px; align-items:center; gap:10px; background:rgba(0,0,0,0.35); padding:8px 12px; border-radius:8px; border:1px solid rgba(251,191,36,0.25);">
-                        <img class="img-preview" src="{{ $todayReading?->foto ? asset('storage/'.$todayReading->foto) : '' }}" alt="Preview" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid rgba(251,191,36,0.4);">
-                        <div style="flex:1; overflow:hidden;">
-                            <div class="photo-preview-name" style="font-size:0.78rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                {{ $todayReading?->foto ? 'Foto tersimpan sebelumnya' : '' }}
-                            </div>
-                            <div class="photo-preview-status" style="font-size:0.72rem; color:#34d399;">✓ Foto siap dilampirkan</div>
-                        </div>
-                        <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer;" title="Batalkan foto">✕</button>
-                    </div>
-                </div>
-
-                {{-- Catatan --}}
-                <div>
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
-                        Catatan Kondisi Panel (Opsional)
-                    </label>
-                    <textarea name="catatan" rows="3" class="input" placeholder="Contoh: Suhu trafo normal, Breaker Riser 3 indikator hijau..." style="width:100%; font-size:0.84rem; padding:8px 12px;">{{ old('catatan', $todayReading?->catatan) }}</textarea>
-                </div>
+            {{-- Catatan Kondisi Panel --}}
+            <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
+                    Catatan Kondisi Panel LVSB (Opsional)
+                </label>
+                <textarea name="catatan" rows="2" class="input" placeholder="Contoh: Suhu trafo normal, Breaker Riser 3 indikator hijau, Capacitor bank stabil..." style="width:100%; font-size:0.84rem; padding:8px 12px;">{{ old('catatan', $todayReading?->catatan) }}</textarea>
             </div>
 
             {{-- Tombol Simpan --}}

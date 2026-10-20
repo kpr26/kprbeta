@@ -16,6 +16,7 @@ class PublicAreaLvsbReading extends Model
     protected $fillable = [
         'tanggal',
         'readings',
+        'fotos',
         'foto',
         'catatan',
         'user_id',
@@ -26,6 +27,7 @@ class PublicAreaLvsbReading extends Model
     protected $casts = [
         'tanggal'     => 'date',
         'readings'    => 'array',
+        'fotos'       => 'array',
         'verified_at' => 'datetime',
     ];
 
@@ -215,6 +217,31 @@ class PublicAreaLvsbReading extends Model
         }
 
         return $raw[$group][$sub][$field] ?? null;
+    }
+
+    /**
+     * Ambil foto untuk grup tertentu (fallback ke foto lama jika belum per-grup)
+     */
+    public function getFoto(string $groupKey): ?string
+    {
+        return $this->fotos[$groupKey] ?? null;
+    }
+
+    /**
+     * Ambil seluruh path foto yang terlampir
+     */
+    public function getAllFotos(): array
+    {
+        $list = [];
+        if (is_array($this->fotos)) {
+            foreach ($this->fotos as $k => $f) {
+                if ($f) $list[$k] = $f;
+            }
+        }
+        if ($this->foto && !in_array($this->foto, $list, true)) {
+            $list['general'] = $this->foto;
+        }
+        return $list;
     }
 
     /**

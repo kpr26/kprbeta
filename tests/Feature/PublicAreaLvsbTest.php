@@ -111,6 +111,44 @@ class PublicAreaLvsbTest extends TestCase
         $this->assertEquals(120.0, $record->val('outgoing_1_2', 'riser_3', 'current'));
     }
 
+    public function test_teknisi_can_store_lvsb_reading_with_multiple_group_photos()
+    {
+        $fotoTrafo = $this->createFakePng('trafo.png');
+        $fotoOut12 = $this->createFakePng('outgoing12.png');
+        $today = Carbon::today()->toDateString();
+
+        $payload = [
+            'tanggal' => $today,
+            'fotos'   => [
+                'incoming_trafo' => $fotoTrafo,
+                'outgoing_1_2'   => $fotoOut12,
+            ],
+            'catatan' => 'Semua grup panel dicek dan difoto per panel',
+            'readings' => [
+                'incoming_trafo' => [
+                    'voltage_3p' => 382.5,
+                ],
+                'outgoing_1_2' => [
+                    'riser_3' => [
+                        'current' => 110.5,
+                    ],
+                ],
+            ],
+        ];
+
+        $res = $this->actingAs($this->teknisi)->post(route('public-area.lvsb.store'), $payload);
+        $res->assertRedirect(route('public-area.lvsb.index'));
+
+        $record = PublicAreaLvsbReading::whereDate('tanggal', $today)->first();
+        $this->assertNotNull($record);
+        $this->assertNotNull($record->getFoto('incoming_trafo'));
+        $this->assertNotNull($record->getFoto('outgoing_1_2'));
+        $this->assertNull($record->getFoto('incoming_capacitor'));
+        $this->assertCount(2, $record->getAllFotos());
+        Storage::disk('public')->assertExists($record->getFoto('incoming_trafo'));
+        Storage::disk('public')->assertExists($record->getFoto('outgoing_1_2'));
+    }
+
     public function test_offline_sync_via_json_response()
     {
         $today = Carbon::today()->toDateString();

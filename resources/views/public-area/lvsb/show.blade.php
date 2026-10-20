@@ -128,36 +128,67 @@
         @endforeach
     </div>
 
-    {{-- Foto & Catatan --}}
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:24px;">
-        {{-- Foto Fisik Panel --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
-            <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
-                Foto Fisik Panel LVSB
-            </span>
-            @if ($reading->foto)
-                <a href="{{ asset('storage/'.$reading->foto) }}" data-lightbox="{{ asset('storage/'.$reading->foto) }}" data-caption="Foto Fisik LVSB — {{ $reading->tanggal->format('d/m/Y') }}" style="display:inline-block; border-radius:8px; overflow:hidden; border:1px solid rgba(251,191,36,0.3);">
-                    <img src="{{ asset('storage/'.$reading->foto) }}" alt="Foto LVSB" style="max-height:220px; width:auto; display:block; object-fit:cover;">
-                </a>
-                <p style="font-size:0.74rem; color:var(--text-muted); margin:6px 0 0;">Klik gambar untuk memperbesar</p>
-            @else
-                <p style="color:var(--text-muted); font-size:0.84rem; margin:0;">Tidak ada lampiran foto untuk pencatatan ini.</p>
-            @endif
-        </div>
+    {{-- Lampiran Foto Per-Grup (6 Grup) & Catatan --}}
+    @php
+        $allFotos = $reading->getAllFotos();
+    @endphp
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; margin-top:24px;">
+        <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:12px;">
+            📷 Lampiran Foto Fisik Panel LVSB ({{ count($allFotos) }} / 6 Terlampir)
+        </span>
 
-        {{-- Catatan --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
-            <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
-                Catatan Kondisi Panel
-            </span>
-            @if ($reading->catatan)
-                <p style="color:var(--text-primary); font-size:0.9rem; line-height:1.6; margin:0; white-space:pre-line;">
-                    {{ $reading->catatan }}
-                </p>
-            @else
-                <p style="color:var(--text-muted); font-size:0.84rem; margin:0;">Tidak ada catatan khusus.</p>
-            @endif
-        </div>
+        @if(!empty($allFotos))
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px;">
+                @foreach ($structure as $gKey => $group)
+                    @php
+                        $foto = $reading->getFoto($gKey);
+                    @endphp
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">
+                            {{ $group['title'] }}
+                        </div>
+                        @if($foto)
+                            <a href="{{ asset('storage/'.$foto) }}" data-lightbox="{{ asset('storage/'.$foto) }}" data-caption="Foto: {{ $group['title'] }} — {{ $reading->tanggal->format('d/m/Y') }}" style="display:block; border-radius:6px; overflow:hidden; border:1px solid rgba(251,191,36,0.3); aspect-ratio:4/3; background:#000;">
+                                <img src="{{ asset('storage/'.$foto) }}" alt="{{ $group['title'] }}" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                            </a>
+                            <span style="font-size:0.68rem; color:var(--text-muted); text-align:center;">Klik untuk perbesar</span>
+                        @else
+                            <div style="height:110px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.1); border-radius:6px; color:var(--text-muted); font-size:0.74rem;">
+                                Tidak ada foto
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+
+                {{-- Fallback jika ada foto umum lama --}}
+                @if(isset($allFotos['general']))
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px;">
+                        <div style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">
+                            Foto Keseluruhan (Legacy)
+                        </div>
+                        <a href="{{ asset('storage/'.$allFotos['general']) }}" data-lightbox="{{ asset('storage/'.$allFotos['general']) }}" data-caption="Foto LVSB — {{ $reading->tanggal->format('d/m/Y') }}" style="display:block; border-radius:6px; overflow:hidden; border:1px solid rgba(251,191,36,0.3); aspect-ratio:4/3; background:#000;">
+                            <img src="{{ asset('storage/'.$allFotos['general']) }}" alt="Foto Legacy" style="width:100%; height:100%; object-fit:cover;">
+                        </a>
+                    </div>
+                @endif
+            </div>
+        @else
+            <p style="color:var(--text-muted); font-size:0.84rem; margin:0;">Tidak ada lampiran foto untuk pencatatan ini.</p>
+        @endif
+    </div>
+
+    {{-- Catatan --}}
+    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; margin-top:16px;">
+        <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
+            Catatan Kondisi Panel
+        </span>
+        @if ($reading->catatan)
+            <p style="color:var(--text-primary); font-size:0.9rem; line-height:1.6; margin:0; white-space:pre-line;">
+                {{ $reading->catatan }}
+            </p>
+        @else
+            <p style="color:var(--text-muted); font-size:0.84rem; margin:0;">Tidak ada catatan khusus.</p>
+        @endif
     </div>
 </section>
 @endsection

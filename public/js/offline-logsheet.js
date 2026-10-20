@@ -210,8 +210,17 @@
                     formData.append('tanggal_pencatatan', item.tanggal);
                 }
 
-                // Tambahkan file foto dari Blob
-                if (item.photoBlob) {
+                // Tambahkan file foto dari Blob (mendukung single atau multi foto per-grup)
+                if (item.photoBlobs && Object.keys(item.photoBlobs).length > 0) {
+                    for (const [fField, pData] of Object.entries(item.photoBlobs)) {
+                        if (pData && pData.blob) {
+                            const fileObj = new File([pData.blob], pData.name || `photo_${Date.now()}.jpg`, {
+                                type: pData.type || 'image/jpeg'
+                            });
+                            formData.append(fField, fileObj);
+                        }
+                    }
+                } else if (item.photoBlob) {
                     const fileField = item.fileField || (item.type === 'listrik' ? 'foto_kwh' : (item.type === 'air' ? 'foto_air' : 'foto'));
                     const fileObj = new File([item.photoBlob], item.photoName || `${fileField}_${Date.now()}.jpg`, {
                         type: item.photoType || 'image/jpeg'
@@ -561,6 +570,7 @@
         // Ambil data form
         const formData = new FormData(form);
         const fields = {};
+        const photoBlobs = {};
         let photoBlob = null;
         let photoName = '';
         let photoType = '';
@@ -572,6 +582,11 @@
                     photoBlob = val;
                     photoName = val.name;
                     photoType = val.type;
+                    photoBlobs[key] = {
+                        blob: val,
+                        name: val.name,
+                        type: val.type
+                    };
                 }
             } else {
                 fields[key] = val;
@@ -598,6 +613,7 @@
             photoBlob: photoBlob,
             photoName: photoName,
             photoType: photoType,
+            photoBlobs: photoBlobs,
             status: 'pending'
         };
 

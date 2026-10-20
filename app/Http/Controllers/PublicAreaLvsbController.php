@@ -74,7 +74,9 @@ class PublicAreaLvsbController extends Controller
         // Validasi dasar
         $request->validate([
             'tanggal' => 'required|date',
-            'foto'    => 'nullable|image|max:10240', // Maksimal 10MB
+            'fotos'   => 'nullable|array',
+            'fotos.*' => 'nullable|image|max:10240',
+            'foto'    => 'nullable|image|max:10240',
             'catatan' => 'nullable|string|max:1000',
         ]);
 
@@ -107,7 +109,20 @@ class PublicAreaLvsbController extends Controller
             }
         }
 
-        // Simpan foto jika dilampirkan
+        // Simpan foto per grup jika dilampirkan
+        $existingFotos = $existing?->fotos ?? [];
+        if ($request->hasFile('fotos')) {
+            foreach ($request->file('fotos') as $gKey => $uploadedFile) {
+                if ($uploadedFile && $uploadedFile->isValid()) {
+                    if (!empty($existingFotos[$gKey]) && Storage::disk('public')->exists($existingFotos[$gKey])) {
+                        Storage::disk('public')->delete($existingFotos[$gKey]);
+                    }
+                    $existingFotos[$gKey] = $uploadedFile->store("logsheet/lvsb/{$gKey}", 'public');
+                }
+            }
+        }
+
+        // Simpan foto umum jika ada (fallback)
         $fotoPath = $existing?->foto;
         if ($request->hasFile('foto')) {
             if ($existing && $existing->foto && Storage::disk('public')->exists($existing->foto)) {
@@ -121,6 +136,7 @@ class PublicAreaLvsbController extends Controller
             ['tanggal' => $tanggal],
             [
                 'readings' => $readingsData,
+                'fotos'    => !empty($existingFotos) ? $existingFotos : null,
                 'foto'     => $fotoPath,
                 'catatan'  => $request->input('catatan'),
                 'user_id'  => auth()->id(),
@@ -173,6 +189,14 @@ class PublicAreaLvsbController extends Controller
     {
         if (!auth()->user()->isSuperAdmin()) {
             abort(403, 'Hanya Super Admin yang berhak menghapus data logsheet.');
+        }
+
+        if (is_array($reading->fotos)) {
+            foreach ($reading->fotos as $f) {
+                if ($f && Storage::disk('public')->exists($f)) {
+                    Storage::disk('public')->delete($f);
+                }
+            }
         }
 
         if ($reading->foto && Storage::disk('public')->exists($reading->foto)) {
