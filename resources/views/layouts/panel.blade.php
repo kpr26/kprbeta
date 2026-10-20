@@ -172,6 +172,11 @@
                 LVSB
             </a>
 
+            <a href="{{ route('public-area.mvsb.index') }}" class="nav-item {{ request()->routeIs('public-area.mvsb.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#a855f7; width:16px; height:16px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.381Z" clip-rule="evenodd"/></svg>
+                MVSB Incoming From PLN
+            </a>
+
             @if($authUser->isSuperAdmin())
             {{-- Menu Khusus Super Admin: Input Manual Tanggal Terlewat --}}
             <div class="sidebar-section-title" style="padding:14px 12px 4px; font-size:0.7rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.06em; display:flex; align-items:center; gap:6px;">

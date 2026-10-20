@@ -32,6 +32,9 @@ class PublicAreaLogsheetController extends Controller
         // Ambil data hari ini untuk LVSB
         $todayLvsb = \App\Models\PublicAreaLvsbReading::whereDate('tanggal', $today)->first();
 
+        // Ambil data hari ini untuk MVSB Incoming From PLN
+        $todayMvsb = \App\Models\PublicAreaMvsbReading::whereDate('tanggal', $today)->first();
+
         // Stand terakhir sebelumnya
         $prevWater = [];
         foreach ($waterMeters as $key => $meta) {
@@ -46,6 +49,7 @@ class PublicAreaLogsheetController extends Controller
             'elecMeters',
             'todayWater',
             'todayLvsb',
+            'todayMvsb',
             'prevWater',
             'waterCountDone',
             'waterTotalCount'

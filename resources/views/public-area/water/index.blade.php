@@ -24,7 +24,10 @@
                 ← Menu Public Area
             </a>
             <a href="{{ route('public-area.lvsb.index') }}" class="btn btn-sm" style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.35);">
-                ⚡ Pindah ke LVSB
+                ⚡ LVSB
+            </a>
+            <a href="{{ route('public-area.mvsb.index') }}" class="btn btn-sm" style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
+                ⚡ MVSB 20kV
             </a>
             <form class="filter-form" method="GET" style="margin:0;">
                 <input type="month" name="periode" value="{{ $periode }}" max="{{ now()->format('Y-m') }}" onchange="this.form.submit()" aria-label="Periode" style="padding:6px 12px; font-size:0.82rem;">

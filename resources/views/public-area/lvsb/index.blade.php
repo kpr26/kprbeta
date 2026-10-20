@@ -29,7 +29,10 @@
                 ← Menu Public Area
             </a>
             <a href="{{ route('public-area.water.index') }}" class="btn btn-sm" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">
-                💧 Pindah ke Water Meter
+                💧 Water Meter
+            </a>
+            <a href="{{ route('public-area.mvsb.index') }}" class="btn btn-sm" style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
+                ⚡ MVSB 20kV
             </a>
 
             {{-- Filter Bulan --}}

@@ -133,6 +133,59 @@
                 </svg>
             </a>
         </div>
+
+        {{-- 3. SUB MENU: MVSB INCOMING FROM PLN --}}
+        <div class="logsheet-choice-card" style="border-top:3px solid #a855f7;">
+            <div>
+                <div class="choice-card-head">
+                    <div class="choice-icon-wrap" style="background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3); color:#c084fc;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:26px; height:26px;">
+                            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.381Z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="choice-title">MVSB Incoming From PLN</h3>
+                        <span class="choice-subtitle">Medium Voltage Switchboard 20kV</span>
+                    </div>
+                </div>
+
+                <p class="choice-desc">
+                    Pencatatan parameter tegangan menengah panel incoming PLN: <b>Voltage 20kV (Volt)</b>, <b>Current (Ampere)</b>, serta lampiran foto fisik panel dari galeri atau kamera langsung.
+                </p>
+
+                <div class="choice-status-box" style="margin-top:14px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:0.78rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.06em;">Status Hari Ini</span>
+                        @if($todayMvsb)
+                            <span class="badge badge-ok" style="font-size:0.75rem;">✓ Sudah Dicatat</span>
+                        @else
+                            <span class="badge badge-wait" style="font-size:0.75rem;">Belum Dicatat</span>
+                        @endif
+                    </div>
+
+                    <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
+                        @if($todayMvsb)
+                            Voltage 20kV: <b>{{ $todayMvsb->voltage_20kv !== null ? number_format($todayMvsb->voltage_20kv, 1, ',', '.') : '—' }} Volt</b><br>
+                            Current: <b>{{ $todayMvsb->current !== null ? number_format($todayMvsb->current, 2, ',', '.') : '—' }} Ampere</b>
+                            @if($todayMvsb->foto)
+                                · <span style="color:#38bdf8;">📷 Foto Ada</span>
+                            @endif
+                            <br>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Dicatat oleh {{ $todayMvsb->user?->name ?? 'Teknisi' }}</span>
+                        @else
+                            Belum ada pencatatan MVSB hari ini.
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ route('public-area.mvsb.index') }}" class="choice-btn-cta" style="margin-top:20px; background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; box-shadow:0 4px 14px rgba(139,92,246,0.3);">
+                <span>Buka Sub Menu MVSB</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </div>
     </div>
 </div>
 @endsection

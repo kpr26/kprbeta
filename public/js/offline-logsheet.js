@@ -141,6 +141,7 @@
         else if (type === 'public_area_water') typeLabel = customTitle || 'Logsheet Water Meter Public Area';
         else if (type === 'public_area_electricity') typeLabel = 'Logsheet KWh Meter Public Area';
         else if (type === 'public_area_lvsb') typeLabel = 'Logsheet LVSB (Low Voltage Switchboard)';
+        else if (type === 'public_area_mvsb') typeLabel = 'Logsheet MVSB Incoming From PLN';
 
         const defaultBack = type.startsWith('public_area') ? '/logsheet-public-area' : '/logsheet/hub';
         const backUrl = targetUrl || defaultBack;
@@ -259,7 +260,7 @@
                     const resJson = await response.json();
                     await deletePendingLogsheet(item.id);
                     successCount++;
-                    const typeName = item.meterName || (item.type === 'listrik' ? 'AMR PLN T33N' : (item.type === 'air' ? 'Air Gedung' : (item.type === 'public_area_water' ? 'Water Meter Public Area' : (item.type === 'public_area_lvsb' ? 'LVSB Public Area' : 'KWh Meter Public Area'))));
+                    const typeName = item.meterName || (item.type === 'listrik' ? 'AMR PLN T33N' : (item.type === 'air' ? 'Air Gedung' : (item.type === 'public_area_water' ? 'Water Meter Public Area' : (item.type === 'public_area_lvsb' ? 'LVSB Public Area' : (item.type === 'public_area_mvsb' ? 'MVSB Incoming From PLN' : 'KWh Meter Public Area')))));
                     showToast(`✓ Logsheet ${typeName} tanggal ${item.tanggal} berhasil disinkronkan ke server!`, 'success');
                 } else if (response.status === 403 || response.status === 422) {
                     // Cek pesan error dari server
@@ -418,6 +419,11 @@
         // Public Area LVSB Forms (Low Voltage Switchboard)
         document.querySelectorAll('.form-offline-pa-lvsb, [data-offline-type="public_area_lvsb"]').forEach(form => {
             handleFormSubmit(form, 'public_area_lvsb');
+        });
+
+        // Public Area MVSB Forms (Medium Voltage Switchboard 20kV)
+        document.querySelectorAll('.form-offline-pa-mvsb, [data-offline-type="public_area_mvsb"]').forEach(form => {
+            handleFormSubmit(form, 'public_area_mvsb');
         });
     }
 
@@ -640,6 +646,8 @@
             '/logsheet-public-area/water',
             '/logsheet-public-area/lvsb',
             '/logsheet-public-area/lvsb/input',
+            '/logsheet-public-area/mvsb',
+            '/logsheet-public-area/mvsb/input',
             '/logsheet-public-area/electricity',
             '/logsheet-public-area/water/input/cooling_tower',
             '/logsheet-public-area/water/input/toilet_sky_lobby',

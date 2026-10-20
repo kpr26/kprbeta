@@ -7,6 +7,7 @@ use App\Http\Controllers\DailyLogBookController;
 use App\Http\Controllers\LogsheetController;
 use App\Http\Controllers\PublicAreaLogsheetController;
 use App\Http\Controllers\PublicAreaLvsbController;
+use App\Http\Controllers\PublicAreaMvsbController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PwaController;
 
@@ -170,6 +171,16 @@ Route::middleware('auth')->group(function () {
         Route::delete('/lvsb/destroy/{reading}', [PublicAreaLvsbController::class, 'destroy'])->name('lvsb.destroy');
         Route::get('/lvsb/export/excel', [PublicAreaLvsbController::class, 'exportExcel'])->name('lvsb.excel');
         Route::get('/lvsb/export/pdf', [PublicAreaLvsbController::class, 'exportPdf'])->name('lvsb.pdf');
+
+        // Sub Menu 3: MVSB Incoming From PLN (Medium Voltage Switchboard 20kV)
+        Route::get('/mvsb', [PublicAreaMvsbController::class, 'index'])->name('mvsb.index');
+        Route::get('/mvsb/input', [PublicAreaMvsbController::class, 'create'])->name('mvsb.create');
+        Route::post('/mvsb/store', [PublicAreaMvsbController::class, 'store'])->name('mvsb.store');
+        Route::get('/mvsb/detail/{reading}', [PublicAreaMvsbController::class, 'show'])->name('mvsb.show');
+        Route::post('/mvsb/verify/{reading}', [PublicAreaMvsbController::class, 'verify'])->name('mvsb.verify');
+        Route::delete('/mvsb/destroy/{reading}', [PublicAreaMvsbController::class, 'destroy'])->name('mvsb.destroy');
+        Route::get('/mvsb/export/excel', [PublicAreaMvsbController::class, 'exportExcel'])->name('mvsb.excel');
+        Route::get('/mvsb/export/pdf', [PublicAreaMvsbController::class, 'exportPdf'])->name('mvsb.pdf');
 
         // Alias URL electricity lama dialihkan langsung ke LVSB
         Route::redirect('/electricity', '/logsheet-public-area/lvsb')->name('electricity.index');
