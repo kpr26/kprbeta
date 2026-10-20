@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DailyLogBookController;
 use App\Http\Controllers\LogsheetController;
+use App\Http\Controllers\PublicAreaLogsheetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PwaController;
 
@@ -149,6 +150,30 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('logsheet', LogsheetController::class)->except('destroy');
+
+    // ── Logsheet Public Area (Air & Listrik) ──
+    Route::prefix('logsheet-public-area')->name('public-area.')->group(function () {
+        Route::get('/', [PublicAreaLogsheetController::class, 'hub'])->name('index');
+
+        // Sub Menu 1: Water Meter Public Area (Cooling Tower 12A, Toilet Sky Lobby 11 & Mushola 12, Pantry Office)
+        Route::get('/water', [PublicAreaLogsheetController::class, 'waterIndex'])->name('water.index');
+        Route::get('/water/input/{meterKey}', [PublicAreaLogsheetController::class, 'waterCreate'])->name('water.create');
+        Route::post('/water/store', [PublicAreaLogsheetController::class, 'waterStore'])->name('water.store');
+
+        // Sub Menu 2: KWh Meter Public Area (Listrik)
+        Route::get('/electricity', [PublicAreaLogsheetController::class, 'electricityIndex'])->name('electricity.index');
+        Route::get('/electricity/input', [PublicAreaLogsheetController::class, 'electricityCreate'])->name('electricity.create');
+        Route::post('/electricity/store', [PublicAreaLogsheetController::class, 'electricityStore'])->name('electricity.store');
+
+        // Detail, Verify & Delete
+        Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show');
+        Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
+            Route::post('/verify/{reading}', [PublicAreaLogsheetController::class, 'verify'])->name('verify');
+            Route::delete('/destroy/{reading}', [PublicAreaLogsheetController::class, 'destroy'])->name('destroy');
+            Route::get('/export/excel/{category}', [PublicAreaLogsheetController::class, 'exportExcel'])->name('excel');
+            Route::get('/export/pdf/{category}', [PublicAreaLogsheetController::class, 'exportPdf'])->name('pdf');
+        });
+    });
 
     // ── Daily Log Book (Pekerjaan Harian Teknisi) ──
     Route::get('/daily-log', [DailyLogBookController::class, 'index'])->name('daily-log.index');

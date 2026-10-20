@@ -134,8 +134,17 @@
     }
 
     // Modal sukses simpan offline
-    function showOfflineSavedModal(type, targetUrl) {
-        const typeLabel = type === 'listrik' ? 'Logsheet AMR PLN T33N' : 'Logsheet Air (Water Meter)';
+    function showOfflineSavedModal(type, targetUrl, customTitle) {
+        let typeLabel = 'Logsheet Utilitas';
+        if (type === 'listrik') typeLabel = 'Logsheet AMR PLN T33N';
+        else if (type === 'air') typeLabel = 'Logsheet Air (Water Meter Gedung)';
+        else if (type === 'public_area_water') typeLabel = customTitle || 'Logsheet Water Meter Public Area';
+        else if (type === 'public_area_electricity') typeLabel = 'Logsheet KWh Meter Public Area';
+
+        const defaultBack = type.startsWith('public_area') ? '/logsheet-public-area' : '/logsheet/hub';
+        const backUrl = targetUrl || defaultBack;
+        const backText = type.startsWith('public_area') ? 'Kembali ke Menu Public Area' : 'Kembali ke Menu Logsheet';
+
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.25s ease;';
 
@@ -153,8 +162,8 @@
                     <span style="color:#e2e8f0;">Data akan <b>otomatis terkirim ke server</b> begitu HP Anda mendeteksi sinyal / koneksi internet kembali.</span>
                 </p>
                 <div style="display:flex;flex-direction:column;gap:10px;">
-                    <a href="/logsheet/hub" style="display:block;background:linear-gradient(135deg,#c8aa6e,#b89248);color:#0a0e1a;padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.92rem;">
-                        Kembali ke Menu Logsheet
+                    <a href="${backUrl}" style="display:block;background:linear-gradient(135deg,#c8aa6e,#b89248);color:#0a0e1a;padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;font-size:0.92rem;">
+                        ${backText}
                     </a>
                 </div>
             </div>
@@ -202,7 +211,7 @@
 
                 // Tambahkan file foto dari Blob
                 if (item.photoBlob) {
-                    const fileField = item.type === 'listrik' ? 'foto_kwh' : 'foto_air';
+                    const fileField = item.fileField || (item.type === 'listrik' ? 'foto_kwh' : (item.type === 'air' ? 'foto_air' : 'foto'));
                     const fileObj = new File([item.photoBlob], item.photoName || `${fileField}_${Date.now()}.jpg`, {
                         type: item.photoType || 'image/jpeg'
                     });
@@ -240,7 +249,7 @@
                     const resJson = await response.json();
                     await deletePendingLogsheet(item.id);
                     successCount++;
-                    const typeName = item.type === 'listrik' ? 'Listrik' : 'Air';
+                    const typeName = item.meterName || (item.type === 'listrik' ? 'AMR PLN T33N' : (item.type === 'air' ? 'Air Gedung' : (item.type === 'public_area_water' ? 'Water Meter Public Area' : 'KWh Meter Public Area')));
                     showToast(`✓ Logsheet ${typeName} tanggal ${item.tanggal} berhasil disinkronkan ke server!`, 'success');
                 } else if (response.status === 403 || response.status === 422) {
                     // Cek pesan error dari server
@@ -374,7 +383,7 @@
         }
     }
 
-    // Intersepsi Form Logsheet Listrik & Air
+    // Intersepsi Form Logsheet Listrik & Air & Public Area
     function setupFormInterception() {
         const elecForm = document.getElementById('logsheet-listrik-form');
         const waterForm = document.getElementById('logsheet-air-form');
@@ -385,6 +394,16 @@
         if (waterForm) {
             handleFormSubmit(waterForm, 'air');
         }
+
+        // Public Area Water Forms (Cooling Tower 12A, Toilet Sky Lobby 11 & Mushola 12, Pantry Office)
+        document.querySelectorAll('.form-offline-pa-water, [data-offline-type="public_area_water"]').forEach(form => {
+            handleFormSubmit(form, 'public_area_water');
+        });
+
+        // Public Area Electricity Forms (KWh Meter Public Area)
+        document.querySelectorAll('.form-offline-pa-electricity, [data-offline-type="public_area_electricity"]').forEach(form => {
+            handleFormSubmit(form, 'public_area_electricity');
+        });
     }
 
     function handleFormSubmit(form, type) {
@@ -506,6 +525,31 @@
                 alert('Foto water meter wajib dilampirkan.');
                 return;
             }
+        } else if (type === 'public_area_water') {
+            const stand = form.querySelector('[name="stand_meter"]');
+            const file = form.querySelector('[name="foto"]');
+            const meterLabel = form.dataset.meterLabel || 'Water Meter';
+
+            if (!stand || !stand.value) {
+                alert(`Stand ${meterLabel} wajib diisi.`);
+                return;
+            }
+            if (file && file.hasAttribute('required') && (!file.files || !file.files[0])) {
+                alert(`Foto fisik meteran ${meterLabel} wajib dilampirkan.`);
+                return;
+            }
+        } else if (type === 'public_area_electricity') {
+            const stand = form.querySelector('[name="stand_meter"]');
+            const file = form.querySelector('[name="foto"]');
+
+            if (!stand || !stand.value) {
+                alert('Stand KWh Meter Public Area wajib diisi.');
+                return;
+            }
+            if (file && file.hasAttribute('required') && (!file.files || !file.files[0])) {
+                alert('Foto fisik KWh meter public area wajib dilampirkan.');
+                return;
+            }
         }
 
         // Ambil data form
@@ -529,11 +573,18 @@
         }
 
         const todayStr = new Date().toISOString().split('T')[0];
-        const recordId = `${type}_${todayStr}_${Date.now()}`;
+        const recordId = `${type}_${fields.meter_key || ''}_${todayStr}_${Date.now()}`;
+
+        let fileField = 'foto';
+        if (type === 'listrik') fileField = 'foto_kwh';
+        else if (type === 'air') fileField = 'foto_air';
+        else if (form.dataset.fileField) fileField = form.dataset.fileField;
 
         const offlineItem = {
             id: recordId,
             type: type,
+            fileField: fileField,
+            meterName: form.dataset.meterLabel || '',
             url: form.action,
             createdAt: new Date().toISOString(),
             tanggal: todayStr,
@@ -546,7 +597,9 @@
 
         try {
             await savePendingLogsheet(offlineItem);
-            showOfflineSavedModal(type, '/logsheet/hub');
+            const customTitle = form.dataset.meterLabel || '';
+            const redirectUrl = form.dataset.targetRedirect || (type.startsWith('public_area') ? '/logsheet-public-area' : '/logsheet/hub');
+            showOfflineSavedModal(type, redirectUrl, customTitle);
         } catch (err) {
             console.error('Gagal menyimpan ke IndexedDB:', err);
             alert('Terjadi kesalahan saat menyimpan data di HP Anda: ' + err.message);
@@ -556,9 +609,19 @@
     // Pre-cache halaman form logsheet di background saat online di hub
     function prefetchLogsheetForms() {
         if (!navigator.onLine) return;
-        if (!window.location.pathname.includes('/logsheet/hub')) return;
+        const path = window.location.pathname;
+        if (!path.includes('/logsheet/hub') && !path.includes('/logsheet-public-area')) return;
 
-        const urls = ['/logsheet/input/listrik', '/logsheet/input/air'];
+        const urls = [
+            '/logsheet/input/listrik',
+            '/logsheet/input/air',
+            '/logsheet-public-area/water',
+            '/logsheet-public-area/electricity',
+            '/logsheet-public-area/water/input/cooling_tower',
+            '/logsheet-public-area/water/input/toilet_sky_lobby',
+            '/logsheet-public-area/water/input/pantry_office',
+            '/logsheet-public-area/electricity/input'
+        ];
         urls.forEach(url => {
             fetch(url, { credentials: 'same-origin', cache: 'force-cache' })
                 .catch(() => {});

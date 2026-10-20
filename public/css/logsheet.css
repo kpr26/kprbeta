@@ -750,4 +750,14 @@ table.log-table { width: 100%; border-collapse: collapse; font-size: .84rem; whi
   background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
 }
 
+/* ── Public Area Logsheet Components ── */
+.upload-trigger-btn:hover {
+  background: rgba(200, 170, 110, 0.16) !important;
+  border-color: var(--accent) !important;
+}
+.calc-diff-hint {
+  font-size: 0.74rem;
+  font-weight: 500;
+}
+
 

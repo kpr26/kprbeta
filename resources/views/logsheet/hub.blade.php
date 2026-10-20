@@ -18,6 +18,9 @@
             <p>Petugas: <b style="color:#fbbf24;">{{ auth()->user()->name }}</b> &middot; Pilih meteran yang ingin Anda catat stand dan fotonya secara terpisah.</p>
         </div>
         <div class="btn-group">
+            <a href="{{ route('public-area.index') }}" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35);">
+                🏢 Logsheet Public Area →
+            </a>
             <a href="{{ route('logsheet.index') }}" class="btn btn-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 0 0 3 3.5v13A1.5 1.5 0 0 0 4.5 18h11a1.5 1.5 0 0 0 1.5-1.5V7.621a1.5 1.5 0 0 0-.44-1.06l-4.12-4.122A1.5 1.5 0 0 0 11.378 2H4.5Zm2.25 8.5a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 3a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Z" clip-rule="evenodd"/></svg>
                 Lihat Riwayat Logbook
@@ -162,6 +165,50 @@
                     </svg>
                 </a>
             @endif
+        </div>
+
+        {{-- 3. KARTU PILIHAN LOGSHEET PUBLIC AREA --}}
+        <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:rgba(15,22,35,0.85); position:relative;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
+            <div>
+                <div class="choice-card-head">
+                    <div class="choice-icon-wrap" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:1.4rem;">
+                        🏢
+                    </div>
+                    <div>
+                        <h3 class="choice-title" style="color:#38bdf8;">Logsheet Public Area</h3>
+                        <span class="choice-subtitle">Water Meter (3 Area) &amp; KWh Meter</span>
+                    </div>
+                </div>
+
+                <p class="choice-desc">
+                    Pencatatan terpisah untuk <b>Cooling Tower 12A</b>, <b>Toilet Sky Lobby 11 &amp; Mushola 12</b>, <b>Pantry Office</b>, serta KWh Meter Public Area.
+                </p>
+
+                <div class="choice-status-box">
+                    <div class="badge badge-info" style="font-size:0.8rem; padding:6px 12px; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">
+                        ⚡ Dukungan Offline &amp; Galeri Foto
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">
+                        Foto meteran dapat diambil terlebih dahulu lalu dipilih langsung dari galeri HP.
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ route('public-area.water.index') }}" class="choice-btn-cta" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:none; box-shadow:0 4px 14px rgba(2,132,199,0.3);">
+                    <span>Input Water Meter Public Area</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+                <a href="{{ route('public-area.index') }}" class="choice-btn-cta" style="background:rgba(200,170,110,0.06); color:var(--accent-light); border:1px solid rgba(200,170,110,0.2); font-size:0.85rem; padding:10px 16px;">
+                    <span>Buka Menu Hub Public Area</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </div>
         </div>
 
         {{-- 3. KARTU PILIHAN DAILY LOG BOOK (Pekerjaan Harian Teknisi) --}}
