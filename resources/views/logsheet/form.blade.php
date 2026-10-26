@@ -20,9 +20,16 @@
             <h2>Pencatatan Stand Meter</h2>
             <p>Masukkan angka stand yang tertera pada meter dan unggah foto meter sebagai bukti.</p>
         </div>
-        @if (auth()->user()->role === 'teknisi')
-            <span class="badge badge-role-teknisi">Role: Teknisi (Mode Input)</span>
-        @endif
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            @if (auth()->user()->isSuperAdmin())
+                <a href="{{ route('logsheet.bulk.air') }}" class="btn btn-sm" style="background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-weight:700;">
+                    <span>📤 Bulk Input Water Meter (Excel)</span>
+                </a>
+            @endif
+            @if (auth()->user()->role === 'teknisi')
+                <span class="badge badge-role-teknisi">Role: Teknisi (Mode Input)</span>
+            @endif
+        </div>
     </div>
 
     @if (isset($today) && $today && ! $editing && auth()->user()->role === 'teknisi')

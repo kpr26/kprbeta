@@ -26,6 +26,9 @@
             <a href="{{ route('logsheet.manual.listrik', ['tanggal' => $tanggal]) }}" class="btn btn-sm" id="btn-switch-listrik" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
                 ⚡ Input Manual Listrik
             </a>
+            <a href="{{ route('logsheet.bulk.air') }}" class="btn btn-sm" style="background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-weight:700;">
+                📤 Bulk Input Air (Excel)
+            </a>
             <span class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); font-size:0.75rem; padding:4px 8px; border-radius:6px; font-weight:700;">
                 ★ Super Admin Akses Penuh
             </span>

@@ -150,6 +150,11 @@ Route::middleware('auth')->group(function () {
 
     // ── Input Manual Logsheet Listrik & Air (Khusus Super Admin untuk Tanggal Terlewat) ──
     Route::middleware('role:admin,superadmin')->group(function () {
+        // Bulk Input Manual Air (Water Meter Gedung - File Excel)
+        Route::get('/logsheet/bulk/air', [LogsheetController::class, 'createBulkAir'])->name('logsheet.bulk.air');
+        Route::post('/logsheet/bulk/air', [LogsheetController::class, 'storeBulkAir'])->name('logsheet.bulk.air.store');
+        Route::get('/logsheet/bulk/air/template', [LogsheetController::class, 'downloadBulkAirTemplate'])->name('logsheet.bulk.air.template');
+
         Route::get('/logsheet/manual/listrik', [LogsheetController::class, 'createManualListrik'])->name('logsheet.manual.listrik');
         Route::post('/logsheet/manual/listrik', [LogsheetController::class, 'storeManualListrik'])->name('logsheet.manual.listrik.store');
         Route::get('/logsheet/manual/air', [LogsheetController::class, 'createManualAir'])->name('logsheet.manual.air');

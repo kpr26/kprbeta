@@ -165,6 +165,14 @@
                     </svg>
                 </a>
             @endif
+
+            @if(auth()->user()->isSuperAdmin())
+                <div style="margin-top:10px;">
+                    <a href="{{ route('logsheet.bulk.air') }}" class="btn btn-sm" style="width:100%; justify-content:center; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.75rem; padding:6px 10px; font-weight:700;">
+                        <span>📤 Bulk Input Air 1 Bulan (Excel)</span>
+                    </a>
+                </div>
+            @endif
         </div>
 
         {{-- 3. KARTU PILIHAN LOGSHEET PUBLIC AREA --}}

@@ -395,4 +395,84 @@ class ExcelReaderService
 
         return $content;
     }
+
+    /**
+     * Generate file template Excel (.xlsx) siap pakai untuk Main Water Meter Gedung
+     */
+    public function generateMainWaterTemplateXlsx(?int $year = null, ?int $month = null): string
+    {
+        $year = $year ?? (int)date('Y');
+        $month = $month ?? (int)date('n');
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'kpr_mainwater_');
+        $zip = new ZipArchive();
+        $zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' .
+            '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' .
+            '<Default Extension="xml" ContentType="application/xml"/>' .
+            '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' .
+            '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' .
+            '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStringItem+xml"/>' .
+            '</Types>';
+        $zip->addFromString('[Content_Types].xml', $contentTypes);
+
+        $rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' .
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' .
+            '</Relationships>';
+        $zip->addFromString('_rels/.rels', $rels);
+
+        $wbRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' .
+            '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' .
+            '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>' .
+            '</Relationships>';
+        $zip->addFromString('xl/_rels/workbook.xml.rels', $wbRels);
+
+        $workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' .
+            '<sheets><sheet name="Water Meter" sheetId="1" r:id="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/></sheets>' .
+            '</workbook>';
+        $zip->addFromString('xl/workbook.xml', $workbook);
+
+        // Header string (Persis sesuai gambar lampiran 2: Tanggal | Main Water meter Transfer Pump  Lt B1)
+        $sharedStrings = [
+            'Tanggal',
+            'Main Water meter Transfer Pump  Lt B1',
+        ];
+
+        $daysInMonth = (int)date('t', strtotime(sprintf('%04d-%02d-01', $year, $month)));
+        $dateStrings = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $dateStr = sprintf('%d/%d/%d', $month, $d, $year);
+            $sharedStrings[] = $dateStr;
+            $dateStrings[$d] = count($sharedStrings) - 1;
+        }
+
+        $sstXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sharedStrings) . '" uniqueCount="' . count($sharedStrings) . '">';
+        foreach ($sharedStrings as $str) {
+            $sstXml .= '<si><t>' . htmlspecialchars($str, ENT_XML1) . '</t></si>';
+        }
+        $sstXml .= '</sst>';
+        $zip->addFromString('xl/sharedStrings.xml', $sstXml);
+
+        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+        $sheetXml .= '<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>';
+
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $rowNum = $d + 1;
+            $sIdx = $dateStrings[$d];
+            $sheetXml .= "<row r=\"{$rowNum}\"><c r=\"A{$rowNum}\" t=\"s\"><v>{$sIdx}</v></c><c r=\"B{$rowNum}\"/></row>";
+        }
+        $sheetXml .= '</sheetData></worksheet>';
+        $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
+
+        $zip->close();
+        $content = file_get_contents($tempFile);
+        @unlink($tempFile);
+
+        return $content;
+    }
 }
