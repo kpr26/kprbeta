@@ -99,7 +99,6 @@
             <span style="color:var(--text-muted); font-size:0.74rem;">* Ekspor Excel & PDF otomatis mengikuti interval aktif (maksimal 12 bulan / 1 tahun).</span>
         </div>
     </div>
-    </div>
 
     {{-- Pill Mode Offline --}}
     @if(auth()->user()->role === 'teknisi')
@@ -110,172 +109,335 @@
     @endif
 
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    {{-- FORM INPUT PENCATATAN HARI INI                                          --}}
+    {{-- CARD INPUT TERPISAH PER SUB-MENU PANEL LVSB (SEAMLESS & SLIDEABLE)     --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+    @php
+        $filledCount = $todayReading ? collect(array_keys($structure))->filter(fn($k) => $todayReading->isGroupFilled($k))->count() : 0;
+        $totalGroups = count($structure);
+    @endphp
+
+    <style>
+        .lvsb-tab-pill {
+            user-select: none;
+            outline: none;
+        }
+        .lvsb-tab-pill:hover {
+            background: var(--bg-card-subtle) !important;
+            border-color: var(--accent) !important;
+        }
+        .lvsb-tab-pill.active {
+            background: linear-gradient(135deg, #fbbf24, #d97706) !important;
+            color: #090d15 !important;
+            border-color: #f59e0b !important;
+            font-weight: 700 !important;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+        }
+        .btn-view-mode {
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-view-mode.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
+        }
+        .lvsb-slide-active {
+            animation: fadeInLvsbSlide 0.22s ease-out;
+        }
+        @keyframes fadeInLvsbSlide {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 640px) {
+            .lvsb-subcard {
+                padding: 14px !important;
+            }
+        }
+    </style>
+
+    <div style="margin-bottom:28px;">
+        {{-- Section Header --}}
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
             <div>
-                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; font-weight:700;">Panel Distribusi Utama (LVSB)</span>
-                <h3 style="margin:2px 0 0; font-size:1.15rem; color:var(--text-primary); font-weight:700;">
-                    Pencatatan Hari Ini — {{ $todayStr }}
+                <h3 style="font-size:1.15rem; color:var(--text-primary); margin:0 0 4px; display:flex; align-items:center; gap:8px;">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fbbf24;"></span>
+                    Pencatatan LVSB Hari Ini — {{ $todayStr }}
                 </h3>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+                    Pencatatan mandiri untuk tiap sub-menu panel. Simpan setiap sub-menu tanpa harus menyelesaikan seluruh panel sekaligus.
+                </p>
             </div>
-            <div>
-                @if ($todayReading)
-                    <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:4px 12px; font-size:0.78rem; font-weight:600;">
-                        <span>✓ Sudah Dicatat Hari Ini</span>
-                        <a href="{{ route('public-area.lvsb.show', $todayReading) }}" style="color:#38bdf8; text-decoration:underline; margin-left:6px;">Lihat Detail</a>
-                    </div>
-                @else
-                    <span class="badge badge-wait" style="font-size:0.78rem; padding:4px 10px;">Belum Dicatat Hari Ini</span>
-                @endif
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                {{-- Progress Badge --}}
+                <div style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:0.78rem; font-weight:600;">
+                    <span style="color:var(--text-muted);">Progres:</span>
+                    <strong style="color:{{ $filledCount === $totalGroups ? 'var(--success)' : 'var(--warning)' }};">
+                        {{ $filledCount }}/{{ $totalGroups }} Sub-Menu
+                    </strong>
+                    @if($filledCount === $totalGroups)
+                        <span style="color:var(--success);">✓ Selesai</span>
+                    @endif
+                </div>
+
+                {{-- View Mode Switcher: Slide vs Grid --}}
+                <div class="view-mode-toggle" style="display:inline-flex; background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:2px;">
+                    <button type="button" id="btnModeSlide" class="btn btn-sm btn-view-mode active" style="padding:4px 10px; font-size:0.75rem; border-radius:6px; border:none; display:flex; align-items:center; gap:5px;" title="Mode Slide / Carousel (Satu Per Satu)">
+                        <span>📑 Slide Fokus</span>
+                    </button>
+                    <button type="button" id="btnModeGrid" class="btn btn-sm btn-view-mode" style="padding:4px 10px; font-size:0.75rem; border-radius:6px; border:none; display:flex; align-items:center; gap:5px;" title="Mode Grid (Tampilkan Semua Seperti Water Meter)">
+                        <span>▦ Grid Semua</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <form method="POST" action="{{ route('public-area.lvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-lvsb" data-offline-type="public_area_lvsb" data-meter-label="LVSB Public Area" data-target-redirect="{{ route('public-area.lvsb.index') }}">
-            @csrf
-            <input type="hidden" name="tanggal" value="{{ \Carbon\Carbon::today()->toDateString() }}">
+        {{-- Horizontal Slideable Tabs Sub-Menu (Swipe / Slide Navigation) --}}
+        <div style="position:relative; margin-bottom:14px;">
+            <div id="lvsbTabsBar" style="display:flex; align-items:center; gap:8px; overflow-x:auto; white-space:nowrap; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding:4px 2px 8px;">
+                <button type="button" class="lvsb-tab-pill active" data-target="all" style="padding:7px 14px; border-radius:20px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; border:1px solid var(--border); background:var(--bg-card-subtle); color:var(--text-primary); display:inline-flex; align-items:center; gap:6px;">
+                    <span>⚡ Semua Sub-Menu</span>
+                    <span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:1px 6px; border-radius:10px;">{{ $totalGroups }}</span>
+                </button>
 
-            {{-- LOOP SEMUA 6 GRUP INPUT SESUAI SPESIFIKASI --}}
-            <div style="display:flex; flex-direction:column; gap:20px;">
                 @foreach ($structure as $gKey => $group)
-                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:var(--shadow-sm);">
-                        {{-- Header Grup --}}
-                        <div style="background:var(--bg-card-subtle); padding:10px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="background:{{ $group['color'] }}20; color:{{ $group['color'] }}; border:1px solid {{ $group['color'] }}40; font-size:0.72rem; padding:2px 8px; border-radius:6px; font-weight:700; text-transform:uppercase;">
+                    @php
+                        $isFilled = $todayReading?->isGroupFilled($gKey);
+                    @endphp
+                    <button type="button" class="lvsb-tab-pill" data-target="{{ $gKey }}" style="padding:7px 14px; border-radius:20px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); display:inline-flex; align-items:center; gap:6px;">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:{{ $isFilled ? '#10b981' : $group['color'] }}; box-shadow:0 0 6px {{ $isFilled ? '#10b981' : $group['color'] }}88;"></span>
+                        <span>{{ $group['badge'] }}</span>
+                        @if($isFilled)
+                            <span style="color:#10b981; font-size:0.75rem;">✓</span>
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Slide Navigation Header (Aktif pada Mode Slide) --}}
+        <div id="lvsbSlideNavHeader" style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:8px 14px; margin-bottom:16px; box-shadow:var(--shadow-sm);">
+            <button type="button" id="btnSlidePrev" class="btn btn-sm" style="padding:5px 12px; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+                <span>← Prev</span>
+            </button>
+            <div style="font-size:0.82rem; font-weight:700; color:var(--text-primary); text-align:center;">
+                <span id="slideIndicator">Sub-Menu 1 dari {{ $totalGroups }}</span> &middot; <span id="slideCurrentTitle" style="color:#fbbf24;">Incoming From Trafo Apart A/B</span>
+            </div>
+            <button type="button" id="btnSlideNext" class="btn btn-sm" style="padding:5px 12px; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px;">
+                <span>Next →</span>
+            </button>
+        </div>
+
+        {{-- Container Kartu Sub-Menu LVSB --}}
+        <div id="lvsbCardsContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:18px;">
+            @php $slideIndex = 0; @endphp
+            @foreach ($structure as $gKey => $group)
+                @php
+                    $slideIndex++;
+                    $isGroupDone = $todayReading?->isGroupFilled($gKey);
+                    $groupFoto   = $todayReading?->getFoto($gKey);
+                @endphp
+
+                <div class="meter-card lvsb-subcard" data-group="{{ $gKey }}" data-index="{{ $slideIndex }}" data-title="{{ $group['title'] }}" data-color="{{ $group['color'] }}" style="border:1px solid {{ $group['color'] }}44; border-top:4px solid {{ $group['color'] }}; background:var(--bg-card); padding:18px 20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm);">
+                    <div>
+                        {{-- Card Header --}}
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:8px;">
+                            <div>
+                                <span class="badge" style="background:{{ $group['color'] }}20; color:{{ $group['color'] }}; border:1px solid {{ $group['color'] }}44; font-size:0.72rem; padding:2px 8px; font-weight:700; text-transform:uppercase;">
                                     {{ $group['badge'] }}
                                 </span>
-                                <span style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">
+                                <h4 style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:6px 0 2px;">
                                     {{ $group['title'] }}
+                                </h4>
+                                <span style="font-size:0.76rem; color:var(--text-muted);">
+                                    @if($group['has_subgroups'])
+                                        {{ count($group['subgroups']) }} Feeder: {{ collect($group['subgroups'])->pluck('label')->join(', ') }}
+                                    @else
+                                        {{ count($group['fields']) }} Parameter Panel Distribusi
+                                    @endif
                                 </span>
                             </div>
+
+                            @if($isGroupDone)
+                                <span class="badge badge-ok" style="font-size:0.75rem; flex-shrink:0;">✓ Sudah Dicatat</span>
+                            @else
+                                <span class="badge badge-wait" style="font-size:0.75rem; flex-shrink:0;">Belum Dicatat</span>
+                            @endif
                         </div>
 
-                        {{-- Isi Grup --}}
-                        <div style="padding:14px 16px;">
+                        {{-- Stand / Parameter Info Box --}}
+                        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:14px;">
+                            @if($isGroupDone)
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; flex-wrap:wrap; gap:4px;">
+                                    <span style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Status Hari Ini:</span>
+                                    <span style="font-size:0.78rem; font-weight:700; color:var(--success);">✓ Data Tersimpan di Sistem</span>
+                                </div>
+                                @if($gKey === 'incoming_trafo')
+                                    <div style="font-size:0.76rem; color:var(--text-secondary); line-height:1.45; margin:4px 0;">
+                                        Volt: <b style="color:var(--warning);">{{ $n($todayReading->val('incoming_trafo', 'voltage_3p'), 1) }} V</b> &middot; 
+                                        Arus: <b style="color:var(--purple);">{{ $n($todayReading->val('incoming_trafo', 'current')) }} A</b> &middot; 
+                                        Daya: <b style="color:var(--info);">{{ $n($todayReading->val('incoming_trafo', 'power')) }} kW</b> &middot; 
+                                        Energy: <b style="color:var(--text-primary);">{{ $n($todayReading->val('incoming_trafo', 'energy'), 4) }} GWh</b>
+                                    </div>
+                                @elseif($gKey === 'incoming_capacitor')
+                                    <div style="font-size:0.76rem; color:var(--text-secondary); line-height:1.45; margin:4px 0;">
+                                        Power Factor (PF): <b style="color:var(--success);">{{ $n($todayReading->val('incoming_capacitor', 'power_factor'), 2) }}</b>
+                                    </div>
+                                @endif
+                                <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:var(--text-muted); margin-top:4px;">
+                                    <span>Petugas: <b style="color:var(--accent-light);">{{ $todayReading->user?->name ?? 'Teknisi' }}</b></span>
+                                    <span>Pukul: {{ $todayReading->updated_at->format('H:i') }} WIB</span>
+                                </div>
+                                @if($todayReading->catatan)
+                                    <div style="font-size:0.74rem; color:var(--text-secondary); margin-top:6px; padding-top:6px; border-top:1px dashed var(--border);">
+                                        <i>"{{ $todayReading->catatan }}"</i>
+                                    </div>
+                                @endif
+                            @else
+                                <div style="font-size:0.78rem; color:var(--text-muted);">
+                                    Acuan data sebelumnya:
+                                    @if($prevReading && $prevReading->isGroupFilled($gKey))
+                                        <b style="color:var(--text-primary);">Tersedia</b> ({{ $prevReading->tanggal->translatedFormat('d M') }})
+                                    @else
+                                        <i>Belum ada pencatatan sebelumnya</i>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Foto Preview Jika Sudah Ada Foto Tersimpan --}}
+                        @if($groupFoto)
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:8px 10px; border-radius:8px;">
+                                <img src="{{ asset('storage/'.$groupFoto) }}" alt="Foto Panel" data-lightbox="{{ asset('storage/'.$groupFoto) }}" data-caption="{{ $group['title'] }} — {{ $todayStr }}" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;">
+                                <div style="font-size:0.76rem; color:var(--text-secondary);">
+                                    <strong style="color:var(--text-primary); display:block;">Foto Panel Tersimpan</strong>
+                                    Klik gambar untuk memperbesar
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Form Input Mandiri Khusus Sub-Menu Ini --}}
+                    <div>
+                        <form method="POST" action="{{ route('public-area.lvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-lvsb" data-offline-type="public_area_lvsb" data-meter-label="{{ $group['title'] }}" data-target-redirect="{{ route('public-area.lvsb.index') }}" style="margin-top:8px;">
+                            @csrf
+                            <input type="hidden" name="tanggal" value="{{ \Carbon\Carbon::today()->toDateString() }}">
+                            <input type="hidden" name="group_key" value="{{ $gKey }}">
+
+                            {{-- Fields List --}}
                             @if ($group['has_subgroups'])
-                                {{-- Grup memiliki sub-grup feeder (misal Outgoing 1.2, 2.1, dll) --}}
-                                <div style="display:flex; flex-direction:column; gap:14px;">
+                                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
                                     @foreach ($group['subgroups'] as $sKey => $sub)
-                                        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
-                                            <div style="font-weight:600; font-size:0.85rem; color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                                        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
+                                            <div style="font-weight:700; font-size:0.84rem; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
                                                 <span style="color:{{ $group['color'] }};">▸</span>
                                                 <span>{{ $sub['label'] }}</span>
                                             </div>
 
-                                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:10px;">
-                                                @foreach ($sub['fields'] as $fKey => $fMeta)
-                                                    @php
-                                                        $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $todayReading?->val($gKey, $sKey, $fKey));
-                                                        $prevVal = $prevReading?->val($gKey, $sKey, $fKey);
-                                                    @endphp
-                                                    <div>
-                                                        <label style="font-size:0.74rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">
-                                                            {{ $fMeta['label'] }}
-                                                        </label>
-                                                        <div class="input-unit" style="position:relative;">
-                                                            <input type="number" step="{{ $fMeta['step'] }}" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:56px; font-size:0.85rem;">
-                                                            <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted); pointer-events:none;">
-                                                                {{ $fMeta['unit'] }}
-                                                            </span>
-                                                        </div>
-                                                        @if($prevVal !== null)
-                                                            <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                                Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                            <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
+                                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; min-width:280px;">
+                                                    @foreach ($sub['fields'] as $fKey => $fMeta)
+                                                        @php
+                                                            $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $todayReading?->val($gKey, $sKey, $fKey));
+                                                            $prevVal = $prevReading?->val($gKey, $sKey, $fKey);
+                                                        @endphp
+                                                        <div>
+                                                            <label style="font-size:0.72rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:2px;">
+                                                                {{ $fMeta['label'] }}
+                                                            </label>
+                                                            <div class="input-unit" style="position:relative;">
+                                                                <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:52px; font-size:0.84rem; font-weight:600;">
+                                                                <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none;">
+                                                                    {{ $fMeta['unit'] }}
+                                                                </span>
                                                             </div>
-                                                        @endif
-                                                    </div>
-                                                @endforeach
+                                                            @if($prevVal !== null)
+                                                                <div style="font-size:0.67rem; color:var(--text-muted); margin-top:2px;">
+                                                                    Prev: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
                             @else
-                                {{-- Grup langsung berisi fields (Incoming Trafo atau Capacitor) --}}
-                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-                                    @foreach ($group['fields'] as $fKey => $fMeta)
-                                        @php
-                                            $val = old("readings.{$gKey}.{$fKey}", $todayReading?->val($gKey, $fKey));
-                                            $prevVal = $prevReading?->val($gKey, $fKey);
-                                        @endphp
-                                        <div>
-                                            <label style="font-size:0.76rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">
-                                                {{ $fMeta['label'] }}
-                                            </label>
-                                            <div class="input-unit" style="position:relative;">
-                                                <input type="number" step="{{ $fMeta['step'] }}" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:60px; font-size:0.88rem;">
-                                                <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted); pointer-events:none;">
-                                                    {{ $fMeta['unit'] }}
-                                                </span>
-                                            </div>
-                                            @if($prevVal !== null)
-                                                <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                    Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px;">
+                                    <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
+                                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; min-width:280px;">
+                                            @foreach ($group['fields'] as $fKey => $fMeta)
+                                                @php
+                                                    $val = old("readings.{$gKey}.{$fKey}", $todayReading?->val($gKey, $fKey));
+                                                    $prevVal = $prevReading?->val($gKey, $fKey);
+                                                @endphp
+                                                <div>
+                                                    <label style="font-size:0.74rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">
+                                                        {{ $fMeta['label'] }}
+                                                    </label>
+                                                    <div class="input-unit" style="position:relative;">
+                                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:55px; font-size:0.86rem; font-weight:600;">
+                                                        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.74rem; color:var(--text-muted); pointer-events:none;">
+                                                            {{ $fMeta['unit'] }}
+                                                        </span>
+                                                    </div>
+                                                    @if($prevVal !== null)
+                                                        <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
+                                                            Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                            @endif
+                                            @endforeach
                                         </div>
-                                    @endforeach
+                                    </div>
                                 </div>
                             @endif
 
-                            {{-- Lampiran Foto Kompak Per-Grup (Total 6 Foto) --}}
-                            @php
-                                $groupFoto = $todayReading?->getFoto($gKey);
-                            @endphp
-                            <div class="photo-upload-group" style="margin-top:14px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.04em;">
-                                        📷 Foto Panel {{ $group['title'] }} <span style="font-size:0.68rem; font-weight:normal; color:var(--text-muted);">(Opsional)</span>
-                                    </span>
-                                </div>
-
-                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                    {{-- Tombol Galeri --}}
-                                    <label class="btn-pick-gallery" style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:5px 10px; border-radius:6px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;" title="Pilih foto dari galeri HP">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:#38bdf8;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
-                                        <span>Galeri</span>
-                                        <input type="file" name="fotos[{{ $gKey }}]" accept="image/*" class="input-file-main" style="display:none;">
+                            {{-- Lampiran Foto Mandiri Sub-Menu --}}
+                            <div class="photo-upload-group" style="margin-bottom:10px;">
+                                <label style="font-size:0.74rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">
+                                    Lampiran Foto Panel {{ $group['badge'] }} <span style="font-size:0.68rem; font-weight:normal; color:var(--text-muted);">{{ $groupFoto ? '(Ganti foto opsional)' : '(Opsional)' }}</span>
+                                </label>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                    <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--info);"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                                        <span>🖼️ Galeri</span>
+                                        <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;">
                                     </label>
-
-                                    {{-- Tombol Kamera --}}
-                                    <label class="btn-pick-camera" style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:5px 10px; border-radius:6px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;" title="Ambil foto langsung dari kamera">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:#fbbf24;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
-                                        <span>Kamera</span>
+                                    <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--warning);"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
+                                        <span>📷 Kamera</span>
                                         <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
                                     </label>
-
-                                    {{-- Chip Pratinjau Ringkas --}}
-                                    <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:var(--bg-card-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">
-                                        <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
-                                        <span class="photo-preview-name" style="font-size:0.72rem; color:var(--text-primary); max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                            {{ $groupFoto ? 'Foto tersimpan' : '' }}
-                                        </span>
-                                        <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:0.95rem; cursor:pointer; line-height:1; padding:0 2px;" title="Batalkan foto">✕</button>
+                                </div>
+                                <div class="photo-preview-wrap" style="display:none; margin-top:8px; align-items:center; gap:10px; background:var(--bg-card-subtle); padding:6px 10px; border-radius:8px; border:1px solid var(--border);">
+                                    <img class="img-preview" src="" alt="Thumb" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div class="photo-preview-name" style="font-size:0.74rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                                        <div style="font-size:0.68rem; color:var(--success);">✓ Foto siap diunggah</div>
                                     </div>
+                                    <button type="button" class="btn-clear-photo" style="background:none; border:none; color:var(--danger); font-size:1rem; cursor:pointer;" title="Batalkan foto">✕</button>
                                 </div>
                             </div>
-                        </div>
+
+                            {{-- Catatan Opsional --}}
+                            <div style="margin-bottom:10px;">
+                                <input type="text" name="catatan" class="input" placeholder="Catatan kondisi {{ $group['badge'] }} (opsional)..." value="{{ old('catatan', $todayReading?->catatan) }}" style="font-size:0.78rem; padding:6px 10px; width:100%;">
+                            </div>
+
+                            {{-- TOMBOL SIMPAN KHUSUS SUB-MENU INI --}}
+                            <button type="submit" class="btn btn-sm btn-primary" style="width:100%; justify-content:center; background:linear-gradient(135deg, {{ $group['color'] }}, #d97706); border:none; color:#090d15; font-weight:700; padding:10px 16px; font-size:0.86rem; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:8px;">
+                                <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
+                                <span>Simpan {{ $group['title'] }}</span>
+                            </button>
+                        </form>
                     </div>
-                @endforeach
-            </div>
-
-            {{-- Catatan Kondisi Panel --}}
-            <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
-                    Catatan Kondisi Panel LVSB (Opsional)
-                </label>
-                <textarea name="catatan" rows="2" class="input" placeholder="Contoh: Suhu trafo normal, Breaker Riser 3 indikator hijau, Capacitor bank stabil..." style="width:100%; font-size:0.84rem; padding:8px 12px;">{{ old('catatan', $todayReading?->catatan) }}</textarea>
-            </div>
-
-            {{-- Tombol Simpan --}}
-            <div style="margin-top:20px; display:flex; justify-content:flex-end;">
-                <button type="submit" class="btn btn-primary" style="background:linear-gradient(135deg, #fbbf24, #d97706); border:none; color:#090d15; font-weight:700; padding:10px 24px; font-size:0.92rem; display:inline-flex; align-items:center; gap:8px;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
-                    <span>Simpan Logsheet LVSB</span>
-                </button>
-            </div>
-        </form>
+                </div>
+            @endforeach
+        </div>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
@@ -507,6 +669,160 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+    // Controller Slide & Tabs Sub-Menu LVSB
+    (function() {
+        const tabPills       = document.querySelectorAll('.lvsb-tab-pill');
+        const cards          = document.querySelectorAll('.lvsb-subcard');
+        const container      = document.getElementById('lvsbCardsContainer');
+        const btnModeSlide   = document.getElementById('btnModeSlide');
+        const btnModeGrid    = document.getElementById('btnModeGrid');
+        const slideNavHeader = document.getElementById('lvsbSlideNavHeader');
+        const btnSlidePrev   = document.getElementById('btnSlidePrev');
+        const btnSlideNext   = document.getElementById('btnSlideNext');
+        const slideIndicator = document.getElementById('slideIndicator');
+        const slideTitle     = document.getElementById('slideCurrentTitle');
+
+        if (!cards.length) return;
+
+        // Default mode: HP/mobile (<850px) otomatis mode slide fokus; desktop mode grid
+        let currentMode = window.innerWidth < 850 ? 'slide' : 'grid';
+        let currentIndex = 1;
+        const totalCards = cards.length;
+
+        function updateView() {
+            if (currentMode === 'slide') {
+                btnModeSlide?.classList.add('active');
+                btnModeGrid?.classList.remove('active');
+                if (slideNavHeader) slideNavHeader.style.display = 'flex';
+                if (container) {
+                    container.style.gridTemplateColumns = '1fr';
+                }
+
+                cards.forEach(card => {
+                    const idx = parseInt(card.dataset.index, 10);
+                    if (idx === currentIndex) {
+                        card.style.display = 'flex';
+                        card.classList.add('lvsb-slide-active');
+                        if (slideIndicator) slideIndicator.textContent = `Sub-Menu ${idx} dari ${totalCards}`;
+                        if (slideTitle) {
+                            slideTitle.textContent = card.dataset.title;
+                            slideTitle.style.color = card.dataset.color || 'var(--accent)';
+                        }
+                    } else {
+                        card.style.display = 'none';
+                        card.classList.remove('lvsb-slide-active');
+                    }
+                });
+
+                // Sinkronkan tab pill aktif
+                const activeCard = Array.from(cards).find(c => parseInt(c.dataset.index, 10) === currentIndex);
+                tabPills.forEach(pill => {
+                    if (activeCard && pill.dataset.target === activeCard.dataset.group) {
+                        pill.classList.add('active');
+                        pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    } else {
+                        pill.classList.remove('active');
+                    }
+                });
+            } else {
+                // Mode Grid: Tampilkan semua kartu berjejer responsif seperti water meter
+                btnModeSlide?.classList.remove('active');
+                btnModeGrid?.classList.add('active');
+                if (slideNavHeader) slideNavHeader.style.display = 'none';
+                if (container) {
+                    container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(340px, 1fr))';
+                }
+
+                cards.forEach(card => {
+                    card.style.display = 'flex';
+                    card.classList.remove('lvsb-slide-active');
+                });
+
+                // Tab pill 'all' aktif
+                tabPills.forEach(pill => {
+                    if (pill.dataset.target === 'all') {
+                        pill.classList.add('active');
+                        pill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    } else {
+                        pill.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        btnModeSlide?.addEventListener('click', () => {
+            currentMode = 'slide';
+            updateView();
+        });
+
+        btnModeGrid?.addEventListener('click', () => {
+            currentMode = 'grid';
+            updateView();
+        });
+
+        tabPills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                const target = this.dataset.target;
+                if (target === 'all') {
+                    currentMode = 'grid';
+                    updateView();
+                } else {
+                    const matchedCard = Array.from(cards).find(c => c.dataset.group === target);
+                    if (matchedCard) {
+                        const targetIdx = parseInt(matchedCard.dataset.index, 10);
+                        if (currentMode === 'slide') {
+                            currentIndex = targetIdx;
+                            updateView();
+                        } else {
+                            tabPills.forEach(p => p.classList.remove('active'));
+                            this.classList.add('active');
+                            matchedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            matchedCard.style.outline = `3px solid ${matchedCard.dataset.color || 'var(--accent)'}`;
+                            setTimeout(() => { matchedCard.style.outline = 'none'; }, 1600);
+                        }
+                    }
+                }
+            });
+        });
+
+        btnSlidePrev?.addEventListener('click', () => {
+            currentIndex = currentIndex > 1 ? currentIndex - 1 : totalCards;
+            updateView();
+        });
+
+        btnSlideNext?.addEventListener('click', () => {
+            currentIndex = currentIndex < totalCards ? currentIndex + 1 : 1;
+            updateView();
+        });
+
+        // Touch swipe horizontal pada container kartu untuk swipe jari di APK HP
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        container?.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        container?.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            if (currentMode === 'slide' && Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 45) {
+                if (diffX < 0) {
+                    btnSlideNext?.click();
+                } else {
+                    btnSlidePrev?.click();
+                }
+            }
+        }, { passive: true });
+
+        updateView();
+    })();
+
     // Handler Upload Foto (Pilih dari Galeri & Buka Kamera)
     document.querySelectorAll('.photo-upload-group').forEach(group => {
         const mainInput   = group.querySelector('.input-file-main');

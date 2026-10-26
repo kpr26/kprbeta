@@ -600,7 +600,7 @@
         }
 
         const todayStr = new Date().toISOString().split('T')[0];
-        const recordId = `${type}_${fields.meter_key || ''}_${todayStr}_${Date.now()}`;
+        const recordId = `${type}_${fields.meter_key || fields.group_key || ''}_${todayStr}_${Date.now()}`;
 
         let fileField = 'foto';
         if (type === 'listrik') fileField = 'foto_kwh';

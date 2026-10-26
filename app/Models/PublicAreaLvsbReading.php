@@ -221,6 +221,26 @@ class PublicAreaLvsbReading extends Model
     }
 
     /**
+     * Cek apakah sub-menu / grup tertentu sudah terisi setidaknya 1 nilai pembacaan
+     */
+    public function isGroupFilled(string $groupKey): bool
+    {
+        $raw = $this->readings[$groupKey] ?? null;
+        if (!is_array($raw)) {
+            return false;
+        }
+
+        $filled = false;
+        array_walk_recursive($raw, function ($val) use (&$filled) {
+            if ($val !== null && $val !== '') {
+                $filled = true;
+            }
+        });
+
+        return $filled;
+    }
+
+    /**
      * Ambil foto untuk grup tertentu (fallback ke foto lama jika belum per-grup)
      */
     public function getFoto(string $groupKey): ?string

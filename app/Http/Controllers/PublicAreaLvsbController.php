@@ -157,23 +157,15 @@ class PublicAreaLvsbController extends Controller
     }
 
     /**
-     * Form Input Mandiri / Koreksi LVSB
+     * Form Input Mandiri / Koreksi LVSB (Diarahkan ke index terpadu dengan card per sub-menu)
      */
-    public function create(Request $request): View
+    public function create(Request $request): RedirectResponse
     {
-        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
-        $reading = PublicAreaLvsbReading::firstOrNew(['tanggal' => $tanggal]);
-        $structure = PublicAreaLvsbReading::structure();
-
-        $prevReading = PublicAreaLvsbReading::whereDate('tanggal', '<', $tanggal)
-            ->latest('tanggal')
-            ->first();
-
-        return view('public-area.lvsb.create', compact('reading', 'structure', 'prevReading', 'tanggal'));
+        return redirect()->route('public-area.lvsb.index');
     }
 
     /**
-     * Simpan / Perbarui Data LVSB (Mendukung Form Web Biasa dan Sinkronisasi Offline JSON)
+     * Simpan / Perbarui Data LVSB (Mendukung Form Web Biasa, Input Parsial Per Sub-Menu & Sinkronisasi Offline JSON)
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
@@ -183,44 +175,82 @@ class PublicAreaLvsbController extends Controller
 
         // Validasi dasar
         $request->validate([
-            'tanggal' => 'required|date',
-            'fotos'   => 'nullable|array',
-            'fotos.*' => 'nullable|image|max:10240',
-            'foto'    => 'nullable|image|max:10240',
-            'catatan' => 'nullable|string|max:1000',
+            'tanggal'   => 'required|date',
+            'group_key' => 'nullable|string',
+            'fotos'     => 'nullable|array',
+            'fotos.*'   => 'nullable|image|max:10240',
+            'foto'      => 'nullable|image|max:10240',
+            'catatan'   => 'nullable|string|max:1000',
         ]);
 
         $existing = PublicAreaLvsbReading::whereDate('tanggal', $tanggal)->first();
 
-        // Susun payload readings sesuai struktur grup
+        // Mulai dari data readings yang sudah ada agar simpan parsial per sub-menu tidak menimpa data sebelumnya
         $structure = PublicAreaLvsbReading::structure();
-        $readingsData = [];
+        $readingsData = $existing?->readings ?? [];
+        if (!is_array($readingsData)) {
+            $readingsData = [];
+        }
 
-        foreach ($structure as $groupKey => $group) {
+        $groupKeySubmitted = $request->input('group_key');
+
+        if ($groupKeySubmitted && isset($structure[$groupKeySubmitted])) {
+            // Update HANYA grup spesifik ini
+            $group = $structure[$groupKeySubmitted];
             if ($group['has_subgroups']) {
-                $readingsData[$groupKey] = [];
+                $readingsData[$groupKeySubmitted] = [];
                 foreach ($group['subgroups'] as $subKey => $sub) {
-                    $readingsData[$groupKey][$subKey] = [];
+                    $readingsData[$groupKeySubmitted][$subKey] = [];
                     foreach ($sub['fields'] as $fKey => $fMeta) {
-                        $rawVal = $request->input("readings.{$groupKey}.{$subKey}.{$fKey}");
-                        $readingsData[$groupKey][$subKey][$fKey] = ($rawVal !== null && $rawVal !== '')
+                        $rawVal = $request->input("readings.{$groupKeySubmitted}.{$subKey}.{$fKey}");
+                        $readingsData[$groupKeySubmitted][$subKey][$fKey] = ($rawVal !== null && $rawVal !== '')
                             ? (float) str_replace(',', '.', (string)$rawVal)
                             : null;
                     }
                 }
             } else {
-                $readingsData[$groupKey] = [];
+                $readingsData[$groupKeySubmitted] = [];
                 foreach ($group['fields'] as $fKey => $fMeta) {
-                    $rawVal = $request->input("readings.{$groupKey}.{$fKey}");
-                    $readingsData[$groupKey][$fKey] = ($rawVal !== null && $rawVal !== '')
+                    $rawVal = $request->input("readings.{$groupKeySubmitted}.{$fKey}");
+                    $readingsData[$groupKeySubmitted][$fKey] = ($rawVal !== null && $rawVal !== '')
                         ? (float) str_replace(',', '.', (string)$rawVal)
                         : null;
                 }
             }
+        } else {
+            // Full / Bulk Update (misal saat backdate atau sinkronisasi multi-grup)
+            foreach ($structure as $groupKey => $group) {
+                if ($request->has("readings.{$groupKey}")) {
+                    if ($group['has_subgroups']) {
+                        $readingsData[$groupKey] = [];
+                        foreach ($group['subgroups'] as $subKey => $sub) {
+                            $readingsData[$groupKey][$subKey] = [];
+                            foreach ($sub['fields'] as $fKey => $fMeta) {
+                                $rawVal = $request->input("readings.{$groupKey}.{$subKey}.{$fKey}");
+                                $readingsData[$groupKey][$subKey][$fKey] = ($rawVal !== null && $rawVal !== '')
+                                    ? (float) str_replace(',', '.', (string)$rawVal)
+                                    : null;
+                            }
+                        }
+                    } else {
+                        $readingsData[$groupKey] = [];
+                        foreach ($group['fields'] as $fKey => $fMeta) {
+                            $rawVal = $request->input("readings.{$groupKey}.{$fKey}");
+                            $readingsData[$groupKey][$fKey] = ($rawVal !== null && $rawVal !== '')
+                                ? (float) str_replace(',', '.', (string)$rawVal)
+                                : null;
+                        }
+                    }
+                }
+            }
         }
 
-        // Simpan foto per grup jika dilampirkan
+        // Kelola penyimpanan foto
         $existingFotos = $existing?->fotos ?? [];
+        if (!is_array($existingFotos)) {
+            $existingFotos = [];
+        }
+
         if ($request->hasFile('fotos')) {
             foreach ($request->file('fotos') as $gKey => $uploadedFile) {
                 if ($uploadedFile && $uploadedFile->isValid()) {
@@ -232,14 +262,25 @@ class PublicAreaLvsbController extends Controller
             }
         }
 
-        // Simpan foto umum jika ada (fallback)
         $fotoPath = $existing?->foto;
         if ($request->hasFile('foto')) {
-            if ($existing && $existing->foto && Storage::disk('public')->exists($existing->foto)) {
-                Storage::disk('public')->delete($existing->foto);
+            if ($groupKeySubmitted) {
+                // Form per-grup mengunggah 'foto' tunggal
+                if (!empty($existingFotos[$groupKeySubmitted]) && Storage::disk('public')->exists($existingFotos[$groupKeySubmitted])) {
+                    Storage::disk('public')->delete($existingFotos[$groupKeySubmitted]);
+                }
+                $existingFotos[$groupKeySubmitted] = $request->file('foto')->store("logsheet/lvsb/{$groupKeySubmitted}", 'public');
+            } else {
+                if ($existing && $existing->foto && Storage::disk('public')->exists($existing->foto)) {
+                    Storage::disk('public')->delete($existing->foto);
+                }
+                $fotoPath = $request->file('foto')->store('logsheet/lvsb', 'public');
             }
-            $fotoPath = $request->file('foto')->store('logsheet/lvsb', 'public');
         }
+
+        // Catatan
+        $newCatatan = $request->input('catatan');
+        $finalCatatan = $newCatatan ?: ($existing?->catatan);
 
         // Aturan verifikasi: hanya teknisi pada hari berjalan yang membutuhkan verifikasi
         $isTeknisi  = auth()->user()->role === 'teknisi';
@@ -250,7 +291,7 @@ class PublicAreaLvsbController extends Controller
             'readings' => $readingsData,
             'fotos'    => !empty($existingFotos) ? $existingFotos : null,
             'foto'     => $fotoPath,
-            'catatan'  => $request->input('catatan'),
+            'catatan'  => $finalCatatan,
             'user_id'  => auth()->id(),
         ];
 
@@ -268,16 +309,22 @@ class PublicAreaLvsbController extends Controller
             $payload
         );
 
+        $label = ($groupKeySubmitted && isset($structure[$groupKeySubmitted]))
+            ? $structure[$groupKeySubmitted]['title']
+            : 'Logsheet LVSB';
+
+        $msg = "Data {$label} tanggal " . Carbon::parse($tanggal)->format('d/m/Y') . ' berhasil disimpan.';
+
         if ($isJson) {
             return response()->json([
                 'success' => true,
-                'message' => 'Logsheet LVSB tanggal ' . Carbon::parse($tanggal)->format('d/m/Y') . ' berhasil disimpan!',
+                'message' => $msg,
+                'target'  => route('public-area.lvsb.index'),
                 'data'    => $reading,
             ]);
         }
 
-        return redirect()->route('public-area.lvsb.index')
-            ->with('success', 'Data Logsheet LVSB tanggal ' . Carbon::parse($tanggal)->format('d/m/Y') . ' berhasil disimpan.');
+        return redirect()->route('public-area.lvsb.index')->with('success', $msg);
     }
 
     /**
