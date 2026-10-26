@@ -56,14 +56,14 @@
                     <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">Klik foto untuk memperbesar</p>
                 </div>
             @else
-                <div style="padding:40px; text-align:center; color:var(--text-muted); background:rgba(0,0,0,0.2); border-radius:12px;">
+                <div style="padding:40px; text-align:center; color:var(--text-muted); background:var(--bg-card-subtle); border:1px dashed var(--border); border-radius:12px;">
                     Tidak ada lampiran foto.
                 </div>
             @endif
         </div>
     </div>
 
-    <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(200,170,110,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <a href="{{ $backRoute }}" class="btn">Kembali ke Rekap</a>
         <div class="btn-group">
             @if ($canManage && $reading->needsVerification())

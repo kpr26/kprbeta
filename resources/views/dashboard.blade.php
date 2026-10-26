@@ -31,7 +31,7 @@
         <span><span class="dot"></span>Logsheet hari ini belum dicatat. Teknisi harap melakukan pencatatan stand meter.</span>
         <div style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;">
             <a href="{{ route('logsheet.create.listrik') }}" class="btn btn-sm btn-primary">+ Input Listrik</a>
-            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:rgba(6,182,212,0.18); border-color:rgba(6,182,212,0.4); color:#38bdf8; font-weight:600;">+ Input Air</a>
+            <a href="{{ route('logsheet.create.air') }}" class="btn btn-sm" style="background:var(--info-bg); border-color:var(--info-border); color:var(--info); font-weight:600;">+ Input Air</a>
         </div>
     </div>
 @endif
@@ -74,7 +74,7 @@
     <div class="panel-head">
         <div>
             <h2><span style="color:var(--accent);">📋</span> Pekerjaan Harian Teknisi (Daily Log Book)</h2>
-            <p>Pekerjaan hari ini: <b style="color:#34d399;">{{ $dailyLogStats['today_done'] }} Done</b> &middot; <b style="color:var(--accent-light);">{{ $dailyLogStats['today_continue'] }} Continue</b> (Total: {{ $dailyLogStats['today_total'] }} pekerjaan)</p>
+            <p>Pekerjaan hari ini: <b style="color:var(--success);">{{ $dailyLogStats['today_done'] }} Done</b> &middot; <b style="color:var(--accent-light);">{{ $dailyLogStats['today_continue'] }} Continue</b> (Total: {{ $dailyLogStats['today_total'] }} pekerjaan)</p>
         </div>
         <div class="btn-group">
             <a href="{{ route('daily-log.index') }}" class="btn btn-sm">

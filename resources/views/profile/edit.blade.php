@@ -178,7 +178,7 @@
 
                 <div class="avatar-manager-grid" style="display:flex; flex-direction:column; gap:20px; align-items:center; text-align:center; padding:12px 0;">
                     <div style="position:relative; width:120px; height:120px;">
-                        <div id="avatarPreviewContainer" style="width:120px; height:120px; border-radius:50%; overflow:hidden; border:3px solid var(--accent); box-shadow:0 0 24px rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center; background:#1e293b;">
+                        <div id="avatarPreviewContainer" style="width:120px; height:120px; border-radius:50%; overflow:hidden; border:3px solid var(--accent); box-shadow:0 0 24px rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center; background:var(--bg-card-subtle);">
                             @if($user->avatar_url)
                                 <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" id="avatarPreviewImg" style="width:100%; height:100%; object-fit:cover;">
                             @else
@@ -232,7 +232,7 @@
         <div class="profile-tab" id="tab-signature" hidden>
             <div class="profile-section-card">
                 <div class="profile-section-header">
-                    <div class="profile-section-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8">
+                    <div class="profile-section-icon" style="background:rgba(56,189,248,0.15);color:var(--info)">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/>
                             <path d="M3.5 5.75c0-.414.336-.75.75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z"/>
@@ -246,7 +246,7 @@
 
                 @if($user->signature_url)
                     {{-- KONDISI 1: SUDAH ADA TANDA TANGAN (TERKUNCI SECARA PERMANEN) --}}
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:22px; margin-bottom:20px;">
+                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:14px; padding:22px; margin-bottom:20px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <span class="badge badge-ok" style="font-size:0.8rem; padding:4px 10px;">✓ Tanda Tangan Aktif</span>
@@ -269,7 +269,7 @@
                         <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.25); border-radius:12px; padding:16px; margin-top:20px; display:flex; align-items:flex-start; gap:12px;">
                             <span style="font-size:1.5rem; line-height:1;">🔒</span>
                             <div>
-                                <strong style="color:#34d399; font-size:0.92rem; display:block; margin-bottom:4px;">Tanda Tangan Digital Terkunci & Sah</strong>
+                                <strong style="color:var(--success); font-size:0.92rem; display:block; margin-bottom:4px;">Tanda Tangan Digital Terkunci & Sah</strong>
                                 <p style="font-size:0.84rem; color:var(--text-secondary); line-height:1.5; margin:0;">
                                     Tanda tangan digital Anda telah tersimpan dan <strong>tidak dapat diubah atau diedit secara mandiri</strong> untuk menjaga integritas dan keabsahan dokumen logsheet operasional.
                                     <br>
@@ -283,10 +283,10 @@
                     <div style="background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.25); border-radius:12px; padding:16px; margin-bottom:24px; display:flex; align-items:flex-start; gap:12px;">
                         <span style="font-size:1.5rem; line-height:1;">✍️</span>
                         <div>
-                            <strong style="color:#fbbf24; font-size:0.9rem; display:block; margin-bottom:3px;">Belum Ada Tanda Tangan Digital</strong>
+                            <strong style="color:var(--warning); font-size:0.9rem; display:block; margin-bottom:3px;">Belum Ada Tanda Tangan Digital</strong>
                             <p style="font-size:0.82rem; color:var(--text-secondary); margin:0; line-height:1.45;">
                                 Silakan goreskan tanda tangan Anda pada kanvas di bawah ini.
-                                <strong style="color:#f8fafc;">Penting:</strong> Setelah Anda menekan tombol simpan, tanda tangan akan otomatis terkunci secara permanen dan tidak dapat diedit tanpa reset dari Superadmin.
+                                <strong style="color:var(--text-primary);">Penting:</strong> Setelah Anda menekan tombol simpan, tanda tangan akan otomatis terkunci secara permanen dan tidak dapat diedit tanpa reset dari Superadmin.
                             </p>
                         </div>
                     </div>
@@ -506,14 +506,14 @@
                                 <span class="input-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                                 </span>
-                                <select name="new_role" class="form-input form-select" style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
-                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }} style="background-color: #0b1120; color: #94a3b8;">Pilih role...</option>
-                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">User (Staf Operasional)</option>
-                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
-                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
-                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
-                                    <option value="gm"        {{ old('new_role') === 'gm'        ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">GM (General Manager - Monitoring &amp; Summary)</option>
-                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
+                                <select name="new_role" class="form-input form-select">
+                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }}>Pilih role...</option>
+                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }}>User (Staf Operasional)</option>
+                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }}>Teknisi (Hanya Input Logsheet / HP PWA)</option>
+                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }}>Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
+                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }}>Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                    <option value="gm"        {{ old('new_role') === 'gm'        ? 'selected' : '' }}>GM (General Manager - Monitoring &amp; Summary)</option>
+                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }}>Admin (Akses Penuh)</option>
                                 </select>
                             </div>
                             @error('new_role')
@@ -763,16 +763,16 @@
                                     <span class="input-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <select name="edit_role" id="modal_edit_role" class="form-input form-select" required style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
-                                        <option value="user" style="background-color: #0f172a; color: #f8fafc;">User (Staf Operasional)</option>
-                                        <option value="teknisi" style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
-                                        <option value="eng_admin" style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
-                                        <option value="eng_spv" style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
-                                        <option value="gm" style="background-color: #0f172a; color: #f8fafc;">GM (General Manager - Monitoring &amp; Summary)</option>
-                                        <option value="admin" style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
+                                    <select name="edit_role" id="modal_edit_role" class="form-input form-select" required>
+                                        <option value="user">User (Staf Operasional)</option>
+                                        <option value="teknisi">Teknisi (Hanya Input Logsheet / HP PWA)</option>
+                                        <option value="eng_admin">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
+                                        <option value="eng_spv">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                        <option value="gm">GM (General Manager - Monitoring &amp; Summary)</option>
+                                        <option value="admin">Admin (Akses Penuh)</option>
                                     </select>
                                 </div>
-                                <small class="text-muted" id="selfRoleNotice" style="display:none; color:#f59e0b !important; margin-top:4px;">*Role akun sendiri tidak dapat diubah di sini.</small>
+                                <small class="text-muted" id="selfRoleNotice" style="display:none; color:var(--warning) !important; margin-top:4px;">*Role akun sendiri tidak dapat diubah di sini.</small>
                             </div>
 
                             <div class="form-group">
@@ -781,12 +781,12 @@
                                     <span class="input-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <select name="edit_is_active" id="modal_edit_is_active" class="form-input form-select" required style="color-scheme: dark; background-color: #1e293b; color: #f8fafc;">
-                                        <option value="1" style="background-color: #0f172a; color: #f8fafc;">Aktif (Bisa Login)</option>
-                                        <option value="0" style="background-color: #0f172a; color: #f8fafc;">Nonaktif (Akses Diblokir)</option>
+                                    <select name="edit_is_active" id="modal_edit_is_active" class="form-input form-select" required>
+                                        <option value="1">Aktif (Bisa Login)</option>
+                                        <option value="0">Nonaktif (Akses Diblokir)</option>
                                     </select>
                                 </div>
-                                <small class="text-muted" id="selfStatusNotice" style="display:none; color:#f59e0b !important; margin-top:4px;">*Akun Anda sendiri tidak dapat dinonaktifkan.</small>
+                                <small class="text-muted" id="selfStatusNotice" style="display:none; color:var(--warning) !important; margin-top:4px;">*Akun Anda sendiri tidak dapat dinonaktifkan.</small>
                             </div>
                         </div>
 

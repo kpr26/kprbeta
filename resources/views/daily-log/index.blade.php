@@ -34,10 +34,7 @@
     transition: all var(--transition);
     position: relative;
     box-shadow: var(--shadow-sm);
-}
     overflow: hidden;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 .job-card:hover {
     transform: translateY(-3px);
@@ -234,7 +231,7 @@ select.input option:hover {
     align-items: center;
     justify-content: space-between;
     padding-top: 12px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border);
     gap: 8px;
 }
 .job-author-info {
@@ -242,7 +239,7 @@ select.input option:hover {
     align-items: center;
     gap: 8px;
     font-size: 0.82rem;
-    color: #f1f5f9;
+    color: var(--text-primary);
     font-weight: 600;
 }
 .job-author-avatar {
@@ -287,7 +284,7 @@ select.input option:hover {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
             Status Done
         </div>
-        <div class="mc-value" style="color:#34d399;">{{ $summary['done'] }}<small>selesai</small></div>
+        <div class="mc-value" style="color:var(--success);">{{ $summary['done'] }}<small>selesai</small></div>
         <div class="mc-sub">Pekerjaan terselesaikan tuntas</div>
     </div>
 
@@ -296,7 +293,7 @@ select.input option:hover {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/></svg>
             Status Continue
         </div>
-        <div class="mc-value" style="color:#fbbf24;">{{ $summary['continue'] }}<small>berlanjut</small></div>
+        <div class="mc-value" style="color:var(--warning);">{{ $summary['continue'] }}<small>berlanjut</small></div>
         <div class="mc-sub">Perlu kelanjutan / follow up</div>
     </div>
 </div>
@@ -359,7 +356,7 @@ select.input option:hover {
                 <button type="submit" class="btn btn-sm btn-primary" style="flex:1; justify-content:center; padding:9px 16px;">
                     Terapkan
                 </button>
-                <a href="{{ route('daily-log.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#f8fafc; border:1px solid rgba(255,255,255,0.2); padding:9px 14px;" title="Reset Filter">
+                <a href="{{ route('daily-log.index') }}" class="btn btn-sm" style="padding:9px 14px;" title="Reset Filter">
                     Reset
                 </a>
             </div>
@@ -405,24 +402,24 @@ select.input option:hover {
 
                     {{-- 3 FOTO PEKERJAAN --}}
                     <div>
-                        <div style="font-size:0.75rem; color:#cbd5e1; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">
+                        <div style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">
                             Foto Bukti (Watermark Otomatis)
                         </div>
                         <div class="job-photos-preview">
                             {{-- Foto Awal --}}
                             <div class="job-photo-thumb" data-lightbox="{{ $log->foto_awal_url }}" data-caption="[FOTO AWAL] {{ $log->lokasi }} — {{ $log->hari_tanggal }} ({{ $log->jam_mulai }} WIB) by {{ $log->user->name }}">
                                 <img src="{{ $log->foto_awal_url }}" alt="Foto Awal" loading="lazy">
-                                <div class="job-photo-stage-label" style="color:#38bdf8;">Awal</div>
+                                <div class="job-photo-stage-label" style="color:var(--info);">Awal</div>
                             </div>
                             {{-- Foto Proses --}}
                             <div class="job-photo-thumb" data-lightbox="{{ $log->foto_proses_url }}" data-caption="[FOTO PROSES] {{ $log->lokasi }} — {{ $log->hari_tanggal }} (Pekerjaan Berlangsung) by {{ $log->user->name }}">
                                 <img src="{{ $log->foto_proses_url }}" alt="Foto Proses" loading="lazy">
-                                <div class="job-photo-stage-label" style="color:#fbbf24;">Proses</div>
+                                <div class="job-photo-stage-label" style="color:var(--warning);">Proses</div>
                             </div>
                             {{-- Foto Akhir --}}
                             <div class="job-photo-thumb" data-lightbox="{{ $log->foto_akhir_url }}" data-caption="[FOTO AKHIR] {{ $log->lokasi }} — {{ $log->hari_tanggal }} ({{ $log->jam_selesai }} WIB) [{{ $log->status }}] by {{ $log->user->name }}">
                                 <img src="{{ $log->foto_akhir_url }}" alt="Foto Akhir" loading="lazy">
-                                <div class="job-photo-stage-label" style="color:#34d399;">Akhir</div>
+                                <div class="job-photo-stage-label" style="color:var(--success);">Akhir</div>
                             </div>
                         </div>
                     </div>
@@ -441,11 +438,11 @@ select.input option:hover {
                         </div>
 
                         <div style="display:flex; align-items:center; gap:6px;">
-                            <a href="{{ route('daily-log.show', $log) }}" class="btn btn-sm" style="background:rgba(255,255,255,0.06); font-size:0.75rem; padding:5px 10px;">
+                            <a href="{{ route('daily-log.show', $log) }}" class="btn btn-sm" style="font-size:0.75rem; padding:5px 10px;">
                                 Detail →
                             </a>
                             @if(auth()->id() === $log->user_id || in_array(auth()->user()->role, ['admin', 'eng_admin', 'eng_spv'], true))
-                                <a href="{{ route('daily-log.edit', $log) }}" class="btn btn-sm" style="background:rgba(255,255,255,0.04); padding:5px 8px;" title="Edit Pekerjaan">
+                                <a href="{{ route('daily-log.edit', $log) }}" class="btn btn-sm" style="padding:5px 8px;" title="Edit Pekerjaan">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
                                         <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
                                         <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
@@ -463,8 +460,8 @@ select.input option:hover {
             {{ $logs->links() }}
         </div>
     @else
-        <div style="text-align:center; padding:50px 20px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px dashed var(--border); margin-top:20px;">
-            <div style="width:64px; height:64px; border-radius:50%; background:rgba(16,185,129,0.1); color:#34d399; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+        <div style="text-align:center; padding:50px 20px; background:var(--bg-card-subtle); border-radius:var(--radius-md); border:1px dashed var(--border); margin-top:20px;">
+            <div style="width:64px; height:64px; border-radius:50%; background:rgba(16,185,129,0.1); color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32">
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                     <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>

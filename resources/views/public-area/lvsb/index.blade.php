@@ -139,9 +139,9 @@
             {{-- LOOP SEMUA 6 GRUP INPUT SESUAI SPESIFIKASI --}}
             <div style="display:flex; flex-direction:column; gap:20px;">
                 @foreach ($structure as $gKey => $group)
-                    <div style="background:rgba(20,28,45,0.7); border:1px solid {{ $group['color'] }}33; border-radius:10px; overflow:hidden;">
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:var(--shadow-sm);">
                         {{-- Header Grup --}}
-                        <div style="background:rgba(0,0,0,0.35); padding:10px 16px; border-bottom:1px solid {{ $group['color'] }}25; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <div style="background:var(--bg-card-subtle); padding:10px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <span style="background:{{ $group['color'] }}20; color:{{ $group['color'] }}; border:1px solid {{ $group['color'] }}40; font-size:0.72rem; padding:2px 8px; border-radius:6px; font-weight:700; text-transform:uppercase;">
                                     {{ $group['badge'] }}
@@ -158,8 +158,8 @@
                                 {{-- Grup memiliki sub-grup feeder (misal Outgoing 1.2, 2.1, dll) --}}
                                 <div style="display:flex; flex-direction:column; gap:14px;">
                                     @foreach ($group['subgroups'] as $sKey => $sub)
-                                        <div style="background:rgba(10,14,23,0.5); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px 14px;">
-                                            <div style="font-weight:600; font-size:0.85rem; color:#e2e8f0; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                                        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
+                                            <div style="font-weight:600; font-size:0.85rem; color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
                                                 <span style="color:{{ $group['color'] }};">▸</span>
                                                 <span>{{ $sub['label'] }}</span>
                                             </div>
@@ -246,8 +246,8 @@
                                     </label>
 
                                     {{-- Chip Pratinjau Ringkas --}}
-                                    <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:rgba(0,0,0,0.45); padding:4px 8px; border-radius:6px; border:1px solid rgba(251,191,36,0.3);">
-                                        <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.15);">
+                                    <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:var(--bg-card-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">
+                                        <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
                                         <span class="photo-preview-name" style="font-size:0.72rem; color:var(--text-primary); max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                             {{ $groupFoto ? 'Foto tersimpan' : '' }}
                                         </span>
@@ -261,7 +261,7 @@
             </div>
 
             {{-- Catatan Kondisi Panel --}}
-            <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
                 <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
                     Catatan Kondisi Panel LVSB (Opsional)
                 </label>
@@ -296,47 +296,47 @@
 
         {{-- Metric KPI Cards --}}
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--warning">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Avg Voltage Trafo</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#fbbf24; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--warning); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['avg_voltage'], 1) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Volt</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Tegangan 3-P Trafo</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--danger">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Beban Puncak (Max kW)</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#f87171; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--danger); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['max_power'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">kW</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Daya aktif tertinggi</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--info">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Rata-rata Daya (Avg kW)</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#38bdf8; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--info); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['avg_power'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">kW</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Konsumsi beban rata-rata</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--purple">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Arus Puncak (Max A)</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#c084fc; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--purple); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['max_current'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Ampere</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Arus incoming trafo</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--success">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Avg PF Kapasitor</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#34d399; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--success); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['avg_pf'], 2) }}
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Kompensasi cos φ</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Hari Pencatatan</span>
                 <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin:4px 0;">
                     {{ $summary['count'] }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">hari</small>

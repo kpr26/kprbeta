@@ -64,16 +64,16 @@
             {{-- Quick Presets --}}
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.04em;">Preset Interval:</span>
-                <a href="{{ route('public-area.mvsb.index') }}" class="btn btn-sm {{ empty($preset) && !request()->filled('start_date') ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#7c3aed; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.mvsb.index') }}" class="btn btn-sm {{ empty($preset) && !request()->filled('start_date') ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#7c3aed; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     Bulan Ini
                 </a>
-                <a href="{{ route('public-area.mvsb.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#7c3aed; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.mvsb.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#7c3aed; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     3 Bulan
                 </a>
-                <a href="{{ route('public-area.mvsb.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#7c3aed; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.mvsb.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#7c3aed; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     6 Bulan
                 </a>
-                <a href="{{ route('public-area.mvsb.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#7c3aed; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.mvsb.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#7c3aed; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     1 Tahun (Maks)
                 </a>
             </div>
@@ -91,14 +91,13 @@
         </div>
 
         {{-- Active Interval Info Pill --}}
-        <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem;">
+        <div style="margin-top:10px; padding-top:8px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.78rem;">
             <div style="color:var(--text-secondary); display:flex; align-items:center; gap:6px;">
-                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#c084fc;"></span>
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--purple);"></span>
                 <span>Interval Aktif: <strong style="color:var(--text-primary);">{{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}</strong> ({{ $intervalDays }} hari)</span>
             </div>
             <span style="color:var(--text-muted); font-size:0.74rem;">* Ekspor Excel & PDF otomatis mengikuti interval aktif (maksimal 12 bulan / 1 tahun).</span>
         </div>
-    </div>
     </div>
 
     {{-- Pill Mode Offline --}}
@@ -185,26 +184,26 @@
 
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         {{-- Tombol Galeri --}}
-                        <label class="btn-pick-gallery" style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:7px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); transition:all 0.2s;" title="Pilih foto dari galeri HP / File">
-                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:#38bdf8;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                        <label class="btn-pick-gallery" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); transition:all 0.2s;" title="Pilih foto dari galeri HP / File">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--info);"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
                             <span>🖼️ Galeri</span>
                             <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;">
                         </label>
 
                         {{-- Tombol Kamera --}}
-                        <label class="btn-pick-camera" style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); padding:7px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); transition:all 0.2s;" title="Ambil foto langsung dengan kamera">
-                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:#c084fc;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
+                        <label class="btn-pick-camera" style="display:inline-flex; align-items:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-secondary); transition:all 0.2s;" title="Ambil foto langsung dengan kamera">
+                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--purple);"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
                             <span>📷 Kamera</span>
                             <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
                         </label>
 
                         {{-- Chip Pratinjau Foto --}}
-                        <div class="photo-preview-wrap" style="{{ $todayReading?->foto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:rgba(0,0,0,0.45); padding:5px 10px; border-radius:6px; border:1px solid rgba(168,85,247,0.3);">
-                            <img class="img-preview" src="{{ $todayReading?->foto ? asset('storage/'.$todayReading->foto) : '' }}" alt="Thumb" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.15);">
+                        <div class="photo-preview-wrap" style="{{ $todayReading?->foto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:var(--bg-card-subtle); padding:5px 10px; border-radius:6px; border:1px solid var(--purple-border);">
+                            <img class="img-preview" src="{{ $todayReading?->foto ? asset('storage/'.$todayReading->foto) : '' }}" alt="Thumb" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
                             <span class="photo-preview-name" style="font-size:0.75rem; color:var(--text-primary); max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                 {{ $todayReading?->foto ? 'Foto tersimpan' : '' }}
                             </span>
-                            <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; line-height:1; padding:0 3px;" title="Batalkan foto">✕</button>
+                            <button type="button" class="btn-clear-photo" style="background:none; border:none; color:var(--danger); font-size:1rem; cursor:pointer; line-height:1; padding:0 3px;" title="Batalkan foto">✕</button>
                         </div>
                     </div>
                 </div>
@@ -246,39 +245,39 @@
 
         {{-- Metric KPI Cards --}}
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--purple">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Avg Voltage 20kV</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#c084fc; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--purple); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['avg_voltage'], 1) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Volt</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Rata-rata tegangan menengah</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--danger">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Max / Min Voltage</span>
-                <div style="font-size:1.4rem; font-weight:700; color:#f87171; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.4rem; font-weight:700; color:var(--danger); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['max_voltage'], 1) }} / {{ $n($summary['min_voltage'], 1) }} <small style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-sans);">V</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Fluktuasi tegangan PLN</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--info">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Rata-rata Arus (Current)</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#38bdf8; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--info); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['avg_current'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Ampere</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Arus beban incoming</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--warning">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Arus Puncak (Max Current)</span>
-                <div style="font-size:1.5rem; font-weight:700; color:#fbbf24; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.5rem; font-weight:700; color:var(--warning); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($summary['max_current'], 2) }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">Ampere</small>
                 </div>
                 <span style="font-size:0.74rem; color:var(--text-secondary);">Beban tertinggi tercatat</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Hari Pencatatan</span>
                 <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin:4px 0;">
                     {{ $summary['count'] }} <small style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-sans);">hari</small>
@@ -306,18 +305,18 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="l" style="font-weight:700; color:#c084fc;">Voltage 20kV Incoming</td>
+                            <td class="l" style="font-weight:700; color:var(--purple);">Voltage 20kV Incoming</td>
                             <td class="c">Volt</td>
-                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#c084fc;">{{ $n($summary['avg_voltage'], 1) }} V</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:var(--purple);">{{ $n($summary['avg_voltage'], 1) }} V</td>
                             <td class="r">{{ $n($summary['max_voltage'], 1) }} V</td>
                             <td class="r">{{ $n($summary['min_voltage'], 1) }} V</td>
                             <td class="l" style="color:var(--text-secondary);">Tegangan menengah dari gardu PLN</td>
                         </tr>
                         <tr>
-                            <td class="l" style="font-weight:700; color:#38bdf8;">Current (Arus Beban)</td>
+                            <td class="l" style="font-weight:700; color:var(--info);">Current (Arus Beban)</td>
                             <td class="c">Ampere</td>
-                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:#38bdf8;">{{ $n($summary['avg_current'], 2) }} A</td>
-                            <td class="r" style="font-weight:700; color:#fbbf24;">{{ $n($summary['max_current'], 2) }} A</td>
+                            <td class="r" style="font-weight:700; font-family:var(--font-serif); color:var(--info);">{{ $n($summary['avg_current'], 2) }} A</td>
+                            <td class="r" style="font-weight:700; color:var(--warning);">{{ $n($summary['max_current'], 2) }} A</td>
                             <td class="r">{{ $n($summary['min_current'], 2) }} A</td>
                             <td class="l" style="color:var(--text-secondary);">Arus operasional beban PLN</td>
                         </tr>
@@ -358,23 +357,23 @@
         </div>
     </div>
 
-    <div class="table-responsive" style="border:1px solid rgba(255,255,255,0.06); border-radius:10px; overflow:hidden;">
-        <table class="table" style="width:100%; margin:0; font-size:0.86rem;">
+    <div class="table-wrap">
+        <table class="log-table">
             <thead>
-                <tr style="background:rgba(255,255,255,0.03);">
-                    <th style="padding:10px 14px; text-align:left;">Tanggal</th>
-                    <th style="padding:10px 14px; text-align:right;">Voltage 20kV (Volt)</th>
-                    <th style="padding:10px 14px; text-align:right;">Current (Ampere)</th>
-                    <th style="padding:10px 14px; text-align:center;">Foto Fisik</th>
-                    <th style="padding:10px 14px; text-align:left;">Pencatat</th>
-                    <th style="padding:10px 14px; text-align:center;">Status</th>
-                    <th style="padding:10px 14px; text-align:center;">Aksi</th>
+                <tr>
+                    <th class="l">Tanggal</th>
+                    <th class="r">Voltage 20kV (Volt)</th>
+                    <th class="r">Current (Ampere)</th>
+                    <th class="c">Foto Fisik</th>
+                    <th class="l">Pencatat</th>
+                    <th class="c">Status</th>
+                    <th class="c">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($rows as $r)
-                    <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-                        <td style="padding:10px 14px; white-space:nowrap;">
+                    <tr>
+                        <td class="l" style="white-space:nowrap;">
                             <span style="font-weight:600; color:var(--text-primary);">
                                 {{ $r->tanggal->translatedFormat('d M Y') }}
                             </span>
@@ -383,17 +382,17 @@
                             </small>
                         </td>
 
-                        <td style="padding:10px 14px; text-align:right; font-weight:600; color:#c084fc;">
+                        <td class="r" style="font-weight:600; color:var(--purple);">
                             {{ $n($r->voltage_20kv, 1) }} <small style="font-size:0.72rem; color:var(--text-muted); font-weight:normal;">Volt</small>
                         </td>
 
-                        <td style="padding:10px 14px; text-align:right; font-weight:600; color:#38bdf8;">
+                        <td class="r" style="font-weight:600; color:var(--info);">
                             {{ $n($r->current, 2) }} <small style="font-size:0.72rem; color:var(--text-muted); font-weight:normal;">A</small>
                         </td>
 
-                        <td style="padding:10px 14px; text-align:center;">
+                        <td class="c">
                             @if($r->foto)
-                                <a href="{{ asset('storage/'.$r->foto) }}" data-lightbox="{{ asset('storage/'.$r->foto) }}" data-caption="MVSB 20kV — {{ $r->tanggal->format('d/m/Y') }}" style="display:inline-block; border-radius:4px; overflow:hidden; border:1px solid rgba(168,85,247,0.3);">
+                                <a href="{{ asset('storage/'.$r->foto) }}" data-lightbox="{{ asset('storage/'.$r->foto) }}" data-caption="MVSB 20kV — {{ $r->tanggal->format('d/m/Y') }}" style="display:inline-block; border-radius:4px; overflow:hidden; border:1px solid var(--border);">
                                     <img src="{{ asset('storage/'.$r->foto) }}" alt="Foto" style="width:34px; height:34px; object-fit:cover; display:block;">
                                 </a>
                             @else
@@ -401,11 +400,11 @@
                             @endif
                         </td>
 
-                        <td style="padding:10px 14px; white-space:nowrap; color:var(--text-secondary); font-size:0.8rem;">
+                        <td class="l" style="white-space:nowrap; color:var(--text-secondary); font-size:0.8rem;">
                             {{ $r->user?->name ?? 'Teknisi' }}
                         </td>
 
-                        <td style="padding:10px 14px; text-align:center;">
+                        <td class="c">
                             @if($r->isVerified())
                                 <span class="badge badge-ok" style="font-size:0.72rem;" title="Diverifikasi oleh {{ $r->verifier?->name ?? 'Supervisor' }} pada {{ $r->verified_at?->format('d/m/Y H:i') }}">
                                     ✓ Diverifikasi
@@ -417,7 +416,7 @@
                             @endif
                         </td>
 
-                        <td style="padding:10px 14px; text-align:center; white-space:nowrap;">
+                        <td class="c" style="white-space:nowrap;">
                             <div style="display:inline-flex; align-items:center; gap:6px;">
                                 <a href="{{ route('public-area.mvsb.show', $r) }}" class="btn btn-sm" style="padding:4px 8px; font-size:0.75rem;" title="Lihat detail pembacaan">
                                     Detail
@@ -426,7 +425,7 @@
                                 @if($canManage && !$r->isVerified())
                                     <form method="POST" action="{{ route('public-area.mvsb.verify', $r) }}" style="display:inline;">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:4px 8px; font-size:0.75rem;" title="Verifikasi Logsheet">
+                                        <button type="submit" class="btn btn-sm" style="background:var(--success-bg); color:var(--success); border:1px solid var(--success-border); padding:4px 8px; font-size:0.75rem;" title="Verifikasi Logsheet">
                                             ✓
                                         </button>
                                     </form>
@@ -436,7 +435,7 @@
                                     <form method="POST" action="{{ route('public-area.mvsb.destroy', $r) }}" onsubmit="return confirm('Hapus data logsheet MVSB tanggal {{ $r->tanggal->format('d/m/Y') }}?');" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm" style="background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.25); padding:4px 8px; font-size:0.75rem;" title="Hapus Permanen">
+                                        <button type="submit" class="btn btn-sm" style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger-border); padding:4px 8px; font-size:0.75rem;" title="Hapus Permanen">
                                             ✕
                                         </button>
                                     </form>
@@ -515,9 +514,13 @@
         function getThemeColors() {
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
             return {
-                textColor: isLight ? '#475569' : 'rgba(255,255,255,0.75)',
+                isLight: isLight,
+                textColor: isLight ? '#334155' : 'rgba(255,255,255,0.75)',
                 tickColor: isLight ? '#64748b' : 'rgba(255,255,255,0.6)',
                 gridColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+                voltColor: isLight ? '#7c3aed' : '#c084fc',
+                voltBg:    isLight ? 'rgba(124,58,237,0.08)' : 'rgba(192,132,252,0.12)',
+                currColor: isLight ? '#0284c7' : '#38bdf8',
             };
         }
 
@@ -531,8 +534,8 @@
                     {
                         label: 'Voltage 20kV (Volt)',
                         data: chartData.voltage,
-                        borderColor: '#c084fc',
-                        backgroundColor: 'rgba(192,132,252,0.12)',
+                        borderColor: th.voltColor,
+                        backgroundColor: th.voltBg,
                         borderWidth: 2,
                         fill: true,
                         tension: 0.25,
@@ -542,7 +545,7 @@
                     {
                         label: 'Current (Ampere)',
                         data: chartData.current,
-                        borderColor: '#38bdf8',
+                        borderColor: th.currColor,
                         borderWidth: 2,
                         fill: false,
                         tension: 0.25,
@@ -577,14 +580,14 @@
                     yVolt: {
                         type: 'linear',
                         position: 'left',
-                        title: { display: true, text: 'Volt', color: '#c084fc', font: { size: 10 } },
+                        title: { display: true, text: 'Volt', color: th.voltColor, font: { size: 10 } },
                         grid: { color: th.gridColor },
                         ticks: { color: th.tickColor, font: { size: 10 } }
                     },
                     yCurr: {
                         type: 'linear',
                         position: 'right',
-                        title: { display: true, text: 'Ampere', color: '#38bdf8', font: { size: 10 } },
+                        title: { display: true, text: 'Ampere', color: th.currColor, font: { size: 10 } },
                         grid: { drawOnChartArea: false },
                         ticks: { color: th.tickColor, font: { size: 10 } }
                     }
@@ -594,12 +597,17 @@
 
         window.addEventListener('kpr-theme-changed', function() {
             const next = getThemeColors();
+            chartMvsb.data.datasets[0].borderColor = next.voltColor;
+            chartMvsb.data.datasets[0].backgroundColor = next.voltBg;
+            chartMvsb.data.datasets[1].borderColor = next.currColor;
             chartMvsb.options.plugins.legend.labels.color = next.textColor;
             chartMvsb.options.scales.x.grid.color = next.gridColor;
             chartMvsb.options.scales.x.ticks.color = next.tickColor;
             chartMvsb.options.scales.yVolt.grid.color = next.gridColor;
             chartMvsb.options.scales.yVolt.ticks.color = next.tickColor;
+            chartMvsb.options.scales.yVolt.title.color = next.voltColor;
             chartMvsb.options.scales.yCurr.ticks.color = next.tickColor;
+            chartMvsb.options.scales.yCurr.title.color = next.currColor;
             chartMvsb.update();
         });
     });

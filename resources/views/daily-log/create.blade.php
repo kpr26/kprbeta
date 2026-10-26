@@ -95,8 +95,8 @@
     margin-top: 14px;
 }
 .photo-slot-card {
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px dashed rgba(255, 255, 255, 0.2);
+    background: var(--bg-card-subtle);
+    border: 1px dashed var(--border);
     border-radius: 16px;
     padding: 16px;
     display: flex;
@@ -107,12 +107,12 @@
 }
 .photo-slot-card:hover {
     border-color: var(--accent-light);
-    background: rgba(15, 23, 42, 0.9);
+    background: var(--bg-card-hover);
 }
 .photo-slot-card.has-photo {
     border-style: solid;
-    border-color: rgba(16, 185, 129, 0.5);
-    background: rgba(15, 23, 42, 0.85);
+    border-color: var(--success);
+    background: var(--bg-card);
 }
 .photo-slot-header {
     display: flex;
@@ -129,17 +129,17 @@
 }
 .photo-badge-awal {
     background: rgba(56, 189, 248, 0.15);
-    color: #38bdf8;
+    color: var(--info);
     border: 1px solid rgba(56, 189, 248, 0.3);
 }
 .photo-badge-proses {
     background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
+    color: var(--warning);
     border: 1px solid rgba(245, 158, 11, 0.3);
 }
 .photo-badge-akhir {
     background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
+    color: var(--success);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
@@ -147,14 +147,14 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--bg-card-subtle);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
 }
 .photo-preview-wrap img {
     width: 100%;
@@ -193,31 +193,31 @@
     border-radius: var(--radius-sm);
     cursor: pointer;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-card-subtle);
     color: var(--text-primary);
     transition: all var(--transition);
     text-decoration: none;
 }
 .btn-photo-action:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bg-card-hover);
     transform: translateY(-1px);
 }
 .btn-camera {
     background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
+    color: var(--primary);
     border-color: rgba(99, 102, 241, 0.35);
 }
 .btn-camera:hover {
     background: rgba(99, 102, 241, 0.28);
-    color: #fff;
+    color: var(--primary);
 }
 .watermark-notice-badge {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #38bdf8;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--info);
     padding: 3px 8px;
     border-radius: 6px;
     font-size: 0.68rem;
@@ -235,7 +235,7 @@
     <div class="panel-head">
         <div>
             <h2><span style="color:#10b981;">📋</span> Form Daily Log Book</h2>
-            <p>Petugas: <b style="color:#38bdf8;">{{ $authUser->name }}</b> &middot; Catat pekerjaan harian dan lampirkan minimal 3 foto dengan watermark otomatis.</p>
+            <p>Petugas: <b style="color:var(--info);">{{ $authUser->name }}</b> &middot; Catat pekerjaan harian dan lampirkan minimal 3 foto dengan watermark otomatis.</p>
         </div>
         <div class="btn-group">
             <a href="{{ route('daily-log.index') }}" class="btn btn-sm">

@@ -39,9 +39,9 @@
         {{-- 6 GRUP LVSB --}}
         <div style="display:flex; flex-direction:column; gap:20px;">
             @foreach ($structure as $gKey => $group)
-                <div style="background:rgba(20,28,45,0.7); border:1px solid {{ $group['color'] }}33; border-radius:10px; overflow:hidden;">
+                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:var(--shadow-sm);">
                     {{-- Header Grup --}}
-                    <div style="background:rgba(0,0,0,0.35); padding:10px 16px; border-bottom:1px solid {{ $group['color'] }}25; display:flex; align-items:center; gap:10px;">
+                    <div style="background:var(--bg-card-subtle); padding:10px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px;">
                         <span style="background:{{ $group['color'] }}20; color:{{ $group['color'] }}; border:1px solid {{ $group['color'] }}40; font-size:0.72rem; padding:2px 8px; border-radius:6px; font-weight:700; text-transform:uppercase;">
                             {{ $group['badge'] }}
                         </span>
@@ -55,8 +55,8 @@
                         @if ($group['has_subgroups'])
                             <div style="display:flex; flex-direction:column; gap:14px;">
                                 @foreach ($group['subgroups'] as $sKey => $sub)
-                                    <div style="background:rgba(10,14,23,0.5); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px 14px;">
-                                        <div style="font-weight:600; font-size:0.85rem; color:#e2e8f0; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px 14px;">
+                                        <div style="font-weight:600; font-size:0.85rem; color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
                                             <span style="color:{{ $group['color'] }};">▸</span>
                                             <span>{{ $sub['label'] }}</span>
                                         </div>
@@ -142,8 +142,8 @@
                                 </label>
 
                                 {{-- Chip Pratinjau Ringkas --}}
-                                <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:rgba(0,0,0,0.45); padding:4px 8px; border-radius:6px; border:1px solid rgba(251,191,36,0.3);">
-                                    <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid rgba(255,255,255,0.15);">
+                                <div class="photo-preview-wrap" style="{{ $groupFoto ? 'display:inline-flex;' : 'display:none;' }} align-items:center; gap:8px; background:var(--bg-card-subtle); padding:4px 8px; border-radius:6px; border:1px solid var(--border);">
+                                    <img class="img-preview" src="{{ $groupFoto ? asset('storage/'.$groupFoto) : '' }}" alt="Thumb" style="width:30px; height:30px; object-fit:cover; border-radius:4px; border:1px solid var(--border);">
                                     <span class="photo-preview-name" style="font-size:0.72rem; color:var(--text-primary); max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                         {{ $groupFoto ? 'Foto tersimpan' : '' }}
                                     </span>
@@ -157,7 +157,7 @@
         </div>
 
         {{-- Catatan Kondisi Panel --}}
-        <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
             <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">
                 Catatan Kondisi Panel LVSB (Opsional)
             </label>

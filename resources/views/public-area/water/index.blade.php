@@ -60,16 +60,16 @@
             {{-- Quick Presets --}}
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.04em;">Preset Interval:</span>
-                <a href="{{ route('public-area.water.index') }}" class="btn btn-sm {{ empty($preset) && !$startDate->isSameDay($startDate->copy()->subMonths(3)) ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.water.index') }}" class="btn btn-sm {{ empty($preset) && !$startDate->isSameDay($startDate->copy()->subMonths(3)) ? 'btn-primary' : '' }}" style="{{ empty($preset) && !request()->filled('start_date') ? 'background:#0284c7; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     Bulan Ini
                 </a>
-                <a href="{{ route('public-area.water.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.water.index', ['preset' => '3m']) }}" class="btn btn-sm" style="{{ $preset === '3m' ? 'background:#0284c7; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     3 Bulan
                 </a>
-                <a href="{{ route('public-area.water.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.water.index', ['preset' => '6m']) }}" class="btn btn-sm" style="{{ $preset === '6m' ? 'background:#0284c7; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     6 Bulan
                 </a>
-                <a href="{{ route('public-area.water.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#0284c7; color:#fff;' : 'background:rgba(255,255,255,0.05); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
+                <a href="{{ route('public-area.water.index', ['preset' => '12m']) }}" class="btn btn-sm" style="{{ in_array($preset, ['12m', '1y'], true) ? 'background:#0284c7; color:#fff;' : 'background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);' }} font-size:0.78rem; padding:4px 10px;">
                     1 Tahun (Maks)
                 </a>
             </div>
@@ -177,8 +177,8 @@
 
                         {{-- Foto Preview jika sudah dicatat --}}
                         @if($rec && $rec->foto)
-                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; background:rgba(0,0,0,0.2); padding:8px; border-radius:8px;">
-                                <img src="{{ asset('storage/'.$rec->foto) }}" alt="Foto Meter" data-lightbox="{{ asset('storage/'.$rec->foto) }}" data-caption="{{ $meta['name'] }} — {{ $rec->tanggal->format('d/m/Y') }}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid rgba(200,170,110,0.3); cursor:pointer;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:8px; border-radius:8px;">
+                                <img src="{{ asset('storage/'.$rec->foto) }}" alt="Foto Meter" data-lightbox="{{ asset('storage/'.$rec->foto) }}" data-caption="{{ $meta['name'] }} — {{ $rec->tanggal->format('d/m/Y') }}" style="width:50px; height:50px; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;">
                                 <div style="font-size:0.76rem; color:var(--text-secondary);">
                                     <strong style="color:var(--text-primary); display:block;">Foto Fisik Meteran</strong>
                                     Klik gambar untuk memperbesar
@@ -230,13 +230,13 @@
                                         </div>
 
                                         {{-- Pratinjau Foto Terpilih --}}
-                                        <div class="photo-preview-wrap" style="display:none; margin-top:8px; align-items:center; gap:10px; background:rgba(0,0,0,0.35); padding:8px 12px; border-radius:8px; border:1px solid rgba(200,170,110,0.25);">
-                                            <img class="img-preview" src="" alt="Preview" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid rgba(200,170,110,0.4);">
+                                        <div class="photo-preview-wrap" style="display:none; margin-top:8px; align-items:center; gap:10px; background:var(--bg-card-subtle); padding:8px 12px; border-radius:8px; border:1px solid var(--border);">
+                                            <img class="img-preview" src="" alt="Preview" style="width:48px; height:48px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
                                             <div style="flex:1; overflow:hidden;">
                                                 <div class="photo-preview-name" style="font-size:0.78rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
-                                                <div class="photo-preview-status" style="font-size:0.72rem; color:#34d399;">✓ Foto siap dilampirkan</div>
+                                                <div class="photo-preview-status" style="font-size:0.72rem; color:var(--success);">✓ Foto siap dilampirkan</div>
                                             </div>
-                                            <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer;" title="Batalkan foto">✕</button>
+                                            <button type="button" class="btn-clear-photo" style="background:none; border:none; color:var(--danger); font-size:1.1rem; cursor:pointer;" title="Batalkan foto">✕</button>
                                         </div>
                                     </div>
 
@@ -253,7 +253,7 @@
                             </form>
                         @else
                             <div style="display:flex; justify-content:flex-end;">
-                                <a href="{{ route('public-area.show', $rec) }}" class="btn btn-sm" style="width:100%; justify-content:center; background:rgba(255,255,255,0.04); color:var(--text-secondary);">
+                                <a href="{{ route('public-area.show', $rec) }}" class="btn btn-sm" style="width:100%; justify-content:center; background:var(--bg-card-subtle); border:1px solid var(--border); color:var(--text-secondary);">
                                     Lihat Detail
                                 </a>
                             </div>
@@ -270,45 +270,45 @@
     <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
             <div>
-                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#38bdf8; font-weight:700;">Rangkuman & Visualisasi Data</span>
+                <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--info); font-weight:700;">Rangkuman & Visualisasi Data</span>
                 <h3 style="font-size:1.15rem; color:var(--text-primary); margin:2px 0 0; font-weight:700;">
                     Rangkuman Pemakaian Air — Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}
                 </h3>
             </div>
-            <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.76rem;">
+            <span class="badge" style="background:var(--info-bg); color:var(--info); border:1px solid var(--info-border); font-size:0.76rem;">
                 {{ $intervalDays }} Hari Terpilih
             </span>
         </div>
 
         {{-- Metric Cards --}}
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:20px;">
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--info">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Grand Total Pemakaian</span>
-                <div style="font-size:1.6rem; font-weight:700; color:#38bdf8; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.6rem; font-weight:700; color:var(--info); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($grandTotalUsage) }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">m³</small>
                 </div>
                 <span style="font-size:0.75rem; color:var(--text-secondary);">Total seluruh titik meteran</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--success">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Rata-rata Pemakaian Harian</span>
-                <div style="font-size:1.6rem; font-weight:700; color:#34d399; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.6rem; font-weight:700; color:var(--success); font-family:var(--font-serif); margin:4px 0;">
                     {{ $n($avgDailyUsage) }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">m³/hari</small>
                 </div>
                 <span style="font-size:0.75rem; color:var(--text-secondary);">Dihitung dari hari aktif</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--warning">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Jumlah Titik Area Publik</span>
-                <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.6rem; font-weight:700; color:var(--warning); font-family:var(--font-serif); margin:4px 0;">
                     3 <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">Titik Meteran</small>
                 </div>
                 <span style="font-size:0.75rem; color:var(--text-secondary);">CT 12A, Toilet Sky, Pantry</span>
             </div>
 
-            <div style="background:rgba(20,28,45,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 14px;">
+            <div class="metric-kpi-card metric-kpi-card--purple">
                 <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total Log Tercatat</span>
-                <div style="font-size:1.6rem; font-weight:700; color:#c084fc; font-family:var(--font-serif); margin:4px 0;">
+                <div style="font-size:1.6rem; font-weight:700; color:var(--purple); font-family:var(--font-serif); margin:4px 0;">
                     {{ $rows->count() }} <small style="font-size:0.8rem; color:var(--text-muted); font-family:var(--font-sans);">catatan</small>
                 </div>
                 <span style="font-size:0.75rem; color:var(--text-secondary);">Dalam interval terpilih</span>

@@ -53,9 +53,9 @@
     @if($reading->isVerified())
         <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="color:#34d399; font-size:1.2rem;">✓</span>
+                <span style="color:var(--success); font-size:1.2rem;">✓</span>
                 <div>
-                    <strong style="color:#34d399; font-size:0.9rem;">Logsheet Sudah Terverifikasi</strong>
+                    <strong style="color:var(--success); font-size:0.9rem;">Logsheet Sudah Terverifikasi</strong>
                     <div style="color:var(--text-secondary); font-size:0.78rem;">
                         @if($reading->verified_at)
                             Diverifikasi oleh <b>{{ $reading->verifier?->name ?? 'Supervisor' }}</b> pada {{ $reading->verified_at->translatedFormat('d F Y H:i') }}
@@ -70,9 +70,9 @@
     @else
         <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="color:#fbbf24; font-size:1.2rem;">⏳</span>
+                <span style="color:var(--warning); font-size:1.2rem;">⏳</span>
                 <div>
-                    <strong style="color:#fbbf24; font-size:0.9rem;">Menunggu Verifikasi</strong>
+                    <strong style="color:var(--warning); font-size:0.9rem;">Menunggu Verifikasi</strong>
                     <div style="color:var(--text-secondary); font-size:0.78rem;">
                         Logsheet belum ditinjau oleh Supervisor / Super Admin.
                     </div>
@@ -85,34 +85,34 @@
     {{-- Grid Parameter Metrik MVSB --}}
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:24px;">
         {{-- Card Voltage 20kV --}}
-        <div style="background:var(--bg-card); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700;">
                     Tegangan Menengah
                 </span>
-                <span class="badge" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3); font-size:0.72rem;">
+                <span class="badge" style="background:rgba(168,85,247,0.15); color:var(--purple); border:1px solid rgba(168,85,247,0.3); font-size:0.72rem;">
                     Incoming PLN
                 </span>
             </div>
             <h4 style="margin:0 0 6px; font-size:0.92rem; color:var(--text-secondary);">Voltage 20kV</h4>
-            <div style="font-size:2rem; font-weight:700; color:#c084fc;">
+            <div style="font-size:2rem; font-weight:700; color:var(--purple);">
                 {{ $n($reading->voltage_20kv, 1) }}
                 <small style="font-size:1rem; color:var(--text-muted); font-weight:normal;">Volt</small>
             </div>
         </div>
 
         {{-- Card Current --}}
-        <div style="background:var(--bg-card); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700;">
                     Arus Listrik
                 </span>
-                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.72rem;">
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:var(--info); border:1px solid rgba(56,189,248,0.3); font-size:0.72rem;">
                     Current
                 </span>
             </div>
             <h4 style="margin:0 0 6px; font-size:0.92rem; color:var(--text-secondary);">Current (Ampere)</h4>
-            <div style="font-size:2rem; font-weight:700; color:#38bdf8;">
+            <div style="font-size:2rem; font-weight:700; color:var(--info);">
                 {{ $n($reading->current, 2) }}
                 <small style="font-size:1rem; color:var(--text-muted); font-weight:normal;">Ampere</small>
             </div>

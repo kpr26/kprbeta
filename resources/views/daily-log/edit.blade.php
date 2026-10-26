@@ -95,7 +95,7 @@
     margin-top: 14px;
 }
 .photo-slot-card {
-    background: rgba(15, 23, 42, 0.7);
+    background: var(--bg-card-subtle);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 16px;
@@ -119,17 +119,17 @@
 }
 .photo-badge-awal {
     background: rgba(56, 189, 248, 0.15);
-    color: #38bdf8;
+    color: var(--info);
     border: 1px solid rgba(56, 189, 248, 0.3);
 }
 .photo-badge-proses {
     background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
+    color: var(--warning);
     border: 1px solid rgba(245, 158, 11, 0.3);
 }
 .photo-badge-akhir {
     background: rgba(16, 185, 129, 0.15);
-    color: #34d399;
+    color: var(--success);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
@@ -137,10 +137,10 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     border-radius: 12px;
-    background: #000;
+    background: var(--bg-card-subtle);
     overflow: hidden;
     position: relative;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
 }
 .photo-preview-wrap img {
     width: 100%;
@@ -164,16 +164,16 @@
     border-radius: var(--radius-sm);
     cursor: pointer;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-card-subtle);
     color: var(--text-primary);
     transition: all var(--transition);
 }
 .btn-photo-action:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bg-card-hover);
 }
 .btn-camera {
     background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
+    color: var(--primary);
     border-color: rgba(99, 102, 241, 0.35);
 }
 </style>
@@ -184,7 +184,7 @@
     <div class="panel-head">
         <div>
             <h2>Edit Data Daily Log Book</h2>
-            <p>Pekerjaan #{{ $log->id }} &middot; Teknisi: <b style="color:#38bdf8;">{{ $log->user->name }}</b></p>
+            <p>Pekerjaan #{{ $log->id }} &middot; Teknisi: <b style="color:var(--info);">{{ $log->user->name }}</b></p>
         </div>
         <div class="btn-group">
             <a href="{{ route('daily-log.show', $log) }}" class="btn btn-sm">
@@ -217,7 +217,7 @@
                 <div class="field" style="margin-bottom:18px;">
                     <label for="tanggal">Hari &amp; Tanggal Pekerjaan <span class="req">*</span></label>
                     <input type="date" id="tanggal" name="tanggal" class="input" value="{{ old('tanggal', $log->tanggal->toDateString()) }}" required>
-                    <p class="hint" id="tanggalHelper" style="color:#38bdf8; font-weight:500; margin-top:4px;">
+                    <p class="hint" id="tanggalHelper" style="color:var(--info); font-weight:500; margin-top:4px;">
                         {{ $log->hari_tanggal }}
                     </p>
                     @error('tanggal')<p class="err">{{ $message }}</p>@enderror

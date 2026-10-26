@@ -5,6 +5,10 @@
   --peak: #f43f5e;
   --water: #38bdf8;
   --water-2: #bae6fd;
+  --purple: #c084fc;
+  --purple-2: #e9d5ff;
+  --purple-bg: rgba(168, 85, 247, 0.12);
+  --purple-border: rgba(168, 85, 247, 0.35);
 }
 
 [data-theme="light"] {
@@ -13,6 +17,10 @@
   --peak: #e11d48;
   --water: #0284c7;
   --water-2: #0369a1;
+  --purple: #7c3aed;
+  --purple-2: #6d28d9;
+  --purple-bg: rgba(124, 58, 237, 0.10);
+  --purple-border: rgba(124, 58, 237, 0.28);
 }
 
 .panel {
@@ -966,5 +974,34 @@ table.log-table { width: 100%; border-collapse: collapse; font-size: .84rem; whi
   font-size: 0.74rem;
   font-weight: 500;
 }
+
+/* ── Metric KPI Mini Cards (Public Area MVSB, LVSB, Water) ── */
+.metric-kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+.metric-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-focus);
+}
+[data-theme="light"] .metric-kpi-card {
+  background: #ffffff;
+  border-color: var(--border);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+[data-theme="dark"] .metric-kpi-card {
+  background: rgba(20, 28, 44, 0.85);
+  border-color: var(--border);
+}
+.metric-kpi-card--purple { border-color: var(--purple-border) !important; }
+.metric-kpi-card--danger { border-color: var(--danger-border) !important; }
+.metric-kpi-card--info   { border-color: var(--info-border) !important; }
+.metric-kpi-card--warning{ border-color: var(--warning-border) !important; }
+.metric-kpi-card--success{ border-color: var(--success-border) !important; }
+
 
 

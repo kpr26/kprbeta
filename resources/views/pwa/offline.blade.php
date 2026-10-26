@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline — KPR Beta Logsheet</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('kpr_theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <style>
         body {
-            background: #0a0e1a;
-            color: #f1f5f9;
+            background: var(--bg-main, #0a0e1a);
+            color: var(--text-primary, #f1f5f9);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -18,20 +24,20 @@
             text-align: center;
         }
         .offline-card {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-card, rgba(15, 23, 42, 0.85));
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
             backdrop-filter: blur(16px);
             border-radius: 20px;
             padding: 36px 28px;
             max-width: 420px;
             width: 100%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: var(--shadow-lg, 0 10px 30px rgba(0,0,0,0.5));
         }
         .offline-icon {
             width: 64px;
             height: 64px;
             background: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
+            color: var(--warning, #fbbf24);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -39,8 +45,8 @@
             margin-bottom: 20px;
         }
         .offline-icon svg { width: 32px; height: 32px; }
-        h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: #fff; }
-        p { font-size: 0.9rem; color: #94a3b8; line-height: 1.5; margin-bottom: 24px; }
+        h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; color: var(--text-primary, #fff); }
+        p { font-size: 0.9rem; color: var(--text-secondary, #94a3b8); line-height: 1.5; margin-bottom: 24px; }
         .btn-retry {
             display: inline-flex;
             align-items: center;

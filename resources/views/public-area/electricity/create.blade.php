@@ -73,28 +73,28 @@
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
                 {{-- Opsi 1: Dari Galeri / File HP --}}
-                <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); padding:10px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); transition:all 0.2s; text-align:center;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;color:#38bdf8;flex-shrink:0;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:8px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:10px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); transition:all 0.2s; text-align:center;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;color:var(--info);flex-shrink:0;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
                     <span>🖼️ Pilih dari Galeri</span>
                     <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;" {{ $reading->foto ? '' : 'required' }}>
                 </label>
 
                 {{-- Opsi 2: Kamera Langsung --}}
-                <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); padding:10px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); transition:all 0.2s; text-align:center;">
-                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;color:#fbbf24;flex-shrink:0;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
+                <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:8px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:10px 14px; border-radius:8px; cursor:pointer; font-size:0.85rem; color:var(--text-secondary); transition:all 0.2s; text-align:center;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;color:var(--warning);flex-shrink:0;"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
                     <span>📷 Buka Kamera</span>
                     <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
                 </label>
             </div>
 
             {{-- Pratinjau Foto --}}
-            <div class="photo-preview-wrap" style="{{ $reading->foto ? 'display:flex;' : 'display:none;' }} margin-top:10px; align-items:center; gap:12px; background:rgba(0,0,0,0.35); padding:10px 14px; border-radius:8px; border:1px solid rgba(251,191,36,0.25);">
-                <img class="img-preview" src="{{ $reading->foto ? asset('storage/'.$reading->foto) : '' }}" alt="Preview" style="width:56px; height:56px; object-fit:cover; border-radius:6px; border:1px solid rgba(251,191,36,0.4);">
+            <div class="photo-preview-wrap" style="{{ $reading->foto ? 'display:flex;' : 'display:none;' }} margin-top:10px; align-items:center; gap:12px; background:var(--bg-card-subtle); padding:10px 14px; border-radius:8px; border:1px solid var(--border);">
+                <img class="img-preview" src="{{ $reading->foto ? asset('storage/'.$reading->foto) : '' }}" alt="Preview" style="width:56px; height:56px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
                 <div style="flex:1; overflow:hidden;">
                     <div class="photo-preview-name" style="font-size:0.84rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                         {{ $reading->foto ? 'Foto tersimpan sebelumnya' : '' }}
                     </div>
-                    <div class="photo-preview-status" style="font-size:0.75rem; color:#34d399;">✓ Foto siap dilampirkan</div>
+                    <div class="photo-preview-status" style="font-size:0.75rem; color:var(--success);">✓ Foto siap dilampirkan</div>
                 </div>
                 <button type="button" class="btn-clear-photo" style="background:none; border:none; color:#ef4444; font-size:1.2rem; cursor:pointer;" title="Batalkan foto">✕</button>
             </div>
