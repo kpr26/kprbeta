@@ -56,7 +56,7 @@
         <td class="num">{{ $r->pakai_air }}</td>
         <td class="num">{{ $r->cum_air }}</td>
         <td>{{ $r->user?->name ?? 'User Terhapus' }}</td>
-        <td style="text-align:center;">{{ $r->verified_at ? 'Terverifikasi' : 'Menunggu' }}</td>
+        <td style="text-align:center;">{{ $r->isVerified() ? 'Terverifikasi' : 'Menunggu' }}</td>
     </tr>
     @endforeach
     <tr class="tot">

@@ -389,8 +389,8 @@
                     {{-- Teknisi & Status --}}
                     <td class="l">{{ $r->user?->name ?? 'User Terhapus' }}</td>
                     <td class="c">
-                        @if ($r->verified_at)
-                            <span class="badge badge-ok" title="Oleh {{ $r->verifier?->name ?? 'Admin' }}">✓ Terverifikasi</span>
+                        @if ($r->isVerified())
+                            <span class="badge badge-ok" title="{{ $r->verified_at ? 'Oleh ' . ($r->verifier?->name ?? 'Admin') : 'Otomatis Terverifikasi (Input Admin / Backdate)' }}">✓ Terverifikasi</span>
                         @else
                             <span class="badge badge-wait">Menunggu</span>
                         @endif
@@ -403,12 +403,10 @@
                             @if ($canManage || (auth()->user()->role !== 'teknisi' && $r->user_id === auth()->id() && $r->tanggal->isToday()))
                                 <a href="{{ route('logsheet.edit', $r) }}" class="btn btn-sm">Edit</a>
                             @endif
-                            @if ($canManage)
-                                @unless ($r->verified_at)
-                                    <form method="POST" action="{{ route('logsheet.verify', $r) }}" class="inline">@csrf
-                                        <button class="btn btn-sm btn-success">Verifikasi</button>
-                                    </form>
-                                @endunless
+                            @if ($canManage && $r->needsVerification())
+                                <form method="POST" action="{{ route('logsheet.verify', $r) }}" class="inline">@csrf
+                                    <button class="btn btn-sm btn-success">Verifikasi</button>
+                                </form>
                             @endif
                             @if ($isAdmin || in_array(auth()->user()->role, ['eng_admin', 'eng_spv'], true))
                                 <form method="POST" action="{{ route('logsheet.destroy', $r) }}" class="inline" onsubmit="return confirm('Hapus permanen logsheet {{ $r->tanggal->translatedFormat('d F Y') }}?')">
@@ -459,7 +457,7 @@
                         <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b></div>
                     </div>
                     <div>
-                        @if ($r->verified_at)
+                        @if ($r->isVerified())
                             <span class="badge badge-ok">✓ Terverifikasi</span>
                         @else
                             <span class="badge badge-wait">Menunggu</span>
@@ -515,7 +513,7 @@
                         @if ($canManage || (auth()->user()->role !== 'teknisi' && $r->user_id === auth()->id() && $r->tanggal->isToday()))
                             <a href="{{ route('logsheet.edit', $r) }}" class="btn btn-sm">Edit</a>
                         @endif
-                        @if ($canManage && ! $r->verified_at)
+                        @if ($canManage && $r->needsVerification())
                             <form method="POST" action="{{ route('logsheet.verify', $r) }}" class="inline">@csrf
                                 <button class="btn btn-sm btn-success">Verifikasi</button>
                             </form>

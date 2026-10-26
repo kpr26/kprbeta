@@ -183,15 +183,29 @@ class PublicAreaMvsbController extends Controller
             $fotoPath = $request->file('foto')->store('logsheet/mvsb', 'public');
         }
 
+        $isTeknisi  = auth()->user()->role === 'teknisi';
+        $isToday    = $tanggal === Carbon::today()->toDateString();
+        $autoVerify = (! $isTeknisi || ! $isToday);
+
+        $payload = [
+            'voltage_20kv' => $request->filled('voltage_20kv') ? (float) $request->input('voltage_20kv') : null,
+            'current'      => $request->filled('current') ? (float) $request->input('current') : null,
+            'foto'         => $fotoPath,
+            'catatan'      => $request->input('catatan'),
+            'user_id'      => auth()->id(),
+        ];
+
+        if ($autoVerify) {
+            $payload['verified_at'] = now();
+            $payload['verified_by'] = auth()->id();
+        } elseif (! $existing?->verified_at) {
+            $payload['verified_at'] = null;
+            $payload['verified_by'] = null;
+        }
+
         $reading = PublicAreaMvsbReading::updateOrCreate(
             ['tanggal' => $tanggal],
-            [
-                'voltage_20kv' => $request->filled('voltage_20kv') ? (float) $request->input('voltage_20kv') : null,
-                'current'      => $request->filled('current') ? (float) $request->input('current') : null,
-                'foto'         => $fotoPath,
-                'catatan'      => $request->input('catatan'),
-                'user_id'      => auth()->id(),
-            ]
+            $payload
         );
 
         if ($isJson) {
@@ -338,6 +352,8 @@ class PublicAreaMvsbController extends Controller
                 'foto'         => $fotoPath,
                 'catatan'      => $request->input('catatan'),
                 'user_id'      => auth()->id(),
+                'verified_at'  => now(),
+                'verified_by'  => auth()->id(),
             ]
         );
 

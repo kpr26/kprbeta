@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasVerificationStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PublicAreaMeterReading extends Model
 {
-    use HasFactory;
+    use HasFactory, HasVerificationStatus;
 
     protected $table = 'public_area_meter_readings';
 

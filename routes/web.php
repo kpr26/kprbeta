@@ -191,6 +191,7 @@ Route::middleware('auth')->group(function () {
         // Alias URL electricity lama dialihkan langsung ke LVSB
         Route::redirect('/electricity', '/logsheet-public-area/lvsb')->name('electricity.index');
         Route::redirect('/electricity/input', '/logsheet-public-area/lvsb/input')->name('electricity.create');
+        Route::post('/electricity/store', [PublicAreaLogsheetController::class, 'electricityStore'])->name('electricity.store');
 
         // Detail, Verify & Delete
         Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show');

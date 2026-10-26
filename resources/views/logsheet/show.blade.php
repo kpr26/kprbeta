@@ -16,7 +16,7 @@
         <div>
             <h2>Crosscheck Stand Meter</h2>
             <p>Dicatat oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b> · {{ $r->created_at?->translatedFormat('d M Y H:i') ?? '—' }}
-                @if ($r->verified_at) · <span class="badge badge-ok">✓ Diverifikasi {{ $r->verifier?->name ?? 'Admin' }} ({{ $r->verified_at?->format('d/m/Y H:i') ?? '—' }})</span>
+                @if ($r->isVerified()) · <span class="badge badge-ok">✓ Diverifikasi {{ $r->verified_at ? ($r->verifier?->name ?? 'Admin') . ' (' . ($r->verified_at?->format('d/m/Y H:i') ?? '—') . ')' : 'secara otomatis (Input Admin / Backdate)' }}</span>
                 @else · <span class="badge badge-wait">Menunggu verifikasi</span>@endif
             </p>
         </div>
@@ -28,7 +28,7 @@
             @if ($canManage || (auth()->user()->role !== 'teknisi' && $r->user_id === auth()->id() && $r->tanggal->isToday()))
                 <a href="{{ route('logsheet.edit', $r) }}" class="btn">Edit Logsheet</a>
             @endif
-            @if ($canManage && ! $r->verified_at)
+            @if ($canManage && $r->needsVerification())
                 <form method="POST" action="{{ route('logsheet.verify', $r) }}" class="inline">@csrf
                     <button class="btn btn-success">✓ Data Sesuai Foto — Verifikasi</button>
                 </form>

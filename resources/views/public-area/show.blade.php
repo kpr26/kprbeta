@@ -34,8 +34,8 @@
                 <div>Stand Sebelumnya: <b>{{ $prev ? $n($prev->stand_meter) . ' ' . $reading->unit : '—' }}</b></div>
                 <div>Pemakaian: <b style="color:var(--accent);">{{ $pemakaian !== null ? '+' . $n($pemakaian) . ' ' . $reading->unit : '—' }}</b></div>
                 <div style="margin-top:6px;">Status Verifikasi:
-                    @if($reading->verified_at)
-                        <span class="badge badge-ok">✓ Terverifikasi oleh {{ $reading->verifier?->name ?? 'Admin' }}</span>
+                    @if($reading->isVerified())
+                        <span class="badge badge-ok">✓ Terverifikasi {{ $reading->verified_at ? 'oleh ' . ($reading->verifier?->name ?? 'Admin') : '(Input Admin / Backdate)' }}</span>
                     @else
                         <span class="badge badge-wait">Menunggu Verifikasi</span>
                     @endif
@@ -66,7 +66,7 @@
     <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(200,170,110,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
         <a href="{{ $backRoute }}" class="btn">Kembali ke Rekap</a>
         <div class="btn-group">
-            @if ($canManage && ! $reading->verified_at)
+            @if ($canManage && $reading->needsVerification())
                 <form method="POST" action="{{ route('public-area.verify', $reading) }}" class="inline">@csrf
                     <button class="btn btn-success">✓ Verifikasi Pencatatan</button>
                 </form>

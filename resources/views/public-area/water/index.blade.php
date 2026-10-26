@@ -434,8 +434,8 @@
                         </td>
                         <td class="l">{{ $r->user?->name ?? 'User Terhapus' }}</td>
                         <td class="c">
-                            @if ($r->verified_at)
-                                <span class="badge badge-ok" title="Diverifikasi oleh {{ $r->verifier?->name ?? 'Admin' }}">✓ Terverifikasi</span>
+                            @if ($r->isVerified())
+                                <span class="badge badge-ok" title="{{ $r->verified_at ? 'Diverifikasi oleh ' . ($r->verifier?->name ?? 'Admin') : 'Otomatis Terverifikasi (Input Admin / Backdate)' }}">✓ Terverifikasi</span>
                             @else
                                 <span class="badge badge-wait">Menunggu</span>
                             @endif
@@ -443,7 +443,7 @@
                         <td class="c">
                             <div class="btn-group" style="justify-content:center;">
                                 <a href="{{ route('public-area.show', $r) }}" class="btn btn-sm">Detail</a>
-                                @if ($canManage && ! $r->verified_at)
+                                @if ($canManage && $r->needsVerification())
                                     <form method="POST" action="{{ route('public-area.verify', $r) }}" class="inline">@csrf
                                         <button class="btn btn-sm btn-success">Verifikasi</button>
                                     </form>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasVerificationStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PublicAreaMvsbReading extends Model
 {
-    use HasFactory;
+    use HasFactory, HasVerificationStatus;
 
     protected $table = 'public_area_mvsb_readings';
 
@@ -68,13 +69,6 @@ class PublicAreaMvsbReading extends Model
                      ->first();
     }
 
-    /**
-     * Cek apakah sudah diverifikasi
-     */
-    public function isVerified(): bool
-    {
-        return !is_null($this->verified_at);
-    }
 
     /**
      * Relasi ke Teknisi pencatat

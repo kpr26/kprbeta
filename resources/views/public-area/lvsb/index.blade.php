@@ -467,8 +467,8 @@
                             <span style="font-size:0.8rem; color:var(--text-secondary);">{{ $r->user?->name ?? 'User Terhapus' }}</span>
                         </td>
                         <td class="c">
-                            @if ($r->verified_at)
-                                <span class="badge badge-ok" title="Diverifikasi oleh {{ $r->verifier?->name ?? 'Admin' }} pada {{ $r->verified_at->format('d/m/Y H:i') }}">✓ Terverifikasi</span>
+                            @if ($r->isVerified())
+                                <span class="badge badge-ok" title="{{ $r->verified_at ? 'Diverifikasi oleh ' . ($r->verifier?->name ?? 'Admin') . ' pada ' . $r->verified_at->format('d/m/Y H:i') : 'Otomatis Terverifikasi (Input Admin / Backdate)' }}">✓ Terverifikasi</span>
                             @else
                                 <span class="badge badge-wait">Menunggu</span>
                             @endif

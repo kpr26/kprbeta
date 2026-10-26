@@ -297,6 +297,19 @@ class PublicAreaLogsheetController extends Controller
         $reading->catatan     = $data['catatan'] ?? null;
         $reading->user_id     = auth()->id();
 
+        $isTeknisi = auth()->user()->role === 'teknisi';
+        $isToday   = $targetDate === today()->toDateString();
+        if ($isTeknisi && $isToday) {
+            if (! $existing || ! $reading->verified_at) {
+                $reading->verified_at = null;
+                $reading->verified_by = null;
+            }
+        } else {
+            // Data input admin atau backdate otomatis terverifikasi
+            $reading->verified_at = now();
+            $reading->verified_by = auth()->id();
+        }
+
         if ($request->hasFile('foto')) {
             if ($reading->foto) {
                 Storage::disk('public')->delete($reading->foto);
@@ -434,6 +447,19 @@ class PublicAreaLogsheetController extends Controller
         $reading->stand_meter = $data['stand_meter'];
         $reading->catatan     = $data['catatan'] ?? null;
         $reading->user_id     = auth()->id();
+
+        $isTeknisi = auth()->user()->role === 'teknisi';
+        $isToday   = $targetDate === today()->toDateString();
+        if ($isTeknisi && $isToday) {
+            if (! $existing || ! $reading->verified_at) {
+                $reading->verified_at = null;
+                $reading->verified_by = null;
+            }
+        } else {
+            // Data input admin atau backdate otomatis terverifikasi
+            $reading->verified_at = now();
+            $reading->verified_by = auth()->id();
+        }
 
         if ($request->hasFile('foto')) {
             if ($reading->foto) {
@@ -635,6 +661,8 @@ class PublicAreaLogsheetController extends Controller
                         'foto'        => $fotoPath,
                         'catatan'     => $catatan[$key] ?? null,
                         'user_id'     => auth()->id(),
+                        'verified_at' => now(),
+                        'verified_by' => auth()->id(),
                     ]
                 );
                 $savedCount++;

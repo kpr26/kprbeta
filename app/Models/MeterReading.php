@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasVerificationStatus;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class MeterReading extends Model
 {
+    use HasVerificationStatus;
     protected $fillable = [
         'tanggal', 'user_id',
         'stand_bp', 'stand_lbp1', 'stand_lbp2', 'stand_total',

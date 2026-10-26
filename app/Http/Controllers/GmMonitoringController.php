@@ -44,8 +44,8 @@ class GmMonitoringController extends Controller
             'jumlah_hari'   => $meterReadings->count(),
             'rata_kwh'      => $meterReadings->count() > 0 ? round($meterReadings->sum('pakai_kwh') / $meterReadings->count(), 2) : 0,
             'rata_air'      => $meterReadings->count() > 0 ? round($meterReadings->sum('pakai_air') / $meterReadings->count(), 2) : 0,
-            'terverifikasi' => $meterReadings->whereNotNull('verified_at')->count(),
-            'pending'       => $meterReadings->whereNull('verified_at')->count(),
+            'terverifikasi' => $meterReadings->filter(fn ($r) => $r->isVerified())->count(),
+            'pending'       => $meterReadings->filter(fn ($r) => $r->needsVerification())->count(),
         ];
 
         // 2. Data Water Meter Public Area (Cooling Tower 12A, Toilet Sky Lobby 11 & Mushola 12, Pantry Office)
@@ -70,8 +70,8 @@ class GmMonitoringController extends Controller
             ->get();
         $lvsbSummary = [
             'count'         => $lvsbReadings->count(),
-            'terverifikasi' => $lvsbReadings->whereNotNull('verified_at')->count(),
-            'pending'       => $lvsbReadings->whereNull('verified_at')->count(),
+            'terverifikasi' => $lvsbReadings->filter(fn ($r) => $r->isVerified())->count(),
+            'pending'       => $lvsbReadings->filter(fn ($r) => $r->needsVerification())->count(),
             'latest'        => $lvsbReadings->last(),
         ];
 
@@ -84,8 +84,8 @@ class GmMonitoringController extends Controller
             'count'         => $mvsbReadings->count(),
             'avg_voltage'   => $mvsbReadings->count() > 0 ? round($mvsbReadings->avg('voltage_20kv'), 2) : 0,
             'avg_current'   => $mvsbReadings->count() > 0 ? round($mvsbReadings->avg('current'), 2) : 0,
-            'terverifikasi' => $mvsbReadings->whereNotNull('verified_at')->count(),
-            'pending'       => $mvsbReadings->whereNull('verified_at')->count(),
+            'terverifikasi' => $mvsbReadings->filter(fn ($r) => $r->isVerified())->count(),
+            'pending'       => $mvsbReadings->filter(fn ($r) => $r->needsVerification())->count(),
             'latest'        => $mvsbReadings->last(),
         ];
 

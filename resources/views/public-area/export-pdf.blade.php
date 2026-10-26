@@ -184,7 +184,7 @@
                 <td class="n">{{ $n($r->stand_meter) }}</td>
                 <td class="n" style="font-weight:600; color:#0284c7;">{{ $n($r->pemakaian) }}</td>
                 <td style="text-align:left;">{{ $r->user?->name ?? 'User Terhapus' }}</td>
-                <td class="c">{{ $r->verified_at ? '✓ Terverifikasi' : 'Menunggu' }}</td>
+                <td class="c">{{ $r->isVerified() ? '✓ Terverifikasi' : 'Menunggu' }}</td>
             </tr>
         @empty
             <tr><td colspan="8" class="c">Tidak ada data pencatatan pada interval ini.</td></tr>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasVerificationStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PublicAreaLvsbReading extends Model
 {
-    use HasFactory;
+    use HasFactory, HasVerificationStatus;
 
     protected $table = 'public_area_lvsb_readings';
 

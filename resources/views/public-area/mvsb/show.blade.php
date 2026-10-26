@@ -57,7 +57,11 @@
                 <div>
                     <strong style="color:#34d399; font-size:0.9rem;">Logsheet Sudah Terverifikasi</strong>
                     <div style="color:var(--text-secondary); font-size:0.78rem;">
-                        Diverifikasi oleh <b>{{ $reading->verifier?->name ?? 'Supervisor' }}</b> pada {{ $reading->verified_at->translatedFormat('d F Y H:i') }}
+                        @if($reading->verified_at)
+                            Diverifikasi oleh <b>{{ $reading->verifier?->name ?? 'Supervisor' }}</b> pada {{ $reading->verified_at->translatedFormat('d F Y H:i') }}
+                        @else
+                            Terverifikasi secara otomatis (Input Admin / Backdate)
+                        @endif
                     </div>
                 </div>
             </div>

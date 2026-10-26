@@ -250,6 +250,20 @@ class LogsheetController extends Controller
                 ? $record->catatan . ' | [AMR PLN T33N]: ' . $data['catatan'] 
                 : $data['catatan'];
         }
+
+        $isTeknisi = Auth::user()->role === 'teknisi';
+        $isToday   = $recordDate === today()->toDateString();
+        if ($isTeknisi && $isToday) {
+            if (! $record->exists || ! $record->verified_at) {
+                $record->verified_at = null;
+                $record->verified_by = null;
+            }
+        } else {
+            // Data input admin atau backdate otomatis terverifikasi
+            $record->verified_at = now();
+            $record->verified_by = Auth::id();
+        }
+
         $record->save();
 
         $targetRoute = Auth::user()->role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
@@ -356,6 +370,20 @@ class LogsheetController extends Controller
                 ? $record->catatan . ' | [Air]: ' . $data['catatan'] 
                 : $data['catatan'];
         }
+
+        $isTeknisi = Auth::user()->role === 'teknisi';
+        $isToday   = $recordDate === today()->toDateString();
+        if ($isTeknisi && $isToday) {
+            if (! $record->exists || ! $record->verified_at) {
+                $record->verified_at = null;
+                $record->verified_by = null;
+            }
+        } else {
+            // Data input admin atau backdate otomatis terverifikasi
+            $record->verified_at = now();
+            $record->verified_by = Auth::id();
+        }
+
         $record->save();
 
         $targetRoute = Auth::user()->role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
@@ -528,8 +556,8 @@ class LogsheetController extends Controller
                 : $data['catatan'];
         }
 
-        $record->verified_at = null;
-        $record->verified_by = null;
+        $record->verified_at = now();
+        $record->verified_by = Auth::id();
         $record->save();
 
         $periode = date('Y-m', strtotime($data['tanggal']));
@@ -613,8 +641,8 @@ class LogsheetController extends Controller
                 : $data['catatan'];
         }
 
-        $record->verified_at = null;
-        $record->verified_by = null;
+        $record->verified_at = now();
+        $record->verified_by = Auth::id();
         $record->save();
 
         $periode = date('Y-m', strtotime($data['tanggal']));
@@ -773,9 +801,16 @@ class LogsheetController extends Controller
                 $data[$f] = $request->file($f)->store('logsheet', 'public');
             }
         }
-        // Data berubah → verifikasi ulang
-        $data['verified_at'] = null;
-        $data['verified_by'] = null;
+        // Data berubah → hanya input teknisi pada hari berjalan yang membutuhkan verifikasi ulang
+        $isTeknisi = Auth::user()->role === 'teknisi';
+        $isToday   = $logsheet->tanggal?->toDateString() === today()->toDateString();
+        if ($isTeknisi && $isToday) {
+            $data['verified_at'] = null;
+            $data['verified_by'] = null;
+        } else {
+            $data['verified_at'] = now();
+            $data['verified_by'] = Auth::id();
+        }
 
         $logsheet->update($data);
 

@@ -23,9 +23,9 @@
         </div>
 
         <div style="display:flex; gap:8px; align-items:center;">
-            @if ($reading->verified_at)
+            @if ($reading->isVerified())
                 <span class="badge badge-ok" style="font-size:0.8rem; padding:6px 12px;">
-                    ✓ Terverifikasi oleh {{ $reading->verifier?->name ?? 'Supervisor' }} ({{ $reading->verified_at->format('d/m/Y H:i') }})
+                    ✓ Terverifikasi {{ $reading->verified_at ? 'oleh ' . ($reading->verifier?->name ?? 'Supervisor') . ' (' . $reading->verified_at->format('d/m/Y H:i') . ')' : '(Input Admin / Backdate)' }}
                 </span>
             @else
                 <span class="badge badge-wait" style="font-size:0.8rem; padding:6px 12px;">Menunggu Verifikasi</span>

@@ -25,7 +25,7 @@ class DashboardController extends Controller
             'wbp'      => $rows->sum('pakai_wbp'),
             'kwh'      => $rows->sum('pakai_kwh'),
             'air'      => $rows->sum('pakai_air'),
-            'pending'  => MeterReading::whereNull('verified_at')->count(),
+            'pending'  => MeterReading::with('user')->whereNull('verified_at')->get()->filter(fn ($r) => $r->needsVerification())->count(),
         ];
 
         $chart = [

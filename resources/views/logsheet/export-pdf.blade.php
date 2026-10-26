@@ -91,7 +91,7 @@
                 <td class="n">{{ $n($r->pakai_air) }}</td>
                 <td class="n" style="font-weight:600;">{{ $n($r->cum_air) }}</td>
                 <td>{{ $r->user?->name ?? 'User Terhapus' }}</td>
-                <td class="c">{{ $r->verified_at ? '✓' : 'Menunggu' }}</td>
+                <td class="c">{{ $r->isVerified() ? '✓' : 'Menunggu' }}</td>
             </tr>
         @empty
             <tr><td colspan="15" style="text-align:center">Tidak ada data pada periode ini.</td></tr>

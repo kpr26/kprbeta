@@ -241,16 +241,31 @@ class PublicAreaLvsbController extends Controller
             $fotoPath = $request->file('foto')->store('logsheet/lvsb', 'public');
         }
 
+        // Aturan verifikasi: hanya teknisi pada hari berjalan yang membutuhkan verifikasi
+        $isTeknisi  = auth()->user()->role === 'teknisi';
+        $isToday    = $tanggal === Carbon::today()->toDateString();
+        $autoVerify = (! $isTeknisi || ! $isToday);
+
+        $payload = [
+            'readings' => $readingsData,
+            'fotos'    => !empty($existingFotos) ? $existingFotos : null,
+            'foto'     => $fotoPath,
+            'catatan'  => $request->input('catatan'),
+            'user_id'  => auth()->id(),
+        ];
+
+        if ($autoVerify) {
+            $payload['verified_at'] = now();
+            $payload['verified_by'] = auth()->id();
+        } elseif (! $existing?->verified_at) {
+            $payload['verified_at'] = null;
+            $payload['verified_by'] = null;
+        }
+
         // Simpan / update record
         $reading = PublicAreaLvsbReading::updateOrCreate(
             ['tanggal' => $tanggal],
-            [
-                'readings' => $readingsData,
-                'fotos'    => !empty($existingFotos) ? $existingFotos : null,
-                'foto'     => $fotoPath,
-                'catatan'  => $request->input('catatan'),
-                'user_id'  => auth()->id(),
-            ]
+            $payload
         );
 
         if ($isJson) {
@@ -445,11 +460,13 @@ class PublicAreaLvsbController extends Controller
         PublicAreaLvsbReading::updateOrCreate(
             ['tanggal' => $tanggal],
             [
-                'readings' => $readingsData,
-                'fotos'    => !empty($existingFotos) ? $existingFotos : null,
-                'foto'     => $fotoPath,
-                'catatan'  => $request->input('catatan'),
-                'user_id'  => auth()->id(),
+                'readings'    => $readingsData,
+                'fotos'       => !empty($existingFotos) ? $existingFotos : null,
+                'foto'        => $fotoPath,
+                'catatan'     => $request->input('catatan'),
+                'user_id'     => auth()->id(),
+                'verified_at' => now(),
+                'verified_by' => auth()->id(),
             ]
         );
 
