@@ -1194,6 +1194,12 @@ select.form-input option:disabled {
   color: #c084fc;
 }
 
+.role-badge--gm {
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #facc15;
+}
+
 /* ── You badge ── */
 .you-badge {
   display: inline-block;

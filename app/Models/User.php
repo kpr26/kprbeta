@@ -54,6 +54,11 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'superadmin', 'eng_admin'], true);
     }
 
+    public function isGm(): bool
+    {
+        return in_array($this->role, ['gm', 'general_manager'], true);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

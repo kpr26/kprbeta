@@ -13,6 +13,7 @@
         'teknisi'   => 'Teknisi',
         'eng_admin' => 'Eng Admin',
         'eng_spv'   => 'Eng Spv',
+        'gm'        => 'General Manager',
     ];
 @endphp
 
@@ -511,6 +512,7 @@
                                     <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
                                     <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
                                     <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                    <option value="gm"        {{ old('new_role') === 'gm'        ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">GM (General Manager - Monitoring &amp; Summary)</option>
                                     <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }} style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
                                 </select>
                             </div>
@@ -766,6 +768,7 @@
                                         <option value="teknisi" style="background-color: #0f172a; color: #f8fafc;">Teknisi (Hanya Input Logsheet / HP PWA)</option>
                                         <option value="eng_admin" style="background-color: #0f172a; color: #f8fafc;">Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
                                         <option value="eng_spv" style="background-color: #0f172a; color: #f8fafc;">Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                        <option value="gm" style="background-color: #0f172a; color: #f8fafc;">GM (General Manager - Monitoring &amp; Summary)</option>
                                         <option value="admin" style="background-color: #0f172a; color: #f8fafc;">Admin (Akses Penuh)</option>
                                     </select>
                                 </div>

@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ['teknisi1', 'Andi Teknisi',    'teknisi1@kprbeta.com', 'teknisi'],
             ['engadmin', 'Citra Eng Admin', 'engadmin@kprbeta.com', 'eng_admin'],
             ['engspv',   'Dedi Eng Spv',    'engspv@kprbeta.com',   'eng_spv'],
+            ['gm',       'Bapak Hendra (General Manager)', 'gm@kprbeta.com', 'gm'],
         ];
 
         foreach ($users as [$username, $name, $email, $role]) {

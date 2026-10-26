@@ -9,6 +9,7 @@ use App\Http\Controllers\PublicAreaLogsheetController;
 use App\Http\Controllers\PublicAreaLvsbController;
 use App\Http\Controllers\PublicAreaMvsbController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\GmMonitoringController;
 use App\Http\Controllers\PwaController;
 
 /*
@@ -64,6 +65,9 @@ Route::middleware('guest')->group(function () {
 // ── Protected Routes ─────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::middleware('role:gm,admin,superadmin')->group(function () {
+        Route::get('/gm/monitoring', [GmMonitoringController::class, 'index'])->name('gm.monitoring');
+    });
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // ── Pengaturan Akun ──
@@ -127,9 +131,11 @@ Route::middleware('auth')->group(function () {
 
 
     // ── Logsheet Listrik & Air ──
-    Route::middleware('role:admin,eng_admin,eng_spv')->group(function () {
+    Route::middleware('role:admin,superadmin,eng_admin,eng_spv,gm')->group(function () {
         Route::get('/logsheet/export/excel', [LogsheetController::class, 'exportExcel'])->name('logsheet.excel');
         Route::get('/logsheet/export/pdf', [LogsheetController::class, 'exportPdf'])->name('logsheet.pdf');
+    });
+    Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
         Route::post('/logsheet/{logsheet}/verify', [LogsheetController::class, 'verify'])->name('logsheet.verify');
     });
     Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
@@ -188,11 +194,13 @@ Route::middleware('auth')->group(function () {
 
         // Detail, Verify & Delete
         Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show');
+        Route::middleware('role:admin,superadmin,eng_admin,eng_spv,gm')->group(function () {
+            Route::get('/export/excel/{category}', [PublicAreaLogsheetController::class, 'exportExcel'])->name('excel');
+            Route::get('/export/pdf/{category}', [PublicAreaLogsheetController::class, 'exportPdf'])->name('pdf');
+        });
         Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
             Route::post('/verify/{reading}', [PublicAreaLogsheetController::class, 'verify'])->name('verify');
             Route::delete('/destroy/{reading}', [PublicAreaLogsheetController::class, 'destroy'])->name('destroy');
-            Route::get('/export/excel/{category}', [PublicAreaLogsheetController::class, 'exportExcel'])->name('excel');
-            Route::get('/export/pdf/{category}', [PublicAreaLogsheetController::class, 'exportPdf'])->name('pdf');
         });
 
         // ── Input Manual Back Date (Khusus Super Admin untuk Tanggal Terlewat) ──

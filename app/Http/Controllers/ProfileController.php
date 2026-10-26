@@ -232,7 +232,7 @@ class ProfileController extends Controller
             'new_name'     => ['required', 'string', 'max:100'],
             'new_username' => ['required', 'string', 'max:50', 'unique:users,username'],
             'new_email'    => ['required', 'email', 'max:150', 'unique:users,email'],
-            'new_role'     => ['required', 'in:admin,user,teknisi,eng_admin,eng_spv'],
+            'new_role'     => ['required', 'in:admin,user,teknisi,eng_admin,eng_spv,gm'],
             'new_password' => ['required', 'string', 'confirmed', Password::min(8)],
         ], [
             'new_name.required'     => 'Nama lengkap wajib diisi.',
@@ -272,7 +272,7 @@ class ProfileController extends Controller
             'edit_name'     => ['required', 'string', 'max:100'],
             'edit_username' => ['required', 'string', 'max:50', 'unique:users,username,' . $user->id],
             'edit_email'    => ['required', 'email', 'max:150', 'unique:users,email,' . $user->id],
-            'edit_role'     => ['required', 'in:admin,user,teknisi,eng_admin,eng_spv'],
+            'edit_role'     => ['required', 'in:admin,user,teknisi,eng_admin,eng_spv,gm'],
             'edit_is_active'=> ['required', 'in:0,1'],
             'edit_password' => ['nullable', 'string', 'min:8'],
         ], [

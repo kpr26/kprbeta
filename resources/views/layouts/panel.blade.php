@@ -8,6 +8,7 @@
 @php
     $authUser = auth()->user();
     $isTeknisi = $authUser->role === 'teknisi';
+    $isGm = in_array($authUser->role, ['gm', 'general_manager'], true);
     $canManage = in_array($authUser->role, ['admin', 'eng_admin', 'eng_spv'], true);
     $roleDisplayNames = [
         'admin'     => 'Super Admin',
@@ -16,6 +17,7 @@
         'teknisi'   => 'Teknisi',
         'eng_admin' => 'Eng Admin',
         'eng_spv'   => 'Eng Spv',
+        'gm'        => 'General Manager',
     ];
     $currentRoleLabel = $roleDisplayNames[$authUser->role] ?? ucfirst($authUser->role);
 @endphp
@@ -80,6 +82,13 @@
                         <span>Pengaturan Profil</span>
                     </a>
 
+                    @if($isGm || $authUser->isSuperAdmin())
+                        <a href="{{ route('gm.monitoring') }}" class="user-dropdown-item" role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#facc15;"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5Zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7Zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4Z"/></svg>
+                            <span>Executive Summary</span>
+                        </a>
+                    @endif
+
                     @if($authUser->isSuperAdmin())
                         <div class="user-dropdown-divider"></div>
                         <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.04em;">Input Manual (Super Admin)</div>
@@ -142,15 +151,24 @@
             </a>
             @endif
 
+            @if($isGm || $authUser->isSuperAdmin())
+            <a href="{{ route('gm.monitoring') }}" class="nav-item {{ request()->routeIs('gm.monitoring') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#facc15;"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5Zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7Zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4Z"/></svg>
+                Executive Summary
+            </a>
+            @endif
+
             {{-- Menu Input Logsheet --}}
             <div class="sidebar-section-title" style="padding:10px 12px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;">
                 Logsheet
             </div>
 
+            @if(! $isGm)
             <a href="{{ route('logsheet.hub') }}" class="nav-item {{ request()->routeIs('logsheet.hub', 'logsheet.create.listrik', 'logsheet.create.air') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--accent-light);"><path d="M5.433 13.917l1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/></svg>
                 Input Logsheet
             </a>
+            @endif
 
             @if($canManage)
             <a href="{{ route('logsheet.create') }}" class="nav-item {{ request()->routeIs('logsheet.create') && !request()->routeIs('logsheet.create.listrik') && !request()->routeIs('logsheet.create.air') ? 'nav-item--active' : '' }}">
@@ -314,6 +332,13 @@
                             <span>Pengaturan Profil</span>
                         </a>
 
+                        @if($isGm || $authUser->isSuperAdmin())
+                            <a href="{{ route('gm.monitoring') }}" class="user-dropdown-item" role="menuitem">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#facc15;"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5Zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7Zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4Z"/></svg>
+                                <span>Executive Summary</span>
+                            </a>
+                        @endif
+
                         @if($authUser->isSuperAdmin())
                             <div class="user-dropdown-divider"></div>
                             <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:#fbbf24; text-transform:uppercase; letter-spacing:0.04em;">Input Manual (Super Admin)</div>
@@ -394,6 +419,15 @@
         </a>
         @endif
 
+        @if($isGm)
+        {{-- Tab Executive Summary (Khusus GM) --}}
+        <a href="{{ route('gm.monitoring') }}" class="mobile-nav-link {{ request()->routeIs('gm.monitoring') ? 'mobile-nav-link--active' : '' }}">
+            <div class="mobile-nav-icon-wrap" style="color:#facc15;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5Zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7Zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4Z"/></svg>
+            </div>
+            <span>Summary GM</span>
+        </a>
+        @else
         {{-- 1. TAB LOGSHEET (Membuka Pilihan Logsheet Listrik & Air) --}}
         <a href="{{ route('logsheet.hub') }}" class="mobile-nav-link {{ request()->routeIs('logsheet.hub', 'logsheet.create', 'logsheet.create.listrik', 'logsheet.create.air') ? 'mobile-nav-link--active' : '' }}">
             <div class="mobile-nav-icon-wrap">
@@ -404,6 +438,7 @@
             </div>
             <span>Logsheet</span>
         </a>
+        @endif
 
         {{-- 2. TAB DAILY LOG BOOK (Pekerjaan Harian) --}}
         <a href="{{ route('daily-log.index') }}" class="mobile-nav-link {{ request()->routeIs('daily-log.*') ? 'mobile-nav-link--active' : '' }}">
