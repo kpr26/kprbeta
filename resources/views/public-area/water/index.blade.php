@@ -33,10 +33,13 @@
                 ⚡ MVSB 20kV
             </a>
 
-            {{-- Tombol Khusus Super Admin: Input Back Date (Data Terlewat) --}}
+            {{-- Tombol Khusus Super Admin: Input Back Date & Bulk Input Excel --}}
             @if ($isSuperAdmin)
                 <a href="{{ route('public-area.manual.water') }}" class="btn btn-sm" style="background:rgba(234,179,8,0.18); color:#facc15; border:1px solid rgba(234,179,8,0.45); font-weight:700; display:inline-flex; align-items:center; gap:6px;" title="Input data back date secara manual (Khusus Super Admin)">
                     <span>📅 Input Back Date (Terlewat)</span>
+                </a>
+                <a href="{{ route('public-area.bulk.water') }}" class="btn btn-sm" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.45); font-weight:700; display:inline-flex; align-items:center; gap:6px;" title="Bulk Input Manual 1 Bulan via Excel (Khusus Super Admin)">
+                    <span>📤 Bulk Input (Excel)</span>
                 </a>
             @endif
 

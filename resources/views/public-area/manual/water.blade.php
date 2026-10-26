@@ -24,6 +24,9 @@
             <a href="{{ route('public-area.water.index') }}" class="btn btn-sm">
                 ← Sub Menu Water Meter
             </a>
+            <a href="{{ route('public-area.bulk.water') }}" class="btn btn-sm" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.35);">
+                📤 Bulk Input (Excel)
+            </a>
             <a href="{{ route('public-area.manual.lvsb', ['tanggal' => $tanggal]) }}" class="btn btn-sm" style="background:rgba(251,191,36,0.15); color:var(--warning); border:1px solid rgba(251,191,36,0.3);">
                 ⚡ Manual LVSB
             </a>

@@ -125,6 +125,10 @@
                             <span style="color:var(--info); font-size:1.05rem; line-height:1;">💧</span>
                             <span>Manual Water PA</span>
                         </a>
+                        <a href="{{ route('public-area.bulk.water') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#34d399; font-size:1.05rem; line-height:1;">📤</span>
+                            <span>Bulk Water PA (Excel)</span>
+                        </a>
                         <a href="{{ route('public-area.manual.lvsb') }}" class="user-dropdown-item" role="menuitem">
                             <span style="color:var(--warning); font-size:1.05rem; line-height:1;">⚡</span>
                             <span>Manual LVSB</span>
@@ -262,6 +266,11 @@
             <a href="{{ route('public-area.manual.water') }}" class="nav-item {{ request()->routeIs('public-area.manual.water*') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--info);"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
                 Manual Water PA (Terlewat)
+            </a>
+
+            <a href="{{ route('public-area.bulk.water') }}" class="nav-item {{ request()->routeIs('public-area.bulk.water*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#34d399;"><path fill-rule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clip-rule="evenodd"/></svg>
+                Bulk Water PA (Excel)
             </a>
 
             <a href="{{ route('public-area.manual.lvsb') }}" class="nav-item {{ request()->routeIs('public-area.manual.lvsb*') ? 'nav-item--active' : '' }}">
@@ -407,6 +416,10 @@
                             <a href="{{ route('public-area.manual.water') }}" class="user-dropdown-item" role="menuitem">
                                 <span style="color:var(--info); font-size:1.05rem; line-height:1;">💧</span>
                                 <span>Manual Water PA</span>
+                            </a>
+                            <a href="{{ route('public-area.bulk.water') }}" class="user-dropdown-item" role="menuitem">
+                                <span style="color:#34d399; font-size:1.05rem; line-height:1;">📤</span>
+                                <span>Bulk Water PA (Excel)</span>
                             </a>
                             <a href="{{ route('public-area.manual.lvsb') }}" class="user-dropdown-item" role="menuitem">
                                 <span style="color:var(--warning); font-size:1.05rem; line-height:1;">⚡</span>

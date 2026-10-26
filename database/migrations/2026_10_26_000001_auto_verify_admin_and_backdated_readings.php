@@ -21,27 +21,49 @@ return new class extends Migration
             ->whereIn('role', ['admin', 'superadmin'])
             ->value('id') ?? 1;
 
-        foreach ($tables as $table) {
-            // 1. Data yang diinput oleh user non-teknisi (admin, superadmin, eng_admin, eng_spv, dll)
-            DB::statement("
-                UPDATE {$table} t
-                LEFT JOIN users u ON t.user_id = u.id
-                SET 
-                    t.verified_at = COALESCE(t.created_at, NOW()),
-                    t.verified_by = COALESCE(t.user_id, {$defaultAdminId})
-                WHERE t.verified_at IS NULL
-                  AND (u.role IS NULL OR u.role != 'teknisi')
-            ");
+        $isSqlite = DB::getDriverName() === 'sqlite';
 
-            // 2. Data yang diinput backdate (tanggal < DATE(created_at))
-            DB::statement("
-                UPDATE {$table}
-                SET 
-                    verified_at = COALESCE(created_at, NOW()),
-                    verified_by = COALESCE(user_id, {$defaultAdminId})
-                WHERE verified_at IS NULL
-                  AND tanggal < DATE(created_at)
-            ");
+        foreach ($tables as $table) {
+            if ($isSqlite) {
+                DB::statement("
+                    UPDATE {$table}
+                    SET 
+                        verified_at = COALESCE(created_at, CURRENT_TIMESTAMP),
+                        verified_by = COALESCE(user_id, {$defaultAdminId})
+                    WHERE verified_at IS NULL
+                      AND (user_id IS NULL OR user_id IN (SELECT id FROM users WHERE role IS NULL OR role != 'teknisi'))
+                ");
+
+                DB::statement("
+                    UPDATE {$table}
+                    SET 
+                        verified_at = COALESCE(created_at, CURRENT_TIMESTAMP),
+                        verified_by = COALESCE(user_id, {$defaultAdminId})
+                    WHERE verified_at IS NULL
+                      AND tanggal < date(created_at)
+                ");
+            } else {
+                // 1. Data yang diinput oleh user non-teknisi (admin, superadmin, eng_admin, eng_spv, dll)
+                DB::statement("
+                    UPDATE {$table} t
+                    LEFT JOIN users u ON t.user_id = u.id
+                    SET 
+                        t.verified_at = COALESCE(t.created_at, NOW()),
+                        t.verified_by = COALESCE(t.user_id, {$defaultAdminId})
+                    WHERE t.verified_at IS NULL
+                      AND (u.role IS NULL OR u.role != 'teknisi')
+                ");
+
+                // 2. Data yang diinput backdate (tanggal < DATE(created_at))
+                DB::statement("
+                    UPDATE {$table}
+                    SET 
+                        verified_at = COALESCE(created_at, NOW()),
+                        verified_by = COALESCE(user_id, {$defaultAdminId})
+                    WHERE verified_at IS NULL
+                      AND tanggal < DATE(created_at)
+                ");
+            }
         }
     }
 

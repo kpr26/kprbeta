@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PublicAreaMeterReading;
+use App\Services\ExcelReaderService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -709,5 +710,181 @@ class PublicAreaLogsheetController extends Controller
             'tanggal' => $tanggal,
             'meters'  => $data,
         ]);
+    }
+
+    /**
+     * Tampilkan Halaman Form Bulk Input Manual (Excel) Water Meter Public Area (Khusus Super Admin)
+     */
+    public function createBulkWater(Request $request): View
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $waterMeters = PublicAreaMeterReading::waterMeters();
+        $currentYear = (int)date('Y');
+        $currentMonth = (int)date('n');
+
+        return view('public-area.manual.bulk-water', compact('waterMeters', 'currentYear', 'currentMonth'));
+    }
+
+    /**
+     * Download Template File Excel (.xlsx) untuk Bulk Input Water Meter
+     */
+    public function downloadBulkWaterTemplate(Request $request, ExcelReaderService $excelReader)
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $year = (int)$request->input('year', date('Y'));
+        $month = (int)$request->input('month', date('n'));
+        if ($month < 1 || $month > 12) {
+            $month = (int)date('n');
+        }
+
+        $xlsxContent = $excelReader->generateWaterTemplateXlsx($year, $month);
+        $filename = sprintf('Template_Bulk_Input_Water_PA_%04d_%02d.xlsx', $year, $month);
+
+        return response($xlsxContent, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control'       => 'max-age=0',
+        ]);
+    }
+
+    /**
+     * Proses File Excel yang Diunggah untuk Bulk Input Manual Water Meter Public Area (1 Bulan)
+     */
+    public function storeBulkWater(Request $request, ExcelReaderService $excelReader): RedirectResponse
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Akses khusus Super Admin.');
+
+        $request->validate([
+            'file' => ['required', 'file', 'max:10240'], // 10MB
+        ], [
+            'file.required' => 'Silakan pilih file Excel (.xlsx, .xls, atau .csv) terlebih dahulu.',
+            'file.max'      => 'Ukuran file maksimal 10 MB.',
+        ]);
+
+        $file = $request->file('file');
+
+        try {
+            $rows = $excelReader->parse($file->getRealPath(), $file->getClientOriginalName());
+        } catch (\Throwable $e) {
+            return back()->withErrors(['file' => 'Gagal membaca file Excel: ' . $e->getMessage()])->withInput();
+        }
+
+        if (count($rows) < 2) {
+            return back()->withErrors(['file' => 'File Excel kosong atau tidak memiliki baris data (minimal 1 baris header dan 1 baris data).'])->withInput();
+        }
+
+        $waterMeters = PublicAreaMeterReading::waterMeters();
+
+        // Deteksi Kolom dari Baris Header (Baris 0)
+        $header = $rows[0] ?? [];
+        $colDate = null;
+        $colMapping = [];
+
+        foreach ($header as $colIdx => $colName) {
+            $nameLower = strtolower(trim((string)$colName));
+            if (preg_match('/tanggal|date|tgl/i', $nameLower) && $colDate === null) {
+                $colDate = $colIdx;
+            } elseif (preg_match('/cooling\s*tower|ct\b/i', $nameLower)) {
+                $colMapping['cooling_tower'] = $colIdx;
+            } elseif (preg_match('/toilet|sky\s*lobby|mushol?a/i', $nameLower)) {
+                $colMapping['toilet_sky_lobby'] = $colIdx;
+            } elseif (preg_match('/pantry|office/i', $nameLower)) {
+                $colMapping['pantry_office'] = $colIdx;
+            }
+        }
+
+        // Fallback default index jika pola header tidak dikenali (0=Tanggal, 1=CT, 2=Toilet, 3=Pantry)
+        if ($colDate === null) {
+            $colDate = 0;
+        }
+        if (!isset($colMapping['cooling_tower'])) {
+            $colMapping['cooling_tower'] = 1;
+        }
+        if (!isset($colMapping['toilet_sky_lobby'])) {
+            $colMapping['toilet_sky_lobby'] = 2;
+        }
+        if (!isset($colMapping['pantry_office'])) {
+            $colMapping['pantry_office'] = 3;
+        }
+
+        $processedDates = [];
+        $savedCount = 0;
+        $skippedRows = 0;
+        $emptyCells = 0;
+
+        for ($i = 1; $i < count($rows); $i++) {
+            $row = $rows[$i];
+            $rawDate = $row[$colDate] ?? null;
+            if ($rawDate === null || trim((string)$rawDate) === '') {
+                $skippedRows++;
+                continue;
+            }
+
+            $dateStr = ExcelReaderService::parseDate($rawDate);
+            if (! $dateStr) {
+                $skippedRows++;
+                continue;
+            }
+
+            $processedDates[] = $dateStr;
+
+            foreach ($waterMeters as $meterKey => $meta) {
+                $colIdx = $colMapping[$meterKey] ?? null;
+                $rawVal = ($colIdx !== null && isset($row[$colIdx])) ? $row[$colIdx] : null;
+
+                if ($rawVal === null || trim((string)$rawVal) === '') {
+                    $emptyCells++;
+                    continue; // Sel kosong dilewati tanpa menggagalkan data lainnya
+                }
+
+                $standVal = ExcelReaderService::parseDecimal($rawVal);
+                if ($standVal === null) {
+                    $emptyCells++;
+                    continue;
+                }
+
+                // Simpan atau perbarui data stand, langsung terverifikasi tanpa verifikasi manual
+                PublicAreaMeterReading::updateOrCreate(
+                    [
+                        'tanggal'   => $dateStr,
+                        'category'  => 'water',
+                        'meter_key' => $meterKey,
+                    ],
+                    [
+                        'meter_name'  => $meta['name'],
+                        'unit'        => $meta['unit'],
+                        'stand_meter' => $standVal,
+                        'catatan'     => 'Bulk Input Excel (Super Admin)',
+                        'user_id'     => auth()->id(),
+                        'verified_at' => now(), // langsung terverifikasi
+                        'verified_by' => auth()->id(),
+                    ]
+                );
+                $savedCount++;
+            }
+        }
+
+        if (count($processedDates) === 0 || $savedCount === 0) {
+            return back()->withErrors(['file' => 'Tidak ditemukan data tanggal atau nilai stand meter yang valid di dalam file Excel. Silakan periksa kembali file Anda atau unduh template yang disediakan.'])->withInput();
+        }
+
+        sort($processedDates);
+        $minDate = $processedDates[0];
+        $maxDate = end($processedDates);
+        $minFormatted = Carbon::parse($minDate)->format('d/m/Y');
+        $maxFormatted = Carbon::parse($maxDate)->format('d/m/Y');
+        $uniqueDatesCount = count(array_unique($processedDates));
+
+        $msg = "Berhasil melakukan Bulk Input: {$savedCount} data stand meteran air dari {$uniqueDatesCount} baris tanggal berhasil disimpan dan langsung terverifikasi (Periode: {$minFormatted} s/d {$maxFormatted}).";
+        if ($emptyCells > 0) {
+            $msg .= " ({$emptyCells} sel kosong dilewati dan dapat dikoreksi/dilengkapi secara manual pada riwayat logsheet).";
+        }
+
+        return redirect()->route('public-area.water.index', [
+            'start_date' => $minDate,
+            'end_date'   => $maxDate,
+        ])->with('status', $msg);
     }
 }

@@ -206,6 +206,11 @@ Route::middleware('auth')->group(function () {
 
         // ── Input Manual Back Date (Khusus Super Admin untuk Tanggal Terlewat) ──
         Route::middleware('role:admin,superadmin')->group(function () {
+            // Bulk Input Manual Water Public Area (Unggah Excel 1 Bulan)
+            Route::get('/bulk/water', [PublicAreaLogsheetController::class, 'createBulkWater'])->name('bulk.water');
+            Route::post('/bulk/water', [PublicAreaLogsheetController::class, 'storeBulkWater'])->name('bulk.water.store');
+            Route::get('/bulk/water/template', [PublicAreaLogsheetController::class, 'downloadBulkWaterTemplate'])->name('bulk.water.template');
+
             // Manual Water Public Area
             Route::get('/manual/water', [PublicAreaLogsheetController::class, 'createManualWater'])->name('manual.water');
             Route::post('/manual/water', [PublicAreaLogsheetController::class, 'storeManualWater'])->name('manual.water.store');
