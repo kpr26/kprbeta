@@ -97,12 +97,39 @@
                 </svg>
                 <span></span>
             </div>
-            <h2 class="lp-tagline">Property Management</h2>
-            <p class="lp-sub">Building Operations System</p>
-            <div class="lp-divider">
-                <span></span><span class="lp-diamond">◆</span><span></span>
+            <div class="lp-badge-version">
+                <span>Enterprise Building Ops &bull; v1.0</span>
             </div>
-            <p class="lp-desc">Sistem terpadu pengelolaan operasional<br>gedung bertingkat kelas premium</p>
+            <h2 class="lp-tagline">Property Operations &amp; Energy Control</h2>
+            <p class="lp-sub">Integrated Building Management System</p>
+            
+            <div class="lp-feature-list">
+                <div class="lp-feature-item">
+                    <span class="lp-feature-icon">⚡</span>
+                    <div>
+                        <strong>Monitoring Utilitas Listrik &amp; Air</strong>
+                        <p>AMR PLN T33N, WBP/LWBP, LVSB, MVSB &amp; Water Meter</p>
+                    </div>
+                </div>
+                <div class="lp-feature-item">
+                    <span class="lp-feature-icon">📊</span>
+                    <div>
+                        <strong>Executive KPI &amp; Analytic Dashboard</strong>
+                        <p>Kalkulasi otomatis, kurva beban puncak, &amp; ekspor laporan</p>
+                    </div>
+                </div>
+                <div class="lp-feature-item">
+                    <span class="lp-feature-icon">📱</span>
+                    <div>
+                        <strong>Aplikasi PWA &amp; Offline Sync</strong>
+                        <p>Pencatatan lancar bagi teknisi lapangan meski tanpa sinyal</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lp-quote-card">
+                <p>&ldquo;Sistem terpadu pengelolaan operasional gedung bertingkat kelas premium dengan standar akurasi dan efisiensi energi.&rdquo;</p>
+            </div>
         </div>
 
         {{-- Overlay gradient --}}
@@ -111,6 +138,19 @@
 
     {{-- ══ PANEL KANAN : Form Login ══ --}}
     <div class="lp-right">
+        {{-- Theme Switcher Button --}}
+        <button type="button" class="theme-toggle-btn lp-theme-toggle" onclick="toggleKprTheme()" aria-label="Ganti Mode Tema (Terang / Gelap)" title="Ganti Tema">
+            <span class="theme-icon-dark" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clip-rule="evenodd"/>
+                </svg>
+            </span>
+            <span class="theme-icon-light" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06L5.404 4.343a.75.75 0 1 0-1.06 1.06l1.06 1.06Z"/>
+                </svg>
+            </span>
+        </button>
         <div class="lp-form-wrap">
 
             {{-- Logo sistem --}}

@@ -26,6 +26,13 @@
     <!-- Mobile Topbar for HP & PWA -->
     <header class="mobile-topbar">
         <div class="mobile-topbar-brand">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Buka Menu Navigasi" title="Menu Navigasi">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
             <div class="logo-icon logo-icon--xs">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z"/>
@@ -44,6 +51,20 @@
         </div>
 
         <div class="mobile-topbar-actions">
+            <!-- Mobile Theme Switcher Button -->
+            <button type="button" class="theme-toggle-btn theme-toggle-btn--mobile" onclick="toggleKprTheme()" aria-label="Ganti Mode Tema (Terang / Gelap)" title="Ganti Tema">
+                <span class="theme-icon-dark" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clip-rule="evenodd"/>
+                    </svg>
+                </span>
+                <span class="theme-icon-light" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06L5.404 4.343a.75.75 0 1 0-1.06 1.06l1.06 1.06Z"/>
+                    </svg>
+                </span>
+            </button>
+
             <!-- User Avatar with Dropdown (Posisi Kanan Atas) -->
             <div class="user-dropdown-container">
                 <button type="button" class="user-avatar-btn" id="mobileUserBtn" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
@@ -128,19 +149,29 @@
         </div>
     </header>
 
-    <!-- Sidebar Desktop -->
-    <aside class="sidebar">
+    <!-- Sidebar Backdrop for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
+    <!-- Sidebar Desktop & Mobile Off-Canvas -->
+    <aside class="sidebar" id="mainSidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon logo-icon--sm">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z"/>
-                    <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z"/>
+            <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                <div class="logo-icon logo-icon--sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z"/>
+                        <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z"/>
+                    </svg>
+                </div>
+                <div style="overflow:hidden;">
+                    <span style="font-size:1.15rem; font-family:var(--font-serif); font-weight:600; color:var(--accent-light); letter-spacing:0.03em; display:block; white-space:nowrap; text-overflow:ellipsis;">KPR Beta</span>
+                    <div style="font-size:0.7rem; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap; text-overflow:ellipsis;">Role {{ $currentRoleLabel }}</div>
+                </div>
+            </div>
+            <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>
                 </svg>
-            </div>
-            <div>
-                <span style="font-size:1.15rem; font-family:var(--font-serif); font-weight:600; color:var(--accent-light); letter-spacing:0.03em;">KPR Beta</span>
-                <div style="font-size:0.7rem; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Role {{ $currentRoleLabel }}</div>
-            </div>
+            </button>
         </div>
 
         <nav class="sidebar-nav">
@@ -269,6 +300,15 @@
         </nav>
 
         <div class="sidebar-bottom">
+            <button type="button" class="nav-item nav-item--theme-toggle" onclick="toggleKprTheme()" aria-label="Ganti Mode Tema">
+                <span class="theme-icon-dark" aria-hidden="true" style="display:inline-flex;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><path fill-rule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clip-rule="evenodd"/></svg>
+                </span>
+                <span class="theme-icon-light" aria-hidden="true" style="display:inline-flex;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;"><path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06L5.404 4.343a.75.75 0 1 0-1.06 1.06l1.06 1.06Z"/></svg>
+                </span>
+                <span>Mode Tema</span>
+            </button>
             <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.*') ? 'nav-item--active' : '' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                 Pengaturan Akun
@@ -291,6 +331,20 @@
                 <p class="page-subtitle">@yield('page-subtitle', now()->translatedFormat('l, d F Y'))</p>
             </div>
             <div class="topbar-right">
+                <!-- Desktop Theme Switcher Button -->
+                <button type="button" class="theme-toggle-btn" onclick="toggleKprTheme()" aria-label="Ganti Mode Tema (Terang / Gelap)" title="Ganti Tema">
+                    <span class="theme-icon-dark" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.455 2.004a.75.75 0 0 1 .26.77 7 7 0 0 0 9.958 7.967.75.75 0 0 1 1.067.853A8.5 8.5 0 1 1 6.647 1.921a.75.75 0 0 1 .808.083Z" clip-rule="evenodd"/>
+                        </svg>
+                    </span>
+                    <span class="theme-icon-light" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06L5.404 4.343a.75.75 0 1 0-1.06 1.06l1.06 1.06Z"/>
+                        </svg>
+                    </span>
+                </button>
+
                 <div class="user-dropdown-container">
                     <button type="button" class="user-badge user-badge--clickable" id="desktopUserBtn" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
                         <div class="avatar" style="overflow:hidden; display:flex; align-items:center; justify-content:center;">
@@ -558,9 +612,44 @@
         }
     });
 
+    // Mobile Sidebar Drawer Toggle
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const mainSidebar = document.getElementById('mainSidebar');
+
+    function openMobileSidebar() {
+        if (!mainSidebar) return;
+        mainSidebar.classList.add('is-mobile-open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.add('is-active');
+        document.body.classList.add('sidebar-open-locked');
+        if (mobileSidebarToggle) mobileSidebarToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMobileSidebar() {
+        if (!mainSidebar) return;
+        mainSidebar.classList.remove('is-mobile-open');
+        if (sidebarBackdrop) sidebarBackdrop.classList.remove('is-active');
+        document.body.classList.remove('sidebar-open-locked');
+        if (mobileSidebarToggle) mobileSidebarToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    if (mobileSidebarToggle) mobileSidebarToggle.addEventListener('click', openMobileSidebar);
+    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+    if (mainSidebar) {
+        mainSidebar.querySelectorAll('a.nav-item').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) closeMobileSidebar();
+            });
+        });
+    }
+
     // Close on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
+            closeMobileSidebar();
             document.querySelectorAll('.user-dropdown-container').forEach(c => {
                 c.classList.remove('is-active');
                 const btn = c.querySelector('button');

@@ -35,6 +35,20 @@
     <!-- App CSS -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
 
+    <!-- Theme Initialization Script (Prevent FOUC) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('kpr_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                if (metaThemeColor) {
+                    metaThemeColor.setAttribute('content', savedTheme === 'light' ? '#f4f6fa' : '#0d131f');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     @stack('styles')
 </head>
 <body>
@@ -42,6 +56,23 @@
 
     <!-- PWA Service Worker Registration -->
     <script>
+        // Global Theme Toggle Function
+        window.toggleKprTheme = function() {
+            try {
+                const current = document.documentElement.getAttribute('data-theme') || 'dark';
+                const next = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('kpr_theme', next);
+                const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                if (metaThemeColor) {
+                    metaThemeColor.setAttribute('content', next === 'light' ? '#f4f6fa' : '#0d131f');
+                }
+                window.dispatchEvent(new CustomEvent('kpr-theme-changed', { detail: { theme: next } }));
+            } catch (e) {
+                console.error('Theme toggle error:', e);
+            }
+        };
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')

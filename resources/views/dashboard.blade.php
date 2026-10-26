@@ -89,22 +89,22 @@
     @if ($todayLogs->count() > 0)
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
             @foreach ($todayLogs as $l)
-                <div style="background:rgba(9,13,21,0.65); border:1px solid rgba(200,170,110,0.15); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px; box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+                <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px; box-shadow:var(--shadow-sm);">
                     <div>
                         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                            <span style="font-size:0.84rem; color:var(--accent-light); font-weight:600;">📍 {{ $l->lokasi }}</span>
-                            <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $l->status === 'Done' ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(200,170,110,0.15); color:var(--accent-light); border:1px solid rgba(200,170,110,0.3);' }}">
+                            <span style="font-size:0.84rem; color:var(--accent); font-weight:600;">📍 {{ $l->lokasi }}</span>
+                            <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $l->status === 'Done' ? 'background:var(--success-bg); color:var(--success); border:1px solid var(--success-border);' : 'background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning-border);' }}">
                                 {{ $l->status }}
                             </span>
                         </div>
-                        <p style="font-size:0.85rem; color:#e2e8f0; margin-top:8px; line-height:1.45; max-height:44px; overflow:hidden;">
+                        <p style="font-size:0.85rem; color:var(--text-primary); margin-top:8px; line-height:1.45; max-height:44px; overflow:hidden;">
                             {{ $l->deskripsi }}
                         </p>
                     </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(200,170,110,0.1); padding-top:10px; font-size:0.78rem; color:var(--text-secondary);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px; font-size:0.78rem; color:var(--text-secondary);">
                         <span>👤 <b>{{ $l->user?->name ?? 'Teknisi' }}</b> &middot; {{ $l->jam_mulai }} WIB</span>
-                        <a href="{{ route('daily-log.show', $l) }}" style="color:var(--accent-light); text-decoration:none; font-weight:600;">Detail →</a>
+                        <a href="{{ route('daily-log.show', $l) }}" style="color:var(--accent); text-decoration:none; font-weight:600;">Detail →</a>
                     </div>
                 </div>
             @endforeach
@@ -124,31 +124,91 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     const data = @json($chart);
-    Chart.defaults.color = 'rgba(200,170,110,0.6)';
-    Chart.defaults.font.family = 'Inter';
-    const grid = { color: 'rgba(200,170,110,0.08)' };
-    const opts = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-        scales: { x: { grid, stacked: true }, y: { grid, stacked: true, beginAtZero: true } },
-        plugins: { legend: { labels: { usePointStyle: true } } } };
 
-    new Chart(document.getElementById('chartListrik'), {
+    function getChartThemeColors() {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        return {
+            textColor: isLight ? '#475569' : 'rgba(248, 250, 252, 0.75)',
+            gridColor: isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.06)',
+            lwbpColor: isLight ? '#b8860b' : '#d4af37',
+            airBg: isLight ? 'rgba(2, 132, 199, 0.12)' : 'rgba(56, 189, 248, 0.25)',
+            airBorder: isLight ? '#0284c7' : '#38bdf8'
+        };
+    }
+
+    let colors = getChartThemeColors();
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+    Chart.defaults.color = colors.textColor;
+
+    const opts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            x: { grid: { color: colors.gridColor }, ticks: { color: colors.textColor }, stacked: true },
+            y: { grid: { color: colors.gridColor }, ticks: { color: colors.textColor }, stacked: true, beginAtZero: true }
+        },
+        plugins: {
+            legend: { labels: { color: colors.textColor, usePointStyle: true } }
+        }
+    };
+
+    const chartListrik = new Chart(document.getElementById('chartListrik'), {
         type: 'bar',
-        data: { labels: data.labels, datasets: [
-            { label: 'LWBP', data: data.lwbp, backgroundColor: '#c8aa6e', borderRadius: 4 },
-            { label: 'WBP',  data: data.wbp,  backgroundColor: '#f43f5e', borderRadius: 4 },
-        ]},
+        data: {
+            labels: data.labels,
+            datasets: [
+                { label: 'LWBP', data: data.lwbp, backgroundColor: colors.lwbpColor, borderRadius: 4 },
+                { label: 'WBP',  data: data.wbp,  backgroundColor: '#f43f5e', borderRadius: 4 },
+            ]
+        },
         options: opts,
     });
 
     const ctx = document.getElementById('chartAir').getContext('2d');
-    const g = ctx.createLinearGradient(0, 0, 0, 300);
-    g.addColorStop(0, 'rgba(56,189,248,.35)'); g.addColorStop(1, 'rgba(56,189,248,0)');
-    new Chart(ctx, {
+    const chartAir = new Chart(ctx, {
         type: 'line',
-        data: { labels: data.labels, datasets: [
-            { label: 'Air (m³)', data: data.air, borderColor: '#38bdf8', backgroundColor: g, fill: true, tension: .35, pointRadius: 3 },
-        ]},
-        options: { ...opts, scales: { x: { grid }, y: { grid, beginAtZero: true } } },
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Air (m³)',
+                    data: data.air,
+                    borderColor: colors.airBorder,
+                    backgroundColor: colors.airBg,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3
+                },
+            ]
+        },
+        options: {
+            ...opts,
+            scales: {
+                x: { grid: { color: colors.gridColor }, ticks: { color: colors.textColor } },
+                y: { grid: { color: colors.gridColor }, ticks: { color: colors.textColor }, beginAtZero: true }
+            }
+        },
+    });
+
+    // Theme switch reactivity
+    window.addEventListener('kpr-theme-changed', () => {
+        const c = getChartThemeColors();
+        [chartListrik, chartAir].forEach(chart => {
+            if (!chart) return;
+            chart.options.scales.x.grid.color = c.gridColor;
+            chart.options.scales.x.ticks.color = c.textColor;
+            chart.options.scales.y.grid.color = c.gridColor;
+            chart.options.scales.y.ticks.color = c.textColor;
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = c.textColor;
+            }
+        });
+        chartListrik.data.datasets[0].backgroundColor = c.lwbpColor;
+        chartAir.data.datasets[0].borderColor = c.airBorder;
+        chartAir.data.datasets[0].backgroundColor = c.airBg;
+        chartListrik.update();
+        chartAir.update();
     });
 </script>
 @endpush

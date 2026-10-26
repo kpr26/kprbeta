@@ -38,5 +38,7 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('User demo berhasil dibuat (password: password123):');
         $this->command->table(['Username', 'Nama', 'Role'], array_map(fn ($u) => [$u[0], $u[1], $u[3]], $users));
+
+        $this->call(SampleDataSeeder::class);
     }
 }

@@ -51,7 +51,7 @@
     {{-- CARD INPUT KWH METER HARI INI                                          --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     <div style="margin-bottom:28px;">
-        <div class="meter-card" style="border:1px solid rgba(251,191,36,0.35); border-top:4px solid #fbbf24; background:rgba(15,22,35,0.85); padding:20px 24px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+        <div class="meter-card" style="border:1px solid rgba(251,191,36,0.35); border-top:4px solid #fbbf24; background:var(--bg-card); padding:20px 24px; border-radius:12px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
                 <div>
                     <span class="badge" style="background:rgba(251,191,36,0.15); color:#fbbf24; border:1px solid rgba(251,191,36,0.35); font-size:0.75rem; padding:3px 10px; font-weight:700;">
@@ -184,7 +184,7 @@
     {{-- RINGKASAN PEMAKAIAN LISTRIK BULANAN                                    --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     <div style="margin-bottom:24px;">
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="background:var(--bg-card); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; box-shadow:var(--shadow-sm);">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; color:#fbbf24; font-weight:700; letter-spacing:0.06em;">Total Konsumsi Listrik Public Area</span>
                 <div style="font-size:1.8rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin-top:2px;">

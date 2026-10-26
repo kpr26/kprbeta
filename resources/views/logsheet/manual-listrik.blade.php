@@ -81,8 +81,8 @@
     @endif
 
     {{-- Bagian Pilihan Tanggal & Acuan Stand --}}
-    <div style="background:rgba(9, 13, 21, 0.7); border:1px solid rgba(200, 170, 110, 0.2); border-radius:var(--radius-md); padding:18px; margin-bottom:24px;">
-        <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light); margin-bottom:14px; display:flex; align-items:center; gap:6px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; margin-bottom:24px;">
+        <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:6px;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd"/></svg>
             <span>Pilih Tanggal Logsheet Terlewat</span>
         </div>
@@ -94,7 +94,7 @@
                     <input type="date" id="tanggal" name="tanggal" class="input"
                            value="{{ old('tanggal', $tanggal) }}"
                            max="{{ now()->format('Y-m-d') }}" required
-                           style="color-scheme: dark; font-weight:600; font-size:1rem; cursor:pointer;">
+                           style="font-weight:600; font-size:1rem; cursor:pointer;">
                 </div>
                 <p class="hint" id="tanggal-help-text">
                     Tanggal terpilih: <b id="formatted-selected-date" style="color:var(--text-primary);">{{ $selectedDateCarbon->translatedFormat('l, d F Y') }}</b>
@@ -106,12 +106,12 @@
                 <label>Status Acuan Data AMR PLN</label>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     {{-- Acuan Sebelum --}}
-                    <div id="card-prev-ref" style="background:rgba(15,22,35,0.85); border:1px solid rgba(200,170,110,0.15); border-radius:6px; padding:10px;">
+                    <div id="card-prev-ref" style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:6px; padding:10px;">
                         <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Pencatatan Sebelumnya</div>
                         <div id="prev-date-text" style="font-size:0.85rem; font-weight:600; color:var(--text-primary); margin-top:2px;">
                             {{ $prev ? $prev->tanggal->translatedFormat('d M Y') : 'Belum Ada' }}
                         </div>
-                        <div id="prev-stand-text" style="font-size:0.78rem; color:var(--accent-light); margin-top:4px; line-height:1.4;">
+                        <div id="prev-stand-text" style="font-size:0.78rem; color:var(--accent); margin-top:4px; line-height:1.4;">
                             @if ($prev)
                                 @if($prev->stand_total !== null)
                                     Total: <b>{{ $n($prev->stand_total) }}</b><br>
@@ -126,7 +126,7 @@
                     </div>
 
                     {{-- Acuan Sesudah --}}
-                    <div id="card-next-ref" style="background:rgba(15,22,35,0.85); border:1px solid rgba(200,170,110,0.15); border-radius:6px; padding:10px;">
+                    <div id="card-next-ref" style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:6px; padding:10px;">
                         <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; font-weight:600;">Pencatatan Berikutnya</div>
                         <div id="next-date-text" style="font-size:0.85rem; font-weight:600; color:var(--text-primary); margin-top:2px;">
                             {{ $next ? $next->tanggal->translatedFormat('d M Y') : 'Belum Ada' }}

@@ -23,8 +23,8 @@
     }
 }
 .job-card {
-    background: rgba(15, 22, 35, 0.85);
-    border: 1px solid rgba(200, 170, 110, 0.15);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 20px;
     display: flex;
@@ -33,6 +33,8 @@
     gap: 16px;
     transition: all var(--transition);
     position: relative;
+    box-shadow: var(--shadow-sm);
+}
     overflow: hidden;
     backdrop-filter: blur(14px);
     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
@@ -121,12 +123,12 @@
 }
 
 .job-desc-box {
-    background: rgba(9, 13, 21, 0.65);
-    border: 1px solid rgba(200, 170, 110, 0.12);
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 10px 14px;
     font-size: 0.88rem;
-    color: #f1f5f9;
+    color: var(--text-primary);
     line-height: 1.55;
     max-height: 78px;
     overflow: hidden;
@@ -139,8 +141,8 @@
 
 /* ── Filter Form Box & High-Contrast Inputs / Dropdown ── */
 .filter-form-box {
-    background: rgba(15, 22, 35, 0.85);
-    border: 1px solid rgba(200, 170, 110, 0.15);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 18px;
     margin-bottom: 22px;
@@ -154,37 +156,36 @@
 }
 .filter-form-box select.input,
 select.input {
-    background-color: #0c1220 !important;
-    color: var(--accent-light) !important;
-    color-scheme: dark !important;
-    border: 1px solid rgba(200, 170, 110, 0.2) !important;
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
     cursor: pointer;
 }
 .filter-form-box select.input option,
 select.input option {
-    background-color: #0c1220 !important;
-    color: #f8fafc !important;
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
     padding: 10px 14px !important;
     font-size: 0.9rem !important;
 }
 .filter-form-box select.input option:checked,
 select.input option:checked {
-    background-color: var(--accent-dark, #a08845) !important;
-    color: #ffffff !important;
+    background-color: var(--accent) !important;
+    color: var(--text-on-accent) !important;
     font-weight: 700 !important;
 }
 .filter-form-box select.input option:hover,
 select.input option:hover {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
+    background-color: var(--bg-card-hover) !important;
+    color: var(--text-primary) !important;
 }
 .filter-form-box input.input {
-    background-color: #0c1220 !important;
-    color: #f8fafc !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background-color: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
 }
 .filter-form-box input.input::placeholder {
-    color: #94a3b8 !important;
+    color: var(--text-muted) !important;
     opacity: 1;
 }
 

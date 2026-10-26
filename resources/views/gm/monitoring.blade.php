@@ -13,18 +13,18 @@
 <div class="gm-monitoring-container">
 
     {{-- ── 1. Top Executive Banner & Controls ── --}}
-    <div class="panel" style="background:linear-gradient(135deg, rgba(15,22,35,0.95), rgba(30,41,59,0.9)); border:1px solid rgba(200,170,110,0.3); margin-bottom:24px;">
+    <div class="panel executive-hero-banner" style="margin-bottom:24px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
             <div>
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
                     <span class="badge" style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; border:none; padding:4px 10px; font-weight:700; letter-spacing:0.04em;">
                         👔 ROLE: GENERAL MANAGER
                     </span>
-                    <span style="font-size:0.8rem; color:var(--accent-light); font-weight:600;">
+                    <span style="font-size:0.8rem; color:var(--accent); font-weight:600;">
                         Kempinski Private Residences Jakarta
                     </span>
                 </div>
-                <h2 style="font-size:1.45rem; font-weight:700; color:#fff; margin:0; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                <h2 style="font-size:1.45rem; font-weight:700; color:var(--text-primary); margin:0; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
                     Ringkasan Pemantauan Operasional Terpadu
                 </h2>
                 <p style="font-size:0.85rem; color:var(--text-muted); margin:4px 0 0;">
@@ -37,7 +37,7 @@
                 <form method="GET" action="{{ route('gm.monitoring') }}" class="filter-form" style="margin:0;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <label for="periode" style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">Periode:</label>
-                        <input type="month" id="periode" name="periode" value="{{ $periode }}" max="{{ now()->format('Y-m') }}" onchange="this.form.submit()" class="input" style="padding:7px 12px; font-size:0.85rem; color-scheme:dark; background:rgba(9,13,21,0.85); border-color:rgba(200,170,110,0.3); cursor:pointer;">
+                        <input type="month" id="periode" name="periode" value="{{ $periode }}" max="{{ now()->format('Y-m') }}" onchange="this.form.submit()" class="input" style="padding:7px 12px; font-size:0.85rem; cursor:pointer;">
                     </div>
                 </form>
 
@@ -74,7 +74,7 @@
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
             {{-- Pulse Listrik PLN --}}
-            <div style="background:rgba(9,13,21,0.65); border:1px solid {{ $todayPulse['elec_pln']['recorded'] ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
+            <div style="background:var(--bg-card-subtle); border:1px solid {{ $todayPulse['elec_pln']['recorded'] ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.75rem; font-weight:700; color:#fbbf24; text-transform:uppercase;">⚡ AMR PLN T33N</span>
                     <span class="badge" style="font-size:0.65rem; padding:2px 6px; {{ $todayPulse['elec_pln']['recorded'] ? 'background:rgba(16,185,129,0.2); color:#34d399;' : 'background:rgba(239,68,68,0.2); color:#f87171;' }}">
@@ -91,7 +91,7 @@
             </div>
 
             {{-- Pulse Air Gedung --}}
-            <div style="background:rgba(9,13,21,0.65); border:1px solid {{ $todayPulse['water_gedung']['recorded'] ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
+            <div style="background:var(--bg-card-subtle); border:1px solid {{ $todayPulse['water_gedung']['recorded'] ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.75rem; font-weight:700; color:#38bdf8; text-transform:uppercase;">💧 Air Gedung</span>
                     <span class="badge" style="font-size:0.65rem; padding:2px 6px; {{ $todayPulse['water_gedung']['recorded'] ? 'background:rgba(16,185,129,0.2); color:#34d399;' : 'background:rgba(239,68,68,0.2); color:#f87171;' }}">
@@ -113,7 +113,7 @@
                                    ($todayPulse['water_toilet_sky']['recorded'] ? 1 : 0) +
                                    ($todayPulse['water_pantry']['recorded'] ? 1 : 0);
             @endphp
-            <div style="background:rgba(9,13,21,0.65); border:1px solid {{ $paRecordedCount === 3 ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
+            <div style="background:var(--bg-card-subtle); border:1px solid {{ $paRecordedCount === 3 ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.75rem; font-weight:700; color:#06b6d4; text-transform:uppercase;">🏢 Water Public Area</span>
                     <span class="badge" style="font-size:0.65rem; padding:2px 6px; {{ $paRecordedCount === 3 ? 'background:rgba(16,185,129,0.2); color:#34d399;' : 'background:rgba(245,158,11,0.2); color:#fbbf24;' }}">
@@ -128,7 +128,7 @@
             </div>
 
             {{-- Pulse LVSB & MVSB --}}
-            <div style="background:rgba(9,13,21,0.65); border:1px solid {{ ($todayPulse['lvsb']['recorded'] && $todayPulse['mvsb']['recorded']) ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
+            <div style="background:var(--bg-card-subtle); border:1px solid {{ ($todayPulse['lvsb']['recorded'] && $todayPulse['mvsb']['recorded']) ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)' }}; border-radius:var(--radius-sm); padding:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.75rem; font-weight:700; color:#a855f7; text-transform:uppercase;">⚡ LVSB &amp; MVSB 20kV</span>
                     <span class="badge" style="font-size:0.65rem; padding:2px 6px; background:rgba(168,85,247,0.15); color:#c084fc;">
@@ -142,7 +142,7 @@
             </div>
 
             {{-- Pulse Daily Log Book --}}
-            <div style="background:rgba(9,13,21,0.65); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:12px;">
+            <div style="background:var(--bg-card-subtle); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.75rem; font-weight:700; color:#34d399; text-transform:uppercase;">📋 Daily Log Book</span>
                     <span class="badge" style="font-size:0.65rem; padding:2px 6px; background:rgba(16,185,129,0.15); color:#34d399;">
@@ -382,24 +382,24 @@
         @if($dailyLogs->count() > 0)
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
                 @foreach($dailyLogs->take(6) as $log)
-                    <div style="background:rgba(9,13,21,0.75); border:1px solid rgba(200,170,110,0.18); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
                         <div>
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                                 <span style="font-size:0.8rem; color:var(--text-muted);">
                                     {{ $log->tanggal ? $log->tanggal->translatedFormat('d M Y') : '-' }} &middot; {{ $log->jam_mulai ?? '-' }} - {{ $log->jam_selesai ?? '-' }}
                                 </span>
-                                <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $log->status === 'Done' ? 'background:rgba(16,185,129,0.15); color:#34d399;' : 'background:rgba(200,170,110,0.15); color:var(--accent-light); border:1px solid rgba(200,170,110,0.3);' }}">
+                                <span class="badge" style="font-size:0.7rem; padding:2px 8px; font-weight:700; {{ $log->status === 'Done' ? 'background:var(--success-bg); color:var(--success); border:1px solid var(--success-border);' : 'background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning-border);' }}">
                                     {{ $log->status }}
                                 </span>
                             </div>
-                            <div style="font-size:0.88rem; font-weight:600; color:var(--accent-light); margin-bottom:4px;">
+                            <div style="font-size:0.88rem; font-weight:600; color:var(--accent); margin-bottom:4px;">
                                 📍 {{ $log->lokasi }}
                             </div>
-                            <p style="font-size:0.82rem; color:#e2e8f0; line-height:1.45; margin:0; max-height:48px; overflow:hidden;">
+                            <p style="font-size:0.82rem; color:var(--text-primary); line-height:1.45; margin:0; max-height:48px; overflow:hidden;">
                                 {{ $log->uraian_pekerjaan }}
                             </p>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(200,170,110,0.1); padding-top:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:10px;">
                             <span style="font-size:0.75rem; color:var(--text-muted);">
                                 Teknisi: <b>{{ $log->user?->name ?? 'Teknisi' }}</b>
                             </span>
@@ -429,30 +429,48 @@ document.addEventListener('DOMContentLoaded', function () {
     const dataWbp = @json($chart['wbp']);
     const dataAir = @json($chart['air']);
 
+    function getGmChartTheme() {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        return {
+            textColor: isLight ? '#475569' : '#94a3b8',
+            tickColor: isLight ? '#64748b' : '#94a3b8',
+            gridColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)',
+            lwbpBg: isLight ? 'rgba(184, 134, 11, 0.85)' : 'rgba(212, 163, 89, 0.75)',
+            lwbpBorder: isLight ? '#996515' : '#d4a359',
+            airBg: isLight ? 'rgba(2, 132, 199, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+            airBorder: isLight ? '#0284c7' : '#38bdf8'
+        };
+    }
+
+    let th = getGmChartTheme();
+
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
             legend: {
-                labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+                labels: { color: th.textColor, font: { family: 'Inter', size: 11 } }
             }
         },
         scales: {
             x: {
-                ticks: { color: '#64748b', font: { size: 10 } },
-                grid: { color: 'rgba(255,255,255,0.04)' }
+                ticks: { color: th.tickColor, font: { size: 10 } },
+                grid: { color: th.gridColor }
             },
             y: {
-                ticks: { color: '#64748b', font: { size: 10 } },
-                grid: { color: 'rgba(255,255,255,0.04)' }
+                ticks: { color: th.tickColor, font: { size: 10 } },
+                grid: { color: th.gridColor }
             }
         }
     };
 
+    let chartL = null;
+    let chartA = null;
+
     // Chart Listrik
     const ctxListrik = document.getElementById('gmChartListrik');
     if (ctxListrik) {
-        new Chart(ctxListrik, {
+        chartL = new Chart(ctxListrik, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -460,8 +478,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     {
                         label: 'LWBP (kWh)',
                         data: dataLwbp,
-                        backgroundColor: 'rgba(212, 163, 89, 0.75)',
-                        borderColor: '#d4a359',
+                        backgroundColor: th.lwbpBg,
+                        borderColor: th.lwbpBorder,
                         borderWidth: 1,
                         borderRadius: 4
                     },
@@ -482,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Chart Air
     const ctxAir = document.getElementById('gmChartAir');
     if (ctxAir) {
-        new Chart(ctxAir, {
+        chartA = new Chart(ctxAir, {
             type: 'line',
             data: {
                 labels: labels,
@@ -490,12 +508,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     {
                         label: 'Pemakaian Air (m³)',
                         data: dataAir,
-                        borderColor: '#38bdf8',
-                        backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                        borderColor: th.airBorder,
+                        backgroundColor: th.airBg,
                         borderWidth: 2,
                         tension: 0.3,
                         fill: true,
-                        pointBackgroundColor: '#38bdf8',
+                        pointBackgroundColor: th.airBorder,
                         pointRadius: 3
                     }
                 ]
@@ -503,6 +521,32 @@ document.addEventListener('DOMContentLoaded', function () {
             options: commonOptions
         });
     }
+
+    // Theme reactivity
+    window.addEventListener('kpr-theme-changed', function () {
+        const next = getGmChartTheme();
+        [chartL, chartA].forEach(ch => {
+            if (!ch) return;
+            ch.options.scales.x.grid.color = next.gridColor;
+            ch.options.scales.x.ticks.color = next.tickColor;
+            ch.options.scales.y.grid.color = next.gridColor;
+            ch.options.scales.y.ticks.color = next.tickColor;
+            if (ch.options.plugins && ch.options.plugins.legend) {
+                ch.options.plugins.legend.labels.color = next.textColor;
+            }
+        });
+        if (chartL) {
+            chartL.data.datasets[0].backgroundColor = next.lwbpBg;
+            chartL.data.datasets[0].borderColor = next.lwbpBorder;
+            chartL.update();
+        }
+        if (chartA) {
+            chartA.data.datasets[0].borderColor = next.airBorder;
+            chartA.data.datasets[0].backgroundColor = next.airBg;
+            chartA.data.datasets[0].pointBackgroundColor = next.airBorder;
+            chartA.update();
+        }
+    });
 });
 </script>
 @endpush

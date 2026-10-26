@@ -24,15 +24,15 @@
     </div>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-top:16px;">
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(200,170,110,0.18); border-radius:12px; padding:20px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow-sm);">
             <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Stand Meteran</div>
             <div style="font-size:2.2rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif); margin:6px 0;">
                 {{ $n($reading->stand_meter) }} <small style="font-size:0.9rem; color:var(--text-muted); font-family:var(--font-sans);">{{ $reading->unit }}</small>
             </div>
 
-            <div style="border-top:1px solid rgba(200,170,110,0.12); padding-top:12px; margin-top:12px; font-size:0.84rem; color:var(--text-secondary); line-height:1.6;">
+            <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:12px; font-size:0.84rem; color:var(--text-secondary); line-height:1.6;">
                 <div>Stand Sebelumnya: <b>{{ $prev ? $n($prev->stand_meter) . ' ' . $reading->unit : '—' }}</b></div>
-                <div>Pemakaian: <b style="color:var(--accent-light);">{{ $pemakaian !== null ? '+' . $n($pemakaian) . ' ' . $reading->unit : '—' }}</b></div>
+                <div>Pemakaian: <b style="color:var(--accent);">{{ $pemakaian !== null ? '+' . $n($pemakaian) . ' ' . $reading->unit : '—' }}</b></div>
                 <div style="margin-top:6px;">Status Verifikasi:
                     @if($reading->verified_at)
                         <span class="badge badge-ok">✓ Terverifikasi oleh {{ $reading->verifier?->name ?? 'Admin' }}</span>
@@ -41,7 +41,7 @@
                     @endif
                 </div>
                 @if($reading->catatan)
-                    <div style="margin-top:10px; padding:10px; background:rgba(255,255,255,0.03); border-radius:6px;">
+                    <div style="margin-top:10px; padding:10px; background:var(--bg-card-subtle); border-radius:6px; border:1px solid var(--border);">
                         <strong style="color:var(--text-primary); font-size:0.78rem; display:block;">Catatan Petugas:</strong>
                         <i>"{{ $reading->catatan }}"</i>
                     </div>

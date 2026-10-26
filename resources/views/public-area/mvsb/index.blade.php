@@ -59,7 +59,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- TOOLBAR FILTER INTERVAL DATA MVSB (MAKSIMAL 12 BULAN / 1 TAHUN)        --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.25); border-radius:12px; padding:14px 18px; margin-bottom:24px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             {{-- Quick Presets --}}
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -112,7 +112,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- FORM INPUT PENCATATAN HARI INI                                          --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#c084fc; font-weight:700;">Panel Incoming PLN (MVSB 20kV)</span>
@@ -231,7 +231,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- RANGKUMAN STATISTIK PANEL MVSB (TABEL & GRAFIK)                        --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.25); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#c084fc; font-weight:700;">Rangkuman & Visualisasi Parameter MVSB</span>
@@ -331,8 +331,15 @@
             <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
                 <span>📈</span> Grafik Tren Tegangan 20kV & Arus Beban PLN
             </h4>
-            <div style="position:relative; height:260px; background:rgba(10,15,25,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
-                <canvas id="chartMvsbInterval"></canvas>
+            <div style="position:relative; min-height:260px; height:260px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:var(--shadow-sm);">
+                @if(empty($chartData['labels']))
+                    <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:8px;">
+                        <span style="font-size:1.8rem;">📊</span>
+                        <span style="font-size:0.85rem;">Belum ada data pencatatan MVSB pada interval ini.</span>
+                    </div>
+                @else
+                    <canvas id="chartMvsbInterval"></canvas>
+                @endif
             </div>
         </div>
     </div>
@@ -503,76 +510,98 @@
     document.addEventListener('DOMContentLoaded', function() {
         const chartData = @json($chartData);
         const ctx = document.getElementById('chartMvsbInterval');
-        if (ctx && chartData && chartData.labels && chartData.labels.length > 0) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: 'Voltage 20kV (Volt)',
-                            data: chartData.voltage,
-                            borderColor: '#c084fc',
-                            backgroundColor: 'rgba(192,132,252,0.12)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.25,
-                            yAxisID: 'yVolt',
-                            pointRadius: chartData.labels.length > 35 ? 0 : 3,
-                        },
-                        {
-                            label: 'Current (Ampere)',
-                            data: chartData.current,
-                            borderColor: '#38bdf8',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.25,
-                            yAxisID: 'yCurr',
-                            pointRadius: chartData.labels.length > 35 ? 0 : 3,
-                        }
-                    ]
+        if (!ctx || !chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+        function getThemeColors() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return {
+                textColor: isLight ? '#475569' : 'rgba(255,255,255,0.75)',
+                tickColor: isLight ? '#64748b' : 'rgba(255,255,255,0.6)',
+                gridColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+            };
+        }
+
+        let th = getThemeColors();
+
+        const chartMvsb = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Voltage 20kV (Volt)',
+                        data: chartData.voltage,
+                        borderColor: '#c084fc',
+                        backgroundColor: 'rgba(192,132,252,0.12)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.25,
+                        yAxisID: 'yVolt',
+                        pointRadius: chartData.labels.length > 35 ? 0 : 3,
+                    },
+                    {
+                        label: 'Current (Ampere)',
+                        data: chartData.current,
+                        borderColor: '#38bdf8',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.25,
+                        yAxisID: 'yCurr',
+                        pointRadius: chartData.labels.length > 35 ? 0 : 3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: 'rgba(255,255,255,0.75)',
-                                font: { size: 11 },
-                                usePointStyle: true,
-                                boxWidth: 8
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        yVolt: {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: 'Volt', color: '#c084fc', font: { size: 10 } },
-                            grid: { color: 'rgba(255,255,255,0.06)' },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        yCurr: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: 'Ampere', color: '#38bdf8', font: { size: 10 } },
-                            grid: { drawOnChartArea: false },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: th.textColor,
+                            font: { size: 11 },
+                            usePointStyle: true,
+                            boxWidth: 8
                         }
                     }
+                },
+                scales: {
+                    x: {
+                        grid: { color: th.gridColor },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    yVolt: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Volt', color: '#c084fc', font: { size: 10 } },
+                        grid: { color: th.gridColor },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    yCurr: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Ampere', color: '#38bdf8', font: { size: 10 } },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    }
                 }
-            });
-        }
+            }
+        });
+
+        window.addEventListener('kpr-theme-changed', function() {
+            const next = getThemeColors();
+            chartMvsb.options.plugins.legend.labels.color = next.textColor;
+            chartMvsb.options.scales.x.grid.color = next.gridColor;
+            chartMvsb.options.scales.x.ticks.color = next.tickColor;
+            chartMvsb.options.scales.yVolt.grid.color = next.gridColor;
+            chartMvsb.options.scales.yVolt.ticks.color = next.tickColor;
+            chartMvsb.options.scales.yCurr.ticks.color = next.tickColor;
+            chartMvsb.update();
+        });
     });
 </script>
 @endpush

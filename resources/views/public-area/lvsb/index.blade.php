@@ -59,7 +59,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- TOOLBAR FILTER INTERVAL DATA LVSB (MAKSIMAL 12 BULAN / 1 TAHUN)        --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.22); border-radius:12px; padding:14px 18px; margin-bottom:24px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             {{-- Quick Presets --}}
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -112,7 +112,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- FORM INPUT PENCATATAN HARI INI                                          --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.3); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; font-weight:700;">Panel Distribusi Utama (LVSB)</span>
@@ -281,7 +281,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- RANGKUMAN STATISTIK LVSB (TABEL & GRAFIK)                              --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(251,191,36,0.25); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; font-weight:700;">Rangkuman & Visualisasi Parameter LVSB</span>
@@ -400,8 +400,15 @@
             <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
                 <span>📈</span> Grafik Tren Beban Daya (kW), Tegangan (V), & PF Kapasitor
             </h4>
-            <div style="position:relative; height:260px; background:rgba(10,15,25,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
-                <canvas id="chartLvsbInterval"></canvas>
+            <div style="position:relative; min-height:260px; height:260px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:var(--shadow-sm);">
+                @if(empty($chartData['labels']))
+                    <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:8px;">
+                        <span style="font-size:1.8rem;">📊</span>
+                        <span style="font-size:0.85rem;">Belum ada data pencatatan LVSB pada interval ini.</span>
+                    </div>
+                @else
+                    <canvas id="chartLvsbInterval"></canvas>
+                @endif
             </div>
         </div>
     </div>
@@ -561,95 +568,118 @@
     document.addEventListener('DOMContentLoaded', function() {
         const chartData = @json($chartData);
         const ctx = document.getElementById('chartLvsbInterval');
-        if (ctx && chartData && chartData.labels && chartData.labels.length > 0) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: 'Incoming Power (kW)',
-                            data: chartData.power,
-                            borderColor: '#38bdf8',
-                            backgroundColor: 'rgba(56,189,248,0.12)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.25,
-                            yAxisID: 'y',
-                            pointRadius: chartData.labels.length > 35 ? 0 : 3,
-                        },
-                        {
-                            label: 'Incoming Voltage (V)',
-                            data: chartData.voltage,
-                            borderColor: '#fbbf24',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.25,
-                            yAxisID: 'yVolt',
-                            pointRadius: chartData.labels.length > 35 ? 0 : 2,
-                        },
-                        {
-                            label: 'Capacitor PF',
-                            data: chartData.pf,
-                            borderColor: '#34d399',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.2,
-                            yAxisID: 'yPF',
-                            pointRadius: chartData.labels.length > 35 ? 0 : 2,
-                        }
-                    ]
+        if (!ctx || !chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+        function getThemeColors() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return {
+                textColor: isLight ? '#475569' : 'rgba(255,255,255,0.75)',
+                tickColor: isLight ? '#64748b' : 'rgba(255,255,255,0.6)',
+                gridColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+            };
+        }
+
+        let th = getThemeColors();
+
+        const chartLvsb = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Incoming Power (kW)',
+                        data: chartData.power,
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56,189,248,0.12)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.25,
+                        yAxisID: 'y',
+                        pointRadius: chartData.labels.length > 35 ? 0 : 3,
+                    },
+                    {
+                        label: 'Incoming Voltage (V)',
+                        data: chartData.voltage,
+                        borderColor: '#fbbf24',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.25,
+                        yAxisID: 'yVolt',
+                        pointRadius: chartData.labels.length > 35 ? 0 : 2,
+                    },
+                    {
+                        label: 'Capacitor PF',
+                        data: chartData.pf,
+                        borderColor: '#34d399',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.2,
+                        yAxisID: 'yPF',
+                        pointRadius: chartData.labels.length > 35 ? 0 : 2,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: 'rgba(255,255,255,0.75)',
-                                font: { size: 11 },
-                                usePointStyle: true,
-                                boxWidth: 8
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        y: {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: 'Power (kW)', color: '#38bdf8', font: { size: 10 } },
-                            grid: { color: 'rgba(255,255,255,0.06)' },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        yVolt: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: 'Voltage (V)', color: '#fbbf24', font: { size: 10 } },
-                            grid: { drawOnChartArea: false },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        yPF: {
-                            type: 'linear',
-                            position: 'right',
-                            min: 0.7,
-                            max: 1.0,
-                            title: { display: true, text: 'PF', color: '#34d399', font: { size: 10 } },
-                            grid: { drawOnChartArea: false },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: th.textColor,
+                            font: { size: 11 },
+                            usePointStyle: true,
+                            boxWidth: 8
                         }
                     }
+                },
+                scales: {
+                    x: {
+                        grid: { color: th.gridColor },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Power (kW)', color: '#38bdf8', font: { size: 10 } },
+                        grid: { color: th.gridColor },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    yVolt: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Voltage (V)', color: '#fbbf24', font: { size: 10 } },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    yPF: {
+                        type: 'linear',
+                        position: 'right',
+                        min: 0.7,
+                        max: 1.0,
+                        title: { display: true, text: 'PF', color: '#34d399', font: { size: 10 } },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    }
                 }
-            });
-        }
+            }
+        });
+
+        window.addEventListener('kpr-theme-changed', function() {
+            const next = getThemeColors();
+            chartLvsb.options.plugins.legend.labels.color = next.textColor;
+            chartLvsb.options.scales.x.grid.color = next.gridColor;
+            chartLvsb.options.scales.x.ticks.color = next.tickColor;
+            chartLvsb.options.scales.y.grid.color = next.gridColor;
+            chartLvsb.options.scales.y.ticks.color = next.tickColor;
+            chartLvsb.options.scales.yVolt.ticks.color = next.tickColor;
+            chartLvsb.options.scales.yPF.ticks.color = next.tickColor;
+            chartLvsb.update();
+        });
     });
 </script>
 @endpush

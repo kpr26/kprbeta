@@ -52,7 +52,7 @@
     </div>
 
     {{-- Info Petugas & Waktu Simpan --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px 18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.85rem;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px 18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.85rem; box-shadow:var(--shadow-sm);">
         <div>
             <span style="color:var(--text-muted);">Petugas Pencatat:</span>
             <b style="color:var(--text-primary); margin-left:6px;">{{ $reading->user?->name ?? 'User Terhapus' }}</b>
@@ -132,7 +132,7 @@
     @php
         $allFotos = $reading->getAllFotos();
     @endphp
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; margin-top:24px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:24px; box-shadow:var(--shadow-sm);">
         <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:12px;">
             📷 Lampiran Foto Fisik Panel LVSB ({{ count($allFotos) }} / 6 Terlampir)
         </span>
@@ -178,7 +178,7 @@
     </div>
 
     {{-- Catatan --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; margin-top:16px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; margin-top:16px; box-shadow:var(--shadow-sm);">
         <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
             Catatan Kondisi Panel
         </span>

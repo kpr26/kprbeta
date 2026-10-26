@@ -38,7 +38,7 @@
         @csrf
 
         {{-- Pemilih Tanggal Back Date --}}
-        <div style="background:rgba(9, 13, 21, 0.7); border:1px solid rgba(251, 191, 36, 0.3); border-radius:12px; padding:18px; margin-bottom:24px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
             <div style="font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#fbbf24; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd"/></svg>
                 <span>Pilih Tanggal Logsheet Terlewat (Back Date)</span>
@@ -63,8 +63,8 @@
         {{-- 6 Grup Panel LVSB --}}
         <div style="display:flex; flex-direction:column; gap:20px;">
             @foreach ($structure as $gKey => $group)
-                <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:8px;">
+                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:var(--shadow-sm);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span class="badge" style="background:rgba(251,191,36,0.12); color:{{ $group['color'] }}; border:1px solid rgba(251,191,36,0.3); font-size:0.75rem;">
                                 {{ $group['badge'] }}

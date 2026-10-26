@@ -168,7 +168,7 @@
         </div>
 
         {{-- 3. KARTU PILIHAN LOGSHEET PUBLIC AREA --}}
-        <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:rgba(15,22,35,0.85); position:relative;">
+        <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:var(--bg-card); position:relative;">
             <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, #38bdf8, #fbbf24);"></div>
             <div>
                 <div class="choice-card-head">
@@ -283,7 +283,7 @@
 
         <div class="logsheet-choice-grid">
             {{-- Kartu Manual AMR PLN T33N --}}
-            <div class="logsheet-choice-card" style="border-color:rgba(245,158,11,0.3); background:rgba(15,22,35,0.9);">
+            <div class="logsheet-choice-card" style="border-color:rgba(245,158,11,0.3); background:var(--bg-card);">
                 <div>
                     <div class="choice-card-head">
                         <div class="choice-icon-wrap" style="background:rgba(255,201,14,0.12); border:1px solid rgba(255,201,14,0.3); padding:4px; display:flex; align-items:center; justify-content:center; width:48px; height:48px; border-radius:12px; flex-shrink:0;">
@@ -316,7 +316,7 @@
             </div>
 
             {{-- Kartu Manual Air --}}
-            <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:rgba(15,22,35,0.9);">
+            <div class="logsheet-choice-card" style="border-color:rgba(56,189,248,0.3); background:var(--bg-card);">
                 <div>
                     <div class="choice-card-head">
                         <div class="choice-icon-wrap" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">

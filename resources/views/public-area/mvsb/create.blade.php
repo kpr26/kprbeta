@@ -31,7 +31,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('public-area.mvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-mvsb" data-offline-type="public_area_mvsb" data-meter-label="MVSB" data-target-redirect="{{ route('public-area.mvsb.index') }}" style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px;">
+    <form method="POST" action="{{ route('public-area.mvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-mvsb" data-offline-type="public_area_mvsb" data-meter-label="MVSB" data-target-redirect="{{ route('public-area.mvsb.index') }}" style="background:var(--bg-card); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:20px; box-shadow:var(--shadow-sm);">
         @csrf
 
         {{-- Tanggal Pencatatan --}}

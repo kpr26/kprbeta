@@ -55,7 +55,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- TOOLBAR FILTER INTERVAL DATA (MAKSIMAL 12 BULAN / 1 TAHUN)              --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(56,189,248,0.22); border-radius:12px; padding:14px 18px; margin-bottom:24px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
             {{-- Quick Presets --}}
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
@@ -124,7 +124,7 @@
                     $prev = $prevReadings[$meterKey] ?? null;
                 @endphp
 
-                <div class="meter-card" style="border:1px solid {{ $meta['color'] }}44; border-top:4px solid {{ $meta['color'] }}; background:rgba(15,22,35,0.85); padding:18px 20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 6px 20px rgba(0,0,0,0.3);">
+                <div class="meter-card" style="border:1px solid {{ $meta['color'] }}44; border-top:4px solid {{ $meta['color'] }}; background:var(--bg-card); padding:18px 20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm);">
                     <div>
                         {{-- Card Header --}}
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -267,7 +267,7 @@
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
     {{-- RANGKUMAN STATISTIK PEMAKAIAN INTERVAL (TABEL & GRAFIK)                --}}
     {{-- ══════════════════════════════════════════════════════════════════════ --}}
-    <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:20px; margin-bottom:28px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:28px; box-shadow:var(--shadow-sm);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
             <div>
                 <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:#38bdf8; font-weight:700;">Rangkuman & Visualisasi Data</span>
@@ -371,8 +371,15 @@
             <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
                 <span>📈</span> Grafik Tren Pemakaian Air Harian (Interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }})
             </h4>
-            <div style="position:relative; height:260px; background:rgba(10,15,25,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
-                <canvas id="chartWaterPublicArea"></canvas>
+            <div style="position:relative; min-height:260px; height:260px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:var(--shadow-sm);">
+                @if(empty($chartData['labels']))
+                    <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:8px;">
+                        <span style="font-size:1.8rem;">📊</span>
+                        <span style="font-size:0.85rem;">Belum ada data pencatatan water meter pada interval ini.</span>
+                    </div>
+                @else
+                    <canvas id="chartWaterPublicArea"></canvas>
+                @endif
             </div>
         </div>
     </div>
@@ -548,91 +555,112 @@
     document.addEventListener('DOMContentLoaded', function() {
         const chartData = @json($chartData);
         const ctx = document.getElementById('chartWaterPublicArea');
-        if (ctx && chartData && chartData.labels && chartData.labels.length > 0) {
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [
-                        {
-                            label: 'Cooling Tower 12A',
-                            data: chartData.cooling_tower,
-                            backgroundColor: '#0284c7',
-                            borderRadius: 4,
-                            stack: 'waterStack',
-                        },
-                        {
-                            label: 'Toilet & Mushola Sky Lobby',
-                            data: chartData.toilet_sky,
-                            backgroundColor: '#06b6d4',
-                            borderRadius: 4,
-                            stack: 'waterStack',
-                        },
-                        {
-                            label: 'Pantry Office',
-                            data: chartData.pantry_office,
-                            backgroundColor: '#38bdf8',
-                            borderRadius: 4,
-                            stack: 'waterStack',
-                        },
-                        {
-                            label: 'Total Harian (m³)',
-                            data: chartData.total_daily,
-                            type: 'line',
-                            borderColor: '#f59e0b',
-                            backgroundColor: '#f59e0b',
-                            borderWidth: 2,
-                            tension: 0.3,
-                            pointRadius: chartData.labels.length > 40 ? 0 : 3,
-                            fill: false,
-                        }
-                    ]
+        if (!ctx || !chartData || !chartData.labels || chartData.labels.length === 0) return;
+
+        function getThemeColors() {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            return {
+                textColor: isLight ? '#475569' : 'rgba(255,255,255,0.75)',
+                tickColor: isLight ? '#64748b' : 'rgba(255,255,255,0.6)',
+                gridColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)',
+            };
+        }
+
+        let th = getThemeColors();
+
+        const chartWater = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Cooling Tower 12A',
+                        data: chartData.cooling_tower,
+                        backgroundColor: '#0284c7',
+                        borderRadius: 4,
+                        stack: 'waterStack',
+                    },
+                    {
+                        label: 'Toilet & Mushola Sky Lobby',
+                        data: chartData.toilet_sky,
+                        backgroundColor: '#06b6d4',
+                        borderRadius: 4,
+                        stack: 'waterStack',
+                    },
+                    {
+                        label: 'Pantry Office',
+                        data: chartData.pantry_office,
+                        backgroundColor: '#38bdf8',
+                        borderRadius: 4,
+                        stack: 'waterStack',
+                    },
+                    {
+                        label: 'Total Harian (m³)',
+                        data: chartData.total_daily,
+                        type: 'line',
+                        borderColor: '#f59e0b',
+                        backgroundColor: '#f59e0b',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: chartData.labels.length > 40 ? 0 : 3,
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: 'rgba(255,255,255,0.75)',
-                                font: { size: 11 },
-                                usePointStyle: true,
-                                boxWidth: 8
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} m³`;
-                                }
-                            }
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: th.textColor,
+                            font: { size: 11 },
+                            usePointStyle: true,
+                            boxWidth: 8
                         }
                     },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 10 } }
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.06)' },
-                            ticks: {
-                                color: 'rgba(255,255,255,0.6)',
-                                font: { size: 10 },
-                                callback: function(value) { return value + ' m³'; }
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} m³`;
                             }
                         }
                     }
+                },
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { color: th.gridColor },
+                        ticks: { color: th.tickColor, font: { size: 10 } }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        grid: { color: th.gridColor },
+                        ticks: {
+                            color: th.tickColor,
+                            font: { size: 10 },
+                            callback: function(value) { return value + ' m³'; }
+                        }
+                    }
                 }
-            });
-        }
+            }
+        });
+
+        window.addEventListener('kpr-theme-changed', function() {
+            const next = getThemeColors();
+            chartWater.options.plugins.legend.labels.color = next.textColor;
+            chartWater.options.scales.x.grid.color = next.gridColor;
+            chartWater.options.scales.x.ticks.color = next.tickColor;
+            chartWater.options.scales.y.grid.color = next.gridColor;
+            chartWater.options.scales.y.ticks.color = next.tickColor;
+            chartWater.update();
+        });
     });
 </script>
 @endpush

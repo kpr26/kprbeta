@@ -81,7 +81,7 @@
     {{-- Grid Parameter Metrik MVSB --}}
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:24px;">
         {{-- Card Voltage 20kV --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:18px;">
+        <div style="background:var(--bg-card); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700;">
                     Tegangan Menengah
@@ -98,7 +98,7 @@
         </div>
 
         {{-- Card Current --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:18px;">
+        <div style="background:var(--bg-card); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:18px; box-shadow:var(--shadow-sm);">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700;">
                     Arus Listrik
@@ -118,7 +118,7 @@
     {{-- Foto & Catatan --}}
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
         {{-- Foto Fisik Panel --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:var(--shadow-sm);">
             <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
                 Foto Fisik Panel MVSB
             </span>
@@ -133,7 +133,7 @@
         </div>
 
         {{-- Catatan --}}
-        <div style="background:rgba(15,22,35,0.7); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; box-shadow:var(--shadow-sm);">
             <span style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; display:block; margin-bottom:8px;">
                 Catatan Kondisi Panel
             </span>
