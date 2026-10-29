@@ -48,3 +48,23 @@ Artisan::command('app:fix-admin-verifications', function () {
 
     $this->info('Verifikasi otomatis berhasil diselesaikan.');
 })->purpose('Otomatisasi verifikasi untuk pencatatan logsheet yang diinput admin atau backdate');
+
+// ── Jadwal Otomatisasi Notifikasi WhatsApp (Sesuai Pengaturan Super Admin) ──
+$whatsappScheduledTime = '18:00';
+try {
+    if (Illuminate\Support\Facades\Schema::hasTable('whatsapp_notification_settings')) {
+        $setting = \App\Models\WhatsappSetting::first();
+        if ($setting && ! empty($setting->scheduled_time)) {
+            $whatsappScheduledTime = $setting->scheduled_time;
+        }
+    }
+} catch (\Throwable $e) {
+    // Fallback default
+}
+
+Illuminate\Support\Facades\Schedule::command('whatsapp:send-daily-summary')
+    ->dailyAt($whatsappScheduledTime)
+    ->timezone('Asia/Jakarta')
+    ->description("Kirim executive summary dan reminder logsheet ke WhatsApp via Fonnte setiap hari pukul {$whatsappScheduledTime} WIB");
+
+

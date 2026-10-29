@@ -10,6 +10,7 @@ use App\Http\Controllers\PublicAreaLvsbController;
 use App\Http\Controllers\PublicAreaMvsbController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GmMonitoringController;
+use App\Http\Controllers\WhatsappSettingController;
 use App\Http\Controllers\PwaController;
 
 /*
@@ -65,8 +66,16 @@ Route::middleware('guest')->group(function () {
 // ── Protected Routes ─────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::middleware('role:gm,admin,superadmin')->group(function () {
+    Route::middleware('role:gm,admin,superadmin,eng_spv,eng_admin')->group(function () {
         Route::get('/gm/monitoring', [GmMonitoringController::class, 'index'])->name('gm.monitoring');
+    });
+
+    // ── Pengaturan Notifikasi WhatsApp Otomatis (Khusus Super Admin) ──
+    Route::middleware('role:superadmin,admin')->prefix('admin/whatsapp')->name('admin.whatsapp.')->group(function () {
+        Route::get('/settings', [WhatsappSettingController::class, 'index'])->name('settings');
+        Route::put('/settings', [WhatsappSettingController::class, 'update'])->name('update');
+        Route::get('/preview', [WhatsappSettingController::class, 'preview'])->name('preview');
+        Route::post('/test-send', [WhatsappSettingController::class, 'sendTest'])->name('test-send');
     });
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
