@@ -26,6 +26,21 @@ class WhatsappSettingController extends Controller
         $messagePreview = $summaryService->formatWhatsAppMessage($todayDate);
         $summaryData = $summaryService->getData($todayDate);
 
+        // Status Heartbeat Cron Job Server
+        $lastSchedulerRun = \Illuminate\Support\Facades\Cache::get('last_scheduler_run_at');
+        $isSchedulerTicking = false;
+        $schedulerStatusText = 'Belum Terdeteksi';
+        if ($lastSchedulerRun) {
+            $lastRunCarbon = \Carbon\Carbon::parse($lastSchedulerRun, 'Asia/Jakarta');
+            $diffInMinutes = $lastRunCarbon->diffInMinutes(now('Asia/Jakarta'));
+            if ($diffInMinutes <= 2) {
+                $isSchedulerTicking = true;
+                $schedulerStatusText = 'Aktif (' . $lastRunCarbon->diffForHumans() . ')';
+            } else {
+                $schedulerStatusText = 'Tertunda (' . $lastRunCarbon->diffForHumans() . ')';
+            }
+        }
+
         return view('admin.whatsapp.settings', compact(
             'user',
             'setting',
@@ -33,7 +48,10 @@ class WhatsappSettingController extends Controller
             'fonnteToken',
             'messagePreview',
             'summaryData',
-            'todayDate'
+            'todayDate',
+            'isSchedulerTicking',
+            'schedulerStatusText',
+            'lastSchedulerRun'
         ));
     }
 

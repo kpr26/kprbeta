@@ -80,21 +80,31 @@ class SendDailySummaryWhatsApp extends Command
         // Cek target grup / nomor
         if (empty($targets)) {
             $this->error("ERROR: Tidak ada target nomor atau grup WhatsApp yang ditentukan!");
+            \Illuminate\Support\Facades\Log::warning('[SendDailySummaryWhatsApp] Eksekusi dibatalkan: Tidak ada target aktif yang ditentukan.');
             return self::FAILURE;
         }
 
+        \Illuminate\Support\Facades\Log::info("[SendDailySummaryWhatsApp] Memulai pengiriman ringkasan harian (" . count($targets) . " target): " . implode(', ', $targets));
+
         $allSuccess = true;
+        $successCount = 0;
+        $failCount = 0;
+
         foreach ($targets as $target) {
             $this->info("Mengirimkan notifikasi ke: {$target} via Fonnte...");
             $result = $fonnteService->sendMessage($target, $message);
 
             if ($result['success']) {
+                $successCount++;
                 $this->info("✔ Berhasil dikirim ke {$target}!");
             } else {
+                $failCount++;
                 $allSuccess = false;
                 $this->error("✖ Gagal dikirim ke {$target}: " . ($result['message'] ?? 'Terjadi kesalahan Fonnte.'));
             }
         }
+
+        \Illuminate\Support\Facades\Log::info("[SendDailySummaryWhatsApp] Selesai mengirim. Sukses: {$successCount}, Gagal: {$failCount}");
 
         return $allSuccess ? self::SUCCESS : self::FAILURE;
     }

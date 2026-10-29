@@ -49,6 +49,11 @@ Artisan::command('app:fix-admin-verifications', function () {
     $this->info('Verifikasi otomatis berhasil diselesaikan.');
 })->purpose('Otomatisasi verifikasi untuk pencatatan logsheet yang diinput admin atau backdate');
 
+// ── Heartbeat Pemantauan Cron Job Server ──
+Illuminate\Support\Facades\Schedule::call(function () {
+    Illuminate\Support\Facades\Cache::forever('last_scheduler_run_at', now('Asia/Jakarta')->toDateTimeString());
+})->everyMinute()->name('scheduler-heartbeat');
+
 // ── Jadwal Otomatisasi Notifikasi WhatsApp (Sesuai Pengaturan Super Admin) ──
 $whatsappScheduledTime = '18:00';
 try {
@@ -65,6 +70,13 @@ try {
 Illuminate\Support\Facades\Schedule::command('whatsapp:send-daily-summary')
     ->dailyAt($whatsappScheduledTime)
     ->timezone('Asia/Jakarta')
+    ->before(function () {
+        Illuminate\Support\Facades\Log::info('[Scheduler] Memulai eksekusi otomatis harian whatsapp:send-daily-summary');
+    })
+    ->after(function () {
+        Illuminate\Support\Facades\Log::info('[Scheduler] Selesai eksekusi otomatis harian whatsapp:send-daily-summary');
+    })
     ->description("Kirim executive summary dan reminder logsheet ke WhatsApp via Fonnte setiap hari pukul {$whatsappScheduledTime} WIB");
+
 
 

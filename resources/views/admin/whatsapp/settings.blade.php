@@ -77,8 +77,39 @@
                         <span style="color: #94a3b8; font-weight: 700; font-size: 0.85rem;">⏸️ Dinonaktifkan</span>
                     @endif
                 </div>
+
+                <div style="background: var(--bg-card-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 16px; text-align: right;">
+                    <span style="display: block; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Cron Job Server</span>
+                    @if($isSchedulerTicking)
+                        <span style="color: #22c55e; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e;"></span>
+                            {{ $schedulerStatusText }}
+                        </span>
+                    @else
+                        <span style="color: #f59e0b; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:#f59e0b;"></span>
+                            {{ $schedulerStatusText }}
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
+
+        @if(! $isSchedulerTicking)
+            <div style="margin-top: 16px; padding: 12px 16px; border-radius: var(--radius-sm); background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); display: flex; align-items: flex-start; gap: 12px;">
+                <span style="font-size: 1.2rem; line-height: 1;">💡</span>
+                <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
+                    <b style="color: #f59e0b;">Cron Job Server Hostinger / cPanel belum aktif atau belum berdetak.</b><br>
+                    Agar notifikasi dapat terkirim secara otomatis tepat pada jam yang ditentukan tanpa perlu klik manual, daftarkan baris Cron Job berikut di panel hosting Anda:
+                    <div style="margin: 8px 0; background: #0f172a; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
+                        <span>cd /home/u849135675/domains/kproperation.com/public_html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1</span>
+                    </div>
+                    <span style="font-size: 0.74rem; color: var(--text-muted);">
+                        Pilih tipe <b>Custom</b> dan interval <b>Every minute (<code>* * * * *</code>)</b> di menu <i>Cron Jobs</i> Hostinger.
+                    </span>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- ── 3. Main Two-Column Layout ── --}}
