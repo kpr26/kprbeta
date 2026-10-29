@@ -102,10 +102,10 @@
                     <b style="color: #f59e0b;">Cron Job Server Hostinger / cPanel belum aktif atau belum berdetak.</b><br>
                     Agar notifikasi dapat terkirim secara otomatis tepat pada jam yang ditentukan tanpa perlu klik manual, daftarkan baris Cron Job berikut di panel hosting Anda:
                     <div style="margin: 8px 0; background: #0f172a; padding: 8px 12px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; color: #38bdf8; display: flex; justify-content: space-between; align-items: center;">
-                        <span>cd /home/u849135675/domains/kproperation.com/public_html && /usr/bin/php artisan schedule:run >> /dev/null 2>&1</span>
+                        <span>/usr/bin/php /home/u849135675/domains/kproperation.com/public_html/artisan schedule:run</span>
                     </div>
                     <span style="font-size: 0.74rem; color: var(--text-muted);">
-                        Pilih tipe <b>Custom</b> dan interval <b>Every minute (<code>* * * * *</code>)</b> di menu <i>Cron Jobs</i> Hostinger.
+                        Pilih tipe <b>Kustom (Custom)</b> dan interval <b>Setiap menit (<code>* * * * *</code>)</b> di menu <i>Cron Jobs</i> Hostinger. Hindari penggunaan <code>cd</code> dan <code>&gt;&gt; /dev/null</code> agar Hostinger dapat mengeksekusi binary PHP secara langsung.
                     </span>
                 </div>
             </div>
