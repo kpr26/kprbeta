@@ -254,7 +254,7 @@
                 <td class="n">{{ $n($r->val('incoming_trafo', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('incoming_trafo', 'current'), 1) }}</td>
                 <td class="n" style="font-weight:600;">{{ $n($r->val('incoming_trafo', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('incoming_trafo', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('incoming_trafo', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('incoming_trafo', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('incoming_trafo', 'frequency'), 1) }}</td>
 
@@ -262,7 +262,7 @@
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'riser_3', 'frequency'), 1) }}</td>
 
@@ -270,7 +270,7 @@
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ov_ac_sky_lobby', 'frequency'), 1) }}</td>
 
@@ -278,7 +278,7 @@
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_2', 'ac_r_panel_trafo', 'frequency'), 1) }}</td>
 
@@ -286,7 +286,7 @@
                 <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_1_1', 'riser_4', 'frequency'), 1) }}</td>
 
@@ -294,25 +294,25 @@
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'riser_2', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'riser_2', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'riser_2', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_2_1', 'riser_2', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_2_1', 'riser_2', 'energy'), 8) }}</td>
 
                 {{-- Out 2.1 DB Fire 2 --}}
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'db_fire_2_lvl_12', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'db_fire_2_lvl_12', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'db_fire_2_lvl_12', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_2_1', 'db_fire_2_lvl_12', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_2_1', 'db_fire_2_lvl_12', 'energy'), 8) }}</td>
 
                 {{-- Out 2.1 Spare --}}
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'spare', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'spare', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_1', 'spare', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_2_1', 'spare', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_2_1', 'spare', 'energy'), 8) }}</td>
 
                 {{-- Out 2.2 Riser 1 --}}
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_1', 'frequency'), 1) }}</td>
 
@@ -320,7 +320,7 @@
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'voltage_3p'), 0) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'current'), 1) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'power'), 1) }}</td>
-                <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'energy'), 4) }}</td>
+                <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'energy'), 8) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'power_factor'), 2) }}</td>
                 <td class="n">{{ $n($r->val('outgoing_2_2', 'riser_5', 'frequency'), 1) }}</td>
 

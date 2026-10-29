@@ -279,7 +279,7 @@
                                         Volt: <b style="color:var(--warning);">{{ $n($todayReading->val('incoming_trafo', 'voltage_3p'), 1) }} V</b> &middot; 
                                         Arus: <b style="color:var(--purple);">{{ $n($todayReading->val('incoming_trafo', 'current')) }} A</b> &middot; 
                                         Daya: <b style="color:var(--info);">{{ $n($todayReading->val('incoming_trafo', 'power')) }} kW</b> &middot; 
-                                        Energy: <b style="color:var(--text-primary);">{{ $n($todayReading->val('incoming_trafo', 'energy'), 4) }} GWh</b>
+                                        Energy: <b style="color:var(--text-primary);">{{ $n($todayReading->val('incoming_trafo', 'energy'), 8) }} GWh</b>
                                     </div>
                                 @elseif($gKey === 'incoming_capacitor')
                                     <div style="font-size:0.76rem; color:var(--text-secondary); line-height:1.45; margin:4px 0;">
@@ -355,7 +355,7 @@
                                                             </div>
                                                             @if($prevVal !== null)
                                                                 <div style="font-size:0.67rem; color:var(--text-muted); margin-top:2px;">
-                                                                    Prev: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                                    Prev: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
                                                                 </div>
                                                             @endif
                                                         </div>
@@ -386,7 +386,7 @@
                                                     </div>
                                                     @if($prevVal !== null)
                                                         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                            Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                            Sebelumnya: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
                                                         </div>
                                                     @endif
                                                 </div>
@@ -672,7 +672,7 @@
                         <td class="r" style="font-weight:600; color:#fbbf24;">{{ $n($inVolt, 1) }}</td>
                         <td class="r">{{ $n($inAmp) }}</td>
                         <td class="r" style="font-weight:600; color:#38bdf8;">{{ $n($inKw) }}</td>
-                        <td class="r" style="color:#a78bfa;">{{ $n($inGwh, 4) }}</td>
+                        <td class="r" style="color:#a78bfa;">{{ $n($inGwh, 8) }}</td>
                         <td class="r">{{ $n($inPf) }}</td>
                         <td class="r" style="font-weight:600; color:#34d399;">{{ $n($capPf) }}</td>
                         <td class="l">

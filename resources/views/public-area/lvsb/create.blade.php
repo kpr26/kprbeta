@@ -79,7 +79,7 @@
                                                     </div>
                                                     @if($prevVal !== null)
                                                         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                            Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                            Sebelumnya: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
                                                         </div>
                                                     @endif
                                                 </div>
@@ -107,7 +107,7 @@
                                         </div>
                                         @if($prevVal !== null)
                                             <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                Sebelumnya: {{ $n($prevVal, $fMeta['step'] === '0.0001' ? 4 : 2) }}
+                                                Sebelumnya: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
                                             </div>
                                         @endif
                                     </div>

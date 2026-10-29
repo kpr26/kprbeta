@@ -255,6 +255,15 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    // ── Alias Redirects untuk /public-area/* ke /logsheet-public-area/* ──
+    Route::redirect('/public-area', '/logsheet-public-area');
+    Route::redirect('/public-area/water', '/logsheet-public-area/water');
+    Route::redirect('/public-area/lvsb', '/logsheet-public-area/lvsb');
+    Route::redirect('/public-area/mvsb', '/logsheet-public-area/mvsb');
+    Route::redirect('/public-area/manual/water', '/logsheet-public-area/manual/water');
+    Route::redirect('/public-area/manual/lvsb', '/logsheet-public-area/manual/lvsb');
+    Route::redirect('/public-area/manual/mvsb', '/logsheet-public-area/manual/mvsb');
+
     // ── Daily Log Book (Pekerjaan Harian Teknisi) ──
     Route::get('/daily-log', [DailyLogBookController::class, 'index'])->name('daily-log.index');
     Route::get('/daily-log/create', [DailyLogBookController::class, 'create'])->name('daily-log.create');

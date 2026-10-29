@@ -92,7 +92,7 @@
                                         @foreach ($sub['fields'] as $fKey => $fMeta)
                                             @php
                                                 $v = $reading->val($gKey, $sKey, $fKey);
-                                                $dec = $fMeta['step'] === '0.0001' ? 4 : ($fMeta['step'] === '0.1' ? 1 : 2);
+                                                $dec = $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2);
                                             @endphp
                                             <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:8px 12px;">
                                                 <span style="font-size:0.72rem; color:var(--text-muted); display:block; text-transform:uppercase; letter-spacing:0.04em;">{{ $fMeta['label'] }}</span>
@@ -111,7 +111,7 @@
                             @foreach ($group['fields'] as $fKey => $fMeta)
                                 @php
                                     $v = $reading->val($gKey, $fKey);
-                                    $dec = $fMeta['step'] === '0.0001' ? 4 : ($fMeta['step'] === '0.1' ? 1 : 2);
+                                    $dec = $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2);
                                 @endphp
                                 <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:6px; padding:10px 14px;">
                                     <span style="font-size:0.74rem; color:var(--text-muted); display:block; text-transform:uppercase; letter-spacing:0.04em;">{{ $fMeta['label'] }}</span>

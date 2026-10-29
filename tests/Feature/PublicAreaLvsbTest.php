@@ -283,4 +283,34 @@ class PublicAreaLvsbTest extends TestCase
         $resPdf->assertOk();
         $resPdf->assertSee('LOGSHEET LVSB');
     }
+
+    public function test_lvsb_accepts_and_displays_8_decimal_digits_for_energy()
+    {
+        $today = Carbon::today()->toDateString();
+        $energyValue = 12.12345678;
+
+        $res = $this->actingAs($this->teknisi)->post(route('public-area.lvsb.store'), [
+            'tanggal'   => $today,
+            'group_key' => 'incoming_trafo',
+            'readings'  => [
+                'incoming_trafo' => [
+                    'voltage_3p'   => 380.0,
+                    'current'      => 100.0,
+                    'power'        => 50.0,
+                    'energy'       => $energyValue,
+                    'power_factor' => 0.95,
+                    'frequency'    => 50.0,
+                ],
+            ],
+        ]);
+        $res->assertRedirect(route('public-area.lvsb.index'));
+
+        $record = PublicAreaLvsbReading::whereDate('tanggal', $today)->first();
+        $this->assertNotNull($record);
+        $this->assertEquals($energyValue, $record->val('incoming_trafo', 'energy'));
+
+        $pageRes = $this->actingAs($this->teknisi)->get(route('public-area.lvsb.index'));
+        $pageRes->assertOk();
+        $pageRes->assertSee('12,12345678');
+    }
 }
