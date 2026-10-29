@@ -357,10 +357,55 @@
         </div>
     </div>
 
+    {{-- ── Panel Aksi Masal: Verifikasi Masal & Hapus Masal (Khusus Super Admin, Maks 1 Bulan) ── --}}
+    @if (auth()->user()->isSuperAdmin() && $rows->count())
+        <div class="bulk-action-bar" style="margin-bottom:14px; background:linear-gradient(135deg, rgba(168,85,247,0.12), rgba(15,22,35,0.7)); border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:0.88rem; color:var(--purple); margin:0; user-select:none;">
+                    <input type="checkbox" id="bulk-master-mvsb" style="width:18px; height:18px; cursor:pointer; accent-color:#a855f7;">
+                    <span>Pilih Semua Data ({{ $rows->count() }} Data)</span>
+                </label>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="btn btn-sm" id="btn-select-unverified-mvsb" style="font-size:0.75rem; padding:3px 8px; background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);" title="Pilih hanya data yang belum diverifikasi">
+                        ⚡ Pilih Belum Verifikasi
+                    </button>
+                    <button type="button" class="btn btn-sm" id="btn-clear-selection-mvsb" style="font-size:0.75rem; padding:3px 8px; background:rgba(255,255,255,0.06); color:var(--text-muted); display:none;" title="Batalkan semua pilihan">
+                        ✕ Batal Pilih
+                    </button>
+                </div>
+                <span id="bulk-selected-badge-mvsb" class="badge" style="background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4); font-size:0.78rem; padding:4px 10px; border-radius:6px; font-weight:700; display:none;">
+                    <span id="bulk-selected-count-mvsb">0</span> data dipilih
+                </span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button type="button" id="btn-trigger-bulk-verify-mvsb" class="btn btn-sm btn-success" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                    <span id="btn-text-bulk-verify-mvsb">Verifikasi Masal</span>
+                </button>
+
+                <button type="button" id="btn-trigger-bulk-delete-mvsb" class="btn btn-sm btn-danger" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .75.748l.5 6a.75.75 0 0 1-1.498.124l-.5-6a.75.75 0 0 1 .748-.872Zm3.588.748a.75.75 0 0 0-1.498-.124l-.5 6a.75.75 0 0 0 1.498.124l.5-6Z" clip-rule="evenodd"/></svg>
+                    <span id="btn-text-bulk-delete-mvsb">Hapus Masal</span>
+                </button>
+            </div>
+        </div>
+
+        <form id="bulk-action-form-mvsb" method="POST" action="" style="display:none;">
+            @csrf
+            <div id="bulk-inputs-mvsb"></div>
+        </form>
+    @endif
+
     <div class="table-wrap">
         <table class="log-table">
             <thead>
                 <tr>
+                    @if (auth()->user()->isSuperAdmin())
+                        <th class="c" style="width:42px; vertical-align:middle;">
+                            <input type="checkbox" id="bulk-table-all-mvsb" title="Pilih Semua" style="width:17px; height:17px; cursor:pointer; accent-color:#a855f7;">
+                        </th>
+                    @endif
                     <th class="l">Tanggal</th>
                     <th class="r">Voltage 20kV (Volt)</th>
                     <th class="r">Current (Ampere)</th>
@@ -373,6 +418,11 @@
             <tbody>
                 @forelse($rows as $r)
                     <tr>
+                        @if (auth()->user()->isSuperAdmin())
+                            <td class="c" style="vertical-align:middle;">
+                                <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-mvsb" data-verified="{{ $r->isVerified() ? '1' : '0' }}" style="width:17px; height:17px; cursor:pointer; accent-color:#a855f7;">
+                            </td>
+                        @endif
                         <td class="l" style="white-space:nowrap;">
                             <span style="font-weight:600; color:var(--text-primary);">
                                 {{ $r->tanggal->translatedFormat('d M Y') }}
@@ -445,7 +495,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="padding:32px 14px; text-align:center; color:var(--text-muted);">
+                        <td colspan="{{ auth()->user()->isSuperAdmin() ? 8 : 7 }}" style="padding:32px 14px; text-align:center; color:var(--text-muted);">
                             Belum ada data pencatatan MVSB Incoming From PLN pada interval {{ $startDate->translatedFormat('d M Y') }} s/d {{ $endDate->translatedFormat('d M Y') }}.
                         </td>
                     </tr>
@@ -611,5 +661,143 @@
             chartMvsb.update();
         });
     });
+
+    // ── Fitur Aksi Masal: Verifikasi Masal & Hapus Masal MVSB (Khusus Super Admin) ──
+    @if (auth()->user()->isSuperAdmin())
+    (function() {
+        const bulkMaster = document.getElementById('bulk-master-mvsb');
+        const bulkTableAll = document.getElementById('bulk-table-all-mvsb');
+        const btnSelectUnverified = document.getElementById('btn-select-unverified-mvsb');
+        const btnClearSelection = document.getElementById('btn-clear-selection-mvsb');
+        const badge = document.getElementById('bulk-selected-badge-mvsb');
+        const badgeCount = document.getElementById('bulk-selected-count-mvsb');
+        const btnVerify = document.getElementById('btn-trigger-bulk-verify-mvsb');
+        const btnDelete = document.getElementById('btn-trigger-bulk-delete-mvsb');
+        const textVerify = document.getElementById('btn-text-bulk-verify-mvsb');
+        const textDelete = document.getElementById('btn-text-bulk-delete-mvsb');
+        const bulkForm = document.getElementById('bulk-action-form-mvsb');
+        const bulkInputs = document.getElementById('bulk-inputs-mvsb');
+
+        function getSelected() {
+            return Array.from(document.querySelectorAll('.bulk-item-mvsb:checked')).map(cb => cb.value);
+        }
+
+        function updateToolbar() {
+            const checkboxes = document.querySelectorAll('.bulk-item-mvsb');
+            const total = checkboxes.length;
+            const checked = document.querySelectorAll('.bulk-item-mvsb:checked');
+            const count = checked.length;
+
+            if (badgeCount) badgeCount.textContent = count;
+            if (badge) badge.style.display = count > 0 ? 'inline-flex' : 'none';
+            if (btnClearSelection) btnClearSelection.style.display = count > 0 ? 'inline-flex' : 'none';
+
+            if (count > 0) {
+                if (btnVerify) {
+                    btnVerify.disabled = false;
+                    btnVerify.style.opacity = '1';
+                    btnVerify.style.cursor = 'pointer';
+                    if (textVerify) textVerify.textContent = `Verifikasi (${count})`;
+                }
+                if (btnDelete) {
+                    btnDelete.disabled = false;
+                    btnDelete.style.opacity = '1';
+                    btnDelete.style.cursor = 'pointer';
+                    if (textDelete) textDelete.textContent = `Hapus (${count})`;
+                }
+            } else {
+                if (btnVerify) {
+                    btnVerify.disabled = true;
+                    btnVerify.style.opacity = '0.5';
+                    btnVerify.style.cursor = 'not-allowed';
+                    if (textVerify) textVerify.textContent = 'Verifikasi Masal';
+                }
+                if (btnDelete) {
+                    btnDelete.disabled = true;
+                    btnDelete.style.opacity = '0.5';
+                    btnDelete.style.cursor = 'not-allowed';
+                    if (textDelete) textDelete.textContent = 'Hapus Masal';
+                }
+            }
+
+            const allChecked = total > 0 && count === total;
+            const someChecked = count > 0 && count < total;
+
+            if (bulkMaster) {
+                bulkMaster.checked = allChecked;
+                bulkMaster.indeterminate = someChecked;
+            }
+            if (bulkTableAll) {
+                bulkTableAll.checked = allChecked;
+                bulkTableAll.indeterminate = someChecked;
+            }
+        }
+
+        function toggleAll(checked) {
+            document.querySelectorAll('.bulk-item-mvsb').forEach(cb => { cb.checked = checked; });
+            updateToolbar();
+        }
+
+        if (bulkMaster) bulkMaster.addEventListener('change', function() { toggleAll(this.checked); });
+        if (bulkTableAll) bulkTableAll.addEventListener('change', function() { toggleAll(this.checked); });
+
+        document.querySelectorAll('.bulk-item-mvsb').forEach(cb => {
+            cb.addEventListener('change', updateToolbar);
+        });
+
+        if (btnSelectUnverified) {
+            btnSelectUnverified.addEventListener('click', function() {
+                document.querySelectorAll('.bulk-item-mvsb').forEach(cb => {
+                    cb.checked = (cb.getAttribute('data-verified') === '0');
+                });
+                updateToolbar();
+            });
+        }
+
+        if (btnClearSelection) {
+            btnClearSelection.addEventListener('click', function() {
+                toggleAll(false);
+            });
+        }
+
+        if (btnVerify) {
+            btnVerify.addEventListener('click', function() {
+                const ids = getSelected();
+                if (ids.length === 0) return alert('Pilih minimal 1 data MVSB.');
+                if (!confirm(`Konfirmasi Verifikasi Masal:\n\nApakah Anda yakin ingin memverifikasi ${ids.length} data logsheet MVSB terpilih?`)) return;
+
+                bulkInputs.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = id;
+                    bulkInputs.appendChild(input);
+                });
+                bulkForm.action = '{{ route('public-area.mvsb.bulk.verify') }}';
+                bulkForm.submit();
+            });
+        }
+
+        if (btnDelete) {
+            btnDelete.addEventListener('click', function() {
+                const ids = getSelected();
+                if (ids.length === 0) return alert('Pilih minimal 1 data MVSB.');
+                if (!confirm(`⚠️ PERINGATAN HAPUS MASAL (SUPER ADMIN):\n\nApakah Anda yakin ingin MENGHAPUS PERMANEN ${ids.length} data logsheet MVSB terpilih?\n\n• Semua foto fisik lampiran akan dihapus dari server.\n• Tindakan ini TIDAK DAPAT DIBATALKAN.`)) return;
+
+                bulkInputs.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = id;
+                    bulkInputs.appendChild(input);
+                });
+                bulkForm.action = '{{ route('public-area.mvsb.bulk.destroy') }}';
+                bulkForm.submit();
+            });
+        }
+    })();
+    @endif
 </script>
 @endpush

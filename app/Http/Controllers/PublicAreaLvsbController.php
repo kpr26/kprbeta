@@ -383,6 +383,100 @@ class PublicAreaLvsbController extends Controller
     }
 
     /**
+     * Verifikasi Masal Logsheet LVSB (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkVerify(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan verifikasi masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data LVSB untuk diverifikasi.');
+        }
+
+        $readings = PublicAreaLvsbReading::whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data logsheet LVSB yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Verifikasi masal dibatasi maksimal untuk rentang 1 bulan (31 hari).');
+            }
+        }
+
+        $now = now();
+        $adminId = auth()->id();
+        $updatedCount = 0;
+
+        foreach ($readings as $reading) {
+            $reading->update([
+                'verified_at' => $now,
+                'verified_by' => $adminId,
+            ]);
+            $updatedCount++;
+        }
+
+        $msg = "Berhasil memverifikasi {$updatedCount} data logsheet LVSB secara masal.";
+        return back()->with('status', $msg)->with('success', $msg);
+    }
+
+    /**
+     * Hapus Masal Logsheet LVSB (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan penghapusan masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data LVSB untuk dihapus.');
+        }
+
+        $readings = PublicAreaLvsbReading::whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data logsheet LVSB yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Penghapusan masal dibatasi maksimal untuk rentang 1 bulan (31 hari) demi keamanan data.');
+            }
+        }
+
+        $deletedCount = 0;
+        foreach ($readings as $reading) {
+            if (is_array($reading->fotos)) {
+                foreach ($reading->fotos as $f) {
+                    if ($f && Storage::disk('public')->exists($f)) {
+                        Storage::disk('public')->delete($f);
+                    }
+                }
+            }
+            if ($reading->foto && Storage::disk('public')->exists($reading->foto)) {
+                Storage::disk('public')->delete($reading->foto);
+            }
+            $reading->delete();
+            $deletedCount++;
+        }
+
+        $msg = "Berhasil menghapus {$deletedCount} data logsheet LVSB secara permanen.";
+        return back()->with('status', $msg)->with('success', $msg);
+    }
+
+    /**
      * Cetak / Ekspor Excel Logsheet LVSB (Mendukung rentang interval tanggal hingga 12 bulan)
      */
     public function exportExcel(Request $request)

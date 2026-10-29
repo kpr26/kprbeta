@@ -136,10 +136,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/logsheet/export/pdf', [LogsheetController::class, 'exportPdf'])->name('logsheet.pdf');
     });
     Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
-        Route::post('/logsheet/{logsheet}/verify', [LogsheetController::class, 'verify'])->name('logsheet.verify');
+        Route::post('/logsheet/{logsheet}/verify', [LogsheetController::class, 'verify'])->name('logsheet.verify')->whereNumber('logsheet');
     });
     Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
-        Route::delete('/logsheet/{logsheet}', [LogsheetController::class, 'destroy'])->name('logsheet.destroy');
+        Route::delete('/logsheet/{logsheet}', [LogsheetController::class, 'destroy'])->name('logsheet.destroy')->whereNumber('logsheet');
     });
     // ── Logsheet Input Terpisah (Listrik & Air) & Hub Card Menu ──
     Route::get('/logsheet/hub', [LogsheetController::class, 'hub'])->name('logsheet.hub');
@@ -150,6 +150,10 @@ Route::middleware('auth')->group(function () {
 
     // ── Input Manual Logsheet Listrik & Air (Khusus Super Admin untuk Tanggal Terlewat) ──
     Route::middleware('role:admin,superadmin')->group(function () {
+        // Aksi Masal Logsheet (Verifikasi Masal & Hapus Masal Maksimal 1 Bulan)
+        Route::post('/logsheet/bulk-verify', [LogsheetController::class, 'bulkVerify'])->name('logsheet.bulk.verify');
+        Route::post('/logsheet/bulk-destroy', [LogsheetController::class, 'bulkDestroy'])->name('logsheet.bulk.destroy');
+
         // Bulk Input Manual Air (Water Meter Gedung - File Excel)
         Route::get('/logsheet/bulk/air', [LogsheetController::class, 'createBulkAir'])->name('logsheet.bulk.air');
         Route::post('/logsheet/bulk/air', [LogsheetController::class, 'storeBulkAir'])->name('logsheet.bulk.air.store');
@@ -177,9 +181,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/lvsb', [PublicAreaLvsbController::class, 'index'])->name('lvsb.index');
         Route::get('/lvsb/input', [PublicAreaLvsbController::class, 'create'])->name('lvsb.create');
         Route::post('/lvsb/store', [PublicAreaLvsbController::class, 'store'])->name('lvsb.store');
-        Route::get('/lvsb/detail/{reading}', [PublicAreaLvsbController::class, 'show'])->name('lvsb.show');
-        Route::post('/lvsb/verify/{reading}', [PublicAreaLvsbController::class, 'verify'])->name('lvsb.verify');
-        Route::delete('/lvsb/destroy/{reading}', [PublicAreaLvsbController::class, 'destroy'])->name('lvsb.destroy');
+        Route::get('/lvsb/detail/{reading}', [PublicAreaLvsbController::class, 'show'])->name('lvsb.show')->whereNumber('reading');
+        Route::post('/lvsb/verify/{reading}', [PublicAreaLvsbController::class, 'verify'])->name('lvsb.verify')->whereNumber('reading');
+        Route::delete('/lvsb/destroy/{reading}', [PublicAreaLvsbController::class, 'destroy'])->name('lvsb.destroy')->whereNumber('reading');
         Route::get('/lvsb/export/excel', [PublicAreaLvsbController::class, 'exportExcel'])->name('lvsb.excel');
         Route::get('/lvsb/export/pdf', [PublicAreaLvsbController::class, 'exportPdf'])->name('lvsb.pdf');
 
@@ -187,9 +191,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/mvsb', [PublicAreaMvsbController::class, 'index'])->name('mvsb.index');
         Route::get('/mvsb/input', [PublicAreaMvsbController::class, 'create'])->name('mvsb.create');
         Route::post('/mvsb/store', [PublicAreaMvsbController::class, 'store'])->name('mvsb.store');
-        Route::get('/mvsb/detail/{reading}', [PublicAreaMvsbController::class, 'show'])->name('mvsb.show');
-        Route::post('/mvsb/verify/{reading}', [PublicAreaMvsbController::class, 'verify'])->name('mvsb.verify');
-        Route::delete('/mvsb/destroy/{reading}', [PublicAreaMvsbController::class, 'destroy'])->name('mvsb.destroy');
+        Route::get('/mvsb/detail/{reading}', [PublicAreaMvsbController::class, 'show'])->name('mvsb.show')->whereNumber('reading');
+        Route::post('/mvsb/verify/{reading}', [PublicAreaMvsbController::class, 'verify'])->name('mvsb.verify')->whereNumber('reading');
+        Route::delete('/mvsb/destroy/{reading}', [PublicAreaMvsbController::class, 'destroy'])->name('mvsb.destroy')->whereNumber('reading');
         Route::get('/mvsb/export/excel', [PublicAreaMvsbController::class, 'exportExcel'])->name('mvsb.excel');
         Route::get('/mvsb/export/pdf', [PublicAreaMvsbController::class, 'exportPdf'])->name('mvsb.pdf');
 
@@ -199,18 +203,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/electricity/store', [PublicAreaLogsheetController::class, 'electricityStore'])->name('electricity.store');
 
         // Detail, Verify & Delete
-        Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show');
+        Route::get('/detail/{reading}', [PublicAreaLogsheetController::class, 'show'])->name('show')->whereNumber('reading');
         Route::middleware('role:admin,superadmin,eng_admin,eng_spv,gm')->group(function () {
             Route::get('/export/excel/{category}', [PublicAreaLogsheetController::class, 'exportExcel'])->name('excel');
             Route::get('/export/pdf/{category}', [PublicAreaLogsheetController::class, 'exportPdf'])->name('pdf');
         });
         Route::middleware('role:admin,superadmin,eng_admin,eng_spv')->group(function () {
-            Route::post('/verify/{reading}', [PublicAreaLogsheetController::class, 'verify'])->name('verify');
-            Route::delete('/destroy/{reading}', [PublicAreaLogsheetController::class, 'destroy'])->name('destroy');
+            Route::post('/verify/{reading}', [PublicAreaLogsheetController::class, 'verify'])->name('verify')->whereNumber('reading');
+            Route::delete('/destroy/{reading}', [PublicAreaLogsheetController::class, 'destroy'])->name('destroy')->whereNumber('reading');
         });
 
         // ── Input Manual Back Date (Khusus Super Admin untuk Tanggal Terlewat) ──
         Route::middleware('role:admin,superadmin')->group(function () {
+            // Aksi Masal Public Area (Verifikasi Masal & Hapus Masal Maksimal 1 Bulan)
+            Route::post('/water/bulk-verify', [PublicAreaLogsheetController::class, 'bulkVerifyWater'])->name('water.bulk.verify');
+            Route::post('/water/bulk-destroy', [PublicAreaLogsheetController::class, 'bulkDestroyWater'])->name('water.bulk.destroy');
+
+            Route::post('/lvsb/bulk-verify', [PublicAreaLvsbController::class, 'bulkVerify'])->name('lvsb.bulk.verify');
+            Route::post('/lvsb/bulk-destroy', [PublicAreaLvsbController::class, 'bulkDestroy'])->name('lvsb.bulk.destroy');
+
+            Route::post('/mvsb/bulk-verify', [PublicAreaMvsbController::class, 'bulkVerify'])->name('mvsb.bulk.verify');
+            Route::post('/mvsb/bulk-destroy', [PublicAreaMvsbController::class, 'bulkDestroy'])->name('mvsb.bulk.destroy');
             // Bulk Input Manual Water Public Area (Unggah Excel 1 Bulan)
             Route::get('/bulk/water', [PublicAreaLogsheetController::class, 'createBulkWater'])->name('bulk.water');
             Route::post('/bulk/water', [PublicAreaLogsheetController::class, 'storeBulkWater'])->name('bulk.water.store');

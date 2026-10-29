@@ -985,9 +985,113 @@ class LogsheetController extends Controller
     /** Verifikasi: tandai data sudah dicrosscheck dengan foto (Admin, Eng Admin, Eng Spv). */
     public function verify(MeterReading $logsheet)
     {
-        abort_unless(in_array(Auth::user()->role, ['admin', 'eng_admin', 'eng_spv'], true), 403);
+        abort_unless(in_array(Auth::user()->role, ['admin', 'superadmin', 'eng_admin', 'eng_spv'], true), 403);
         $logsheet->update(['verified_at' => now(), 'verified_by' => Auth::id()]);
         return back()->with('success', 'Logsheet ' . $logsheet->tanggal->format('d/m/Y') . ' telah diverifikasi.');
+    }
+
+    /**
+     * Verifikasi Masal Logsheet (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkVerify(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan verifikasi masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data logsheet untuk diverifikasi.');
+        }
+
+        $readings = MeterReading::whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data logsheet yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Verifikasi masal dibatasi maksimal untuk rentang 1 bulan (31 hari).');
+            }
+        }
+
+        $now = now();
+        $adminId = Auth::id();
+        $updatedCount = 0;
+
+        foreach ($readings as $reading) {
+            $reading->update([
+                'verified_at' => $now,
+                'verified_by' => $adminId,
+            ]);
+            $updatedCount++;
+        }
+
+        $periode = $request->input('periode', $minDate ? \Carbon\Carbon::parse($minDate)->format('Y-m') : now()->format('Y-m'));
+        $msg = "Berhasil memverifikasi {$updatedCount} data logsheet secara masal.";
+
+        return redirect()->route('logsheet.index', ['periode' => $periode])
+            ->with('success', $msg)
+            ->with('status', $msg);
+    }
+
+    /**
+     * Hapus Masal Logsheet (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkDestroy(Request $request)
+    {
+        abort_unless(Auth::user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan penghapusan masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data logsheet untuk dihapus.');
+        }
+
+        $readings = MeterReading::whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data logsheet yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Penghapusan masal dibatasi maksimal untuk rentang 1 bulan (31 hari) demi keamanan data.');
+            }
+        }
+
+        $deletedCount = 0;
+        $filesToDelete = [];
+
+        foreach ($readings as $reading) {
+            if ($reading->foto_kwh) {
+                $filesToDelete[] = $reading->foto_kwh;
+            }
+            if ($reading->foto_air) {
+                $filesToDelete[] = $reading->foto_air;
+            }
+            $reading->delete();
+            $deletedCount++;
+        }
+
+        if (! empty($filesToDelete)) {
+            Storage::disk('public')->delete(array_values(array_filter($filesToDelete)));
+        }
+
+        $periode = $request->input('periode', $minDate ? \Carbon\Carbon::parse($minDate)->format('Y-m') : now()->format('Y-m'));
+        $msg = "Berhasil menghapus {$deletedCount} data logsheet secara permanen beserta lampiran fotonya.";
+
+        return redirect()->route('logsheet.index', ['periode' => $periode])
+            ->with('success', $msg)
+            ->with('status', $msg);
     }
 
     /** Export Excel (.xls) */

@@ -313,11 +313,60 @@
         </div>
     </div>
 
+    {{-- ── Panel Aksi Masal: Verifikasi Masal & Hapus Masal (Khusus Super Admin, Maks 1 Bulan) ── --}}
+    @if (auth()->user()->isSuperAdmin() && $rows->count())
+        <div class="bulk-action-bar" style="margin-bottom:14px; background:linear-gradient(135deg, rgba(200,170,110,0.12), rgba(15,22,35,0.7)); border:1px solid rgba(200,170,110,0.3); border-radius:10px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:0.88rem; color:var(--accent-light); margin:0; user-select:none;">
+                    <input type="checkbox" id="bulk-master-check" style="width:18px; height:18px; cursor:pointer; accent-color:#c8aa6e;">
+                    <span>Pilih Semua Bulan Ini ({{ $rows->count() }} Data)</span>
+                </label>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="btn btn-sm" id="btn-select-unverified" style="font-size:0.75rem; padding:3px 8px; background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);" title="Pilih hanya data yang belum diverifikasi">
+                        ⚡ Pilih Belum Verifikasi
+                    </button>
+                    <button type="button" class="btn btn-sm" id="btn-clear-selection" style="font-size:0.75rem; padding:3px 8px; background:rgba(255,255,255,0.06); color:var(--text-muted); display:none;" title="Batalkan semua pilihan">
+                        ✕ Batal Pilih
+                    </button>
+                </div>
+                <span id="bulk-selected-badge" class="badge" style="background:rgba(200,170,110,0.2); color:var(--accent-light); border:1px solid rgba(200,170,110,0.4); font-size:0.78rem; padding:4px 10px; border-radius:6px; font-weight:700; display:none;">
+                    <span id="bulk-selected-count">0</span> data dipilih
+                </span>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                {{-- Tombol Verifikasi Masal --}}
+                <button type="button" id="btn-trigger-bulk-verify" class="btn btn-sm btn-success" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                    <span id="btn-text-bulk-verify">Verifikasi Masal</span>
+                </button>
+
+                {{-- Tombol Hapus Masal --}}
+                <button type="button" id="btn-trigger-bulk-delete" class="btn btn-sm btn-danger" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .75.748l.5 6a.75.75 0 0 1-1.498.124l-.5-6a.75.75 0 0 1 .748-.872Zm3.588.748a.75.75 0 0 0-1.498-.124l-.5 6a.75.75 0 0 0 1.498.124l.5-6Z" clip-rule="evenodd"/></svg>
+                    <span id="btn-text-bulk-delete">Hapus Masal</span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Hidden Form untuk Submit Aksi Masal --}}
+        <form id="bulk-action-form" method="POST" action="" style="display:none;">
+            @csrf
+            <input type="hidden" name="periode" value="{{ $periode }}">
+            <div id="bulk-hidden-inputs"></div>
+        </form>
+    @endif
+
     {{-- Tabel Rekapitulasi (Stand Total ditiadakan sesuai instruksi) --}}
     <div class="table-wrap">
         <table class="log-table">
             <thead>
                 <tr>
+                    @if (auth()->user()->isSuperAdmin())
+                        <th rowspan="2" class="c" style="width:42px; vertical-align:middle;">
+                            <input type="checkbox" id="bulk-check-table-all" title="Pilih Semua" style="width:17px; height:17px; cursor:pointer; accent-color:#c8aa6e;">
+                        </th>
+                    @endif
                     <th rowspan="2" class="l">Tanggal</th>
                     <th colspan="7" class="g-elec">AMR PLN T33N (kWh)</th>
                     <th rowspan="2" class="c" style="background:rgba(245,158,11,0.12); color:#fbbf24; border-left:1px solid rgba(200,170,110,0.2); border-right:1px solid rgba(200,170,110,0.2);">
@@ -347,7 +396,12 @@
             </thead>
             <tbody>
             @forelse ($rows as $r)
-                <tr>
+                <tr id="row-logsheet-{{ $r->id }}">
+                    @if (auth()->user()->isSuperAdmin())
+                        <td class="c" style="vertical-align:middle;">
+                            <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-check" data-verified="{{ $r->isVerified() ? '1' : '0' }}" data-tanggal="{{ $r->tanggal->format('d/m/Y') }}" style="width:17px; height:17px; cursor:pointer; accent-color:#c8aa6e;">
+                        </td>
+                    @endif
                     <td class="l">{{ $r->tanggal->translatedFormat('D, d M') }}</td>
 
                     {{-- Stand & Pemakaian BP --}}
@@ -418,12 +472,15 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="16" class="empty">Belum ada data logsheet pada periode ini.</td></tr>
+                <tr><td colspan="{{ auth()->user()->isSuperAdmin() ? 17 : 16 }}" class="empty">Belum ada data logsheet pada periode ini.</td></tr>
             @endforelse
             </tbody>
             @if ($rows->count())
             <tfoot>
                 <tr>
+                    @if (auth()->user()->isSuperAdmin())
+                        <td></td>
+                    @endif
                     <td class="l">TOTAL</td>
                     <td>—</td>
                     <td class="use-elec"><b>{{ $n($summary['bp']) }}</b></td>
@@ -450,11 +507,16 @@
     {{-- ── Tampilan Khusus Layar HP / Mobile Card List ── --}}
     <div class="mobile-logsheet-list">
         @forelse ($rows as $r)
-            <div class="mobile-log-card">
+            <div class="mobile-log-card" id="card-logsheet-{{ $r->id }}" style="transition:border-color 0.2s ease, background 0.2s ease;">
                 <div class="mlc-header">
-                    <div>
-                        <span class="mlc-date">{{ $r->tanggal->translatedFormat('D, d M Y') }}</span>
-                        <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b></div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        @if (auth()->user()->isSuperAdmin())
+                            <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-check mlc-item-check" data-verified="{{ $r->isVerified() ? '1' : '0' }}" data-tanggal="{{ $r->tanggal->format('d/m/Y') }}" style="width:20px; height:20px; cursor:pointer; accent-color:#c8aa6e; margin-top:2px;">
+                        @endif
+                        <div>
+                            <span class="mlc-date">{{ $r->tanggal->translatedFormat('D, d M Y') }}</span>
+                            <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b></div>
+                        </div>
                     </div>
                     <div>
                         @if ($r->isVerified())
@@ -794,5 +856,200 @@
             }
         });
     }
+
+    // ── Fitur Aksi Masal: Verifikasi Masal & Hapus Masal (Khusus Super Admin) ──
+    @if (auth()->user()->isSuperAdmin())
+    (function() {
+        const bulkMasterCheck = document.getElementById('bulk-master-check');
+        const bulkCheckTableAll = document.getElementById('bulk-check-table-all');
+        const btnSelectUnverified = document.getElementById('btn-select-unverified');
+        const btnClearSelection = document.getElementById('btn-clear-selection');
+        const badgeSelected = document.getElementById('bulk-selected-badge');
+        const countSelected = document.getElementById('bulk-selected-count');
+        const btnBulkVerify = document.getElementById('btn-trigger-bulk-verify');
+        const btnBulkDelete = document.getElementById('btn-trigger-bulk-delete');
+        const textBulkVerify = document.getElementById('btn-text-bulk-verify');
+        const textBulkDelete = document.getElementById('btn-text-bulk-delete');
+        const bulkForm = document.getElementById('bulk-action-form');
+        const bulkHiddenInputs = document.getElementById('bulk-hidden-inputs');
+
+        function getUniqueSelectedIds() {
+            const checkedBoxes = document.querySelectorAll('.bulk-item-check:checked');
+            const ids = new Set();
+            checkedBoxes.forEach(cb => ids.add(cb.value));
+            return Array.from(ids);
+        }
+
+        function updateBulkToolbar() {
+            const selectedIds = getUniqueSelectedIds();
+            const totalSelected = selectedIds.length;
+            const allItems = Array.from(new Set(Array.from(document.querySelectorAll('.bulk-item-check')).map(cb => cb.value)));
+            const totalItems = allItems.length;
+
+            if (totalSelected > 0) {
+                if (badgeSelected) badgeSelected.style.display = 'inline-block';
+                if (countSelected) countSelected.textContent = totalSelected;
+                if (btnClearSelection) btnClearSelection.style.display = 'inline-flex';
+
+                if (btnBulkVerify) {
+                    btnBulkVerify.disabled = false;
+                    btnBulkVerify.style.opacity = '1';
+                    btnBulkVerify.style.cursor = 'pointer';
+                    if (textBulkVerify) textBulkVerify.textContent = `Verifikasi Masal (${totalSelected})`;
+                }
+
+                if (btnBulkDelete) {
+                    btnBulkDelete.disabled = false;
+                    btnBulkDelete.style.opacity = '1';
+                    btnBulkDelete.style.cursor = 'pointer';
+                    if (textBulkDelete) textBulkDelete.textContent = `Hapus Masal (${totalSelected})`;
+                }
+            } else {
+                if (badgeSelected) badgeSelected.style.display = 'none';
+                if (btnClearSelection) btnClearSelection.style.display = 'none';
+
+                if (btnBulkVerify) {
+                    btnBulkVerify.disabled = true;
+                    btnBulkVerify.style.opacity = '0.5';
+                    btnBulkVerify.style.cursor = 'not-allowed';
+                    if (textBulkVerify) textBulkVerify.textContent = 'Verifikasi Masal';
+                }
+
+                if (btnBulkDelete) {
+                    btnBulkDelete.disabled = true;
+                    btnBulkDelete.style.opacity = '0.5';
+                    btnBulkDelete.style.cursor = 'not-allowed';
+                    if (textBulkDelete) textBulkDelete.textContent = 'Hapus Masal';
+                }
+            }
+
+            const allChecked = totalItems > 0 && totalSelected === totalItems;
+            const someChecked = totalSelected > 0 && totalSelected < totalItems;
+
+            if (bulkMasterCheck) {
+                bulkMasterCheck.checked = allChecked;
+                bulkMasterCheck.indeterminate = someChecked;
+            }
+            if (bulkCheckTableAll) {
+                bulkCheckTableAll.checked = allChecked;
+                bulkCheckTableAll.indeterminate = someChecked;
+            }
+
+            // Visual feedback on mobile cards
+            document.querySelectorAll('.mobile-log-card').forEach(card => {
+                const cardId = card.id.replace('card-logsheet-', '');
+                if (selectedIds.includes(cardId)) {
+                    card.style.borderColor = 'rgba(200, 170, 110, 0.6)';
+                    card.style.background = 'rgba(200, 170, 110, 0.05)';
+                } else {
+                    card.style.borderColor = '';
+                    card.style.background = '';
+                }
+            });
+        }
+
+        function toggleAll(checked) {
+            document.querySelectorAll('.bulk-item-check').forEach(cb => {
+                cb.checked = checked;
+            });
+            updateBulkToolbar();
+        }
+
+        if (bulkMasterCheck) {
+            bulkMasterCheck.addEventListener('change', function() {
+                toggleAll(this.checked);
+            });
+        }
+        if (bulkCheckTableAll) {
+            bulkCheckTableAll.addEventListener('change', function() {
+                toggleAll(this.checked);
+            });
+        }
+
+        document.querySelectorAll('.bulk-item-check').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const val = this.value;
+                const checked = this.checked;
+                document.querySelectorAll(`.bulk-item-check[value="${val}"]`).forEach(sibling => {
+                    sibling.checked = checked;
+                });
+                updateBulkToolbar();
+            });
+        });
+
+        if (btnSelectUnverified) {
+            btnSelectUnverified.addEventListener('click', function() {
+                document.querySelectorAll('.bulk-item-check').forEach(cb => {
+                    cb.checked = (cb.getAttribute('data-verified') === '0');
+                });
+                updateBulkToolbar();
+            });
+        }
+
+        if (btnClearSelection) {
+            btnClearSelection.addEventListener('click', function() {
+                toggleAll(false);
+            });
+        }
+
+        if (btnBulkVerify) {
+            btnBulkVerify.addEventListener('click', function() {
+                const ids = getUniqueSelectedIds();
+                if (ids.length === 0) {
+                    alert('Silakan pilih minimal 1 data logsheet terlebih dahulu.');
+                    return;
+                }
+
+                const monthName = '{{ \Carbon\Carbon::create($year, $month)->translatedFormat('F Y') }}';
+                if (!confirm(`Konfirmasi Verifikasi Masal:\n\nApakah Anda yakin ingin memverifikasi ${ids.length} data logsheet periode ${monthName} secara sekaligus?`)) {
+                    return;
+                }
+
+                if (bulkHiddenInputs && bulkForm) {
+                    bulkHiddenInputs.innerHTML = '';
+                    ids.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = id;
+                        bulkHiddenInputs.appendChild(input);
+                    });
+                    bulkForm.action = '{{ route('logsheet.bulk.verify') }}';
+                    bulkForm.submit();
+                }
+            });
+        }
+
+        if (btnBulkDelete) {
+            btnBulkDelete.addEventListener('click', function() {
+                const ids = getUniqueSelectedIds();
+                if (ids.length === 0) {
+                    alert('Silakan pilih minimal 1 data logsheet yang ingin dihapus.');
+                    return;
+                }
+
+                const monthName = '{{ \Carbon\Carbon::create($year, $month)->translatedFormat('F Y') }}';
+                const confirmMsg = `⚠️ PERINGATAN HAPUS MASAL (SUPER ADMIN):\n\nApakah Anda benar-benar yakin ingin MENGHAPUS PERMANEN ${ids.length} data logsheet periode ${monthName}?\n\n• Semua catatan stand AMR PLN & Water meter akan dihapus.\n• Semua foto meteran terkait akan dihapus dari server.\n• Tindakan ini TIDAK DAPAT DIBATALKAN.`;
+                
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+
+                if (bulkHiddenInputs && bulkForm) {
+                    bulkHiddenInputs.innerHTML = '';
+                    ids.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = id;
+                        bulkHiddenInputs.appendChild(input);
+                    });
+                    bulkForm.action = '{{ route('logsheet.bulk.destroy') }}';
+                    bulkForm.submit();
+                }
+            });
+        }
+    })();
+    @endif
 </script>
 @endpush

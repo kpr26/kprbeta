@@ -400,10 +400,55 @@
             </div>
         </div>
 
+        {{-- ── Panel Aksi Masal: Verifikasi Masal & Hapus Masal (Khusus Super Admin, Maks 1 Bulan) ── --}}
+        @if ($isSuperAdmin && $rows->count())
+            <div class="bulk-action-bar" style="margin-bottom:14px; background:linear-gradient(135deg, rgba(6,182,212,0.12), rgba(15,22,35,0.7)); border:1px solid rgba(6,182,212,0.3); border-radius:10px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                    <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; font-size:0.88rem; color:#38bdf8; margin:0; user-select:none;">
+                        <input type="checkbox" id="bulk-master-water" style="width:18px; height:18px; cursor:pointer; accent-color:#0284c7;">
+                        <span>Pilih Semua Data ({{ $rows->count() }} Data)</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button type="button" class="btn btn-sm" id="btn-select-unverified-water" style="font-size:0.75rem; padding:3px 8px; background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);" title="Pilih hanya data yang belum diverifikasi">
+                            ⚡ Pilih Belum Verifikasi
+                        </button>
+                        <button type="button" class="btn btn-sm" id="btn-clear-selection-water" style="font-size:0.75rem; padding:3px 8px; background:rgba(255,255,255,0.06); color:var(--text-muted); display:none;" title="Batalkan semua pilihan">
+                            ✕ Batal Pilih
+                        </button>
+                    </div>
+                    <span id="bulk-selected-badge-water" class="badge" style="background:rgba(6,182,212,0.2); color:#38bdf8; border:1px solid rgba(6,182,212,0.4); font-size:0.78rem; padding:4px 10px; border-radius:6px; font-weight:700; display:none;">
+                        <span id="bulk-selected-count-water">0</span> data dipilih
+                    </span>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <button type="button" id="btn-trigger-bulk-verify-water" class="btn btn-sm btn-success" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                        <span id="btn-text-bulk-verify-water">Verifikasi Masal</span>
+                    </button>
+
+                    <button type="button" id="btn-trigger-bulk-delete-water" class="btn btn-sm btn-danger" disabled style="display:inline-flex; align-items:center; gap:6px; opacity:0.5; cursor:not-allowed; transition:all 0.2s ease;">
+                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px; height:16px;"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .75.748l.5 6a.75.75 0 0 1-1.498.124l-.5-6a.75.75 0 0 1 .748-.872Zm3.588.748a.75.75 0 0 0-1.498-.124l-.5 6a.75.75 0 0 0 1.498.124l.5-6Z" clip-rule="evenodd"/></svg>
+                        <span id="btn-text-bulk-delete-water">Hapus Masal</span>
+                    </button>
+                </div>
+            </div>
+
+            <form id="bulk-action-form-water" method="POST" action="" style="display:none;">
+                @csrf
+                <div id="bulk-inputs-water"></div>
+            </form>
+        @endif
+
         <div class="table-wrap">
             <table class="log-table">
                 <thead>
                     <tr>
+                        @if ($isSuperAdmin)
+                            <th class="c" style="width:42px; vertical-align:middle;">
+                                <input type="checkbox" id="bulk-table-all-water" title="Pilih Semua" style="width:17px; height:17px; cursor:pointer; accent-color:#0284c7;">
+                            </th>
+                        @endif
                         <th class="l" style="width:130px;">Tanggal</th>
                         <th class="l">Meteran Air Public Area</th>
                         <th class="l">Lokasi</th>
@@ -419,6 +464,11 @@
                 @forelse ($rows as $r)
                     @php $meta = $waterMeters[$r->meter_key] ?? null; @endphp
                     <tr>
+                        @if ($isSuperAdmin)
+                            <td class="c" style="vertical-align:middle;">
+                                <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-water" data-verified="{{ $r->isVerified() ? '1' : '0' }}" style="width:17px; height:17px; cursor:pointer; accent-color:#0284c7;">
+                            </td>
+                        @endif
                         <td class="l">{{ $r->tanggal->translatedFormat('D, d M Y') }}</td>
                         <td class="l" style="font-weight:600; color:{{ $meta['color'] ?? 'var(--text-primary)' }};">
                             {{ $r->meter_name }}
@@ -462,7 +512,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="empty">Belum ada data pencatatan water meter public area pada interval ini.</td>
+                        <td colspan="{{ $isSuperAdmin ? 10 : 9 }}" class="empty">Belum ada data pencatatan water meter public area pada interval ini.</td>
                     </tr>
                 @endforelse
                 </tbody>
@@ -665,5 +715,146 @@
             chartWater.update();
         });
     });
+
+    // ── Fitur Aksi Masal: Verifikasi Masal & Hapus Masal Water Meter Public Area (Khusus Super Admin) ──
+    @if ($isSuperAdmin)
+    (function() {
+        const bulkMaster = document.getElementById('bulk-master-water');
+        const bulkTableAll = document.getElementById('bulk-table-all-water');
+        const btnSelectUnverified = document.getElementById('btn-select-unverified-water');
+        const btnClearSelection = document.getElementById('btn-clear-selection-water');
+        const badge = document.getElementById('bulk-selected-badge-water');
+        const badgeCount = document.getElementById('bulk-selected-count-water');
+        const btnVerify = document.getElementById('btn-trigger-bulk-verify-water');
+        const btnDelete = document.getElementById('btn-trigger-bulk-delete-water');
+        const textVerify = document.getElementById('btn-text-bulk-verify-water');
+        const textDelete = document.getElementById('btn-text-bulk-delete-water');
+        const bulkForm = document.getElementById('bulk-action-form-water');
+        const bulkInputs = document.getElementById('bulk-inputs-water');
+
+        function getSelected() {
+            return Array.from(document.querySelectorAll('.bulk-item-water:checked')).map(cb => cb.value);
+        }
+
+        function updateToolbar() {
+            const selected = getSelected();
+            const count = selected.length;
+            const allItems = Array.from(document.querySelectorAll('.bulk-item-water')).map(cb => cb.value);
+            const total = allItems.length;
+
+            if (count > 0) {
+                if (badge) badge.style.display = 'inline-block';
+                if (badgeCount) badgeCount.textContent = count;
+                if (btnClearSelection) btnClearSelection.style.display = 'inline-flex';
+
+                if (btnVerify) {
+                    btnVerify.disabled = false;
+                    btnVerify.style.opacity = '1';
+                    btnVerify.style.cursor = 'pointer';
+                    if (textVerify) textVerify.textContent = `Verifikasi Masal (${count})`;
+                }
+                if (btnDelete) {
+                    btnDelete.disabled = false;
+                    btnDelete.style.opacity = '1';
+                    btnDelete.style.cursor = 'pointer';
+                    if (textDelete) textDelete.textContent = `Hapus Masal (${count})`;
+                }
+            } else {
+                if (badge) badge.style.display = 'none';
+                if (btnClearSelection) btnClearSelection.style.display = 'none';
+
+                if (btnVerify) {
+                    btnVerify.disabled = true;
+                    btnVerify.style.opacity = '0.5';
+                    btnVerify.style.cursor = 'not-allowed';
+                    if (textVerify) textVerify.textContent = 'Verifikasi Masal';
+                }
+                if (btnDelete) {
+                    btnDelete.disabled = true;
+                    btnDelete.style.opacity = '0.5';
+                    btnDelete.style.cursor = 'not-allowed';
+                    if (textDelete) textDelete.textContent = 'Hapus Masal';
+                }
+            }
+
+            const allChecked = total > 0 && count === total;
+            const someChecked = count > 0 && count < total;
+
+            if (bulkMaster) {
+                bulkMaster.checked = allChecked;
+                bulkMaster.indeterminate = someChecked;
+            }
+            if (bulkTableAll) {
+                bulkTableAll.checked = allChecked;
+                bulkTableAll.indeterminate = someChecked;
+            }
+        }
+
+        function toggleAll(checked) {
+            document.querySelectorAll('.bulk-item-water').forEach(cb => { cb.checked = checked; });
+            updateToolbar();
+        }
+
+        if (bulkMaster) bulkMaster.addEventListener('change', function() { toggleAll(this.checked); });
+        if (bulkTableAll) bulkTableAll.addEventListener('change', function() { toggleAll(this.checked); });
+
+        document.querySelectorAll('.bulk-item-water').forEach(cb => {
+            cb.addEventListener('change', updateToolbar);
+        });
+
+        if (btnSelectUnverified) {
+            btnSelectUnverified.addEventListener('click', function() {
+                document.querySelectorAll('.bulk-item-water').forEach(cb => {
+                    cb.checked = (cb.getAttribute('data-verified') === '0');
+                });
+                updateToolbar();
+            });
+        }
+
+        if (btnClearSelection) {
+            btnClearSelection.addEventListener('click', function() {
+                toggleAll(false);
+            });
+        }
+
+        if (btnVerify) {
+            btnVerify.addEventListener('click', function() {
+                const ids = getSelected();
+                if (ids.length === 0) return alert('Pilih minimal 1 data water meter.');
+                if (!confirm(`Konfirmasi Verifikasi Masal:\n\nApakah Anda yakin ingin memverifikasi ${ids.length} data water meter public area terpilih?`)) return;
+
+                bulkInputs.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = id;
+                    bulkInputs.appendChild(input);
+                });
+                bulkForm.action = '{{ route('public-area.water.bulk.verify') }}';
+                bulkForm.submit();
+            });
+        }
+
+        if (btnDelete) {
+            btnDelete.addEventListener('click', function() {
+                const ids = getSelected();
+                if (ids.length === 0) return alert('Pilih minimal 1 data water meter.');
+                if (!confirm(`⚠️ PERINGATAN HAPUS MASAL (SUPER ADMIN):\n\nApakah Anda yakin ingin MENGHAPUS PERMANEN ${ids.length} data water meter terpilih?\n\n• Semua catatan dan foto lampiran akan dihapus dari server.\n• Tindakan ini TIDAK DAPAT DIBATALKAN.`)) return;
+
+                bulkInputs.innerHTML = '';
+                ids.forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'ids[]';
+                    input.value = id;
+                    bulkInputs.appendChild(input);
+                });
+                bulkForm.action = '{{ route('public-area.water.bulk.destroy') }}';
+                bulkForm.submit();
+            });
+        }
+    })();
+    @endif
 </script>
 @endpush

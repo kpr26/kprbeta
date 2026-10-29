@@ -525,6 +525,99 @@ class PublicAreaLogsheetController extends Controller
     }
 
     /**
+     * Verifikasi Masal Water Meter Public Area (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkVerifyWater(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan verifikasi masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data water meter untuk diverifikasi.');
+        }
+
+        $readings = PublicAreaMeterReading::where('category', 'water')->whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data pencatatan water meter yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Verifikasi masal dibatasi maksimal untuk rentang 1 bulan (31 hari).');
+            }
+        }
+
+        $now = now();
+        $adminId = auth()->id();
+        $updatedCount = 0;
+
+        foreach ($readings as $reading) {
+            $reading->update([
+                'verified_at' => $now,
+                'verified_by' => $adminId,
+            ]);
+            $updatedCount++;
+        }
+
+        $msg = "Berhasil memverifikasi {$updatedCount} data pencatatan water meter public area secara masal.";
+        return back()->with('status', $msg)->with('success', $msg);
+    }
+
+    /**
+     * Hapus Masal Water Meter Public Area (Khusus Super Admin, Maksimal 1 Bulan).
+     */
+    public function bulkDestroyWater(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()->isSuperAdmin(), 403, 'Hanya Super Admin yang berhak melakukan penghapusan masal.');
+
+        $ids = $request->input('ids');
+        if (!is_array($ids) || empty($ids)) {
+            return back()->with('warning', 'Pilih minimal satu data water meter untuk dihapus.');
+        }
+
+        $readings = PublicAreaMeterReading::where('category', 'water')->whereIn('id', $ids)->get();
+        if ($readings->isEmpty()) {
+            return back()->with('warning', 'Data pencatatan water meter yang dipilih tidak ditemukan.');
+        }
+
+        // Batasan rentang maksimal 1 bulan (31 hari)
+        $dates = $readings->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->unique()->values();
+        $minDate = $dates->min();
+        $maxDate = $dates->max();
+
+        if ($minDate && $maxDate) {
+            $diffDays = \Carbon\Carbon::parse($minDate)->diffInDays(\Carbon\Carbon::parse($maxDate));
+            if ($diffDays > 31) {
+                return back()->with('error', 'Penghapusan masal dibatasi maksimal untuk rentang 1 bulan (31 hari) demi keamanan data.');
+            }
+        }
+
+        $deletedCount = 0;
+        $filesToDelete = [];
+
+        foreach ($readings as $reading) {
+            if ($reading->foto) {
+                $filesToDelete[] = $reading->foto;
+            }
+            $reading->delete();
+            $deletedCount++;
+        }
+
+        if (! empty($filesToDelete)) {
+            Storage::disk('public')->delete(array_values(array_filter($filesToDelete)));
+        }
+
+        $msg = "Berhasil menghapus {$deletedCount} data pencatatan water meter public area secara permanen.";
+        return back()->with('status', $msg)->with('success', $msg);
+    }
+
+    /**
      * Export Excel (Mendukung rentang interval tanggal hingga 12 bulan)
      */
     public function exportExcel(Request $request, string $category)
