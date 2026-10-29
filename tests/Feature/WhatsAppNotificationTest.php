@@ -113,6 +113,7 @@ class WhatsAppNotificationTest extends TestCase
         $superadmin = User::factory()->create(['role' => 'superadmin']);
 
         $payload = [
+            'fonnte_token'      => '7vPVyswvCqqpoUqiPMa2_custom',
             'target_group_id'   => '120363999999999@g.us',
             'target_group_name' => 'Grup Testing Unit',
             'scheduled_time'    => '18:30',
@@ -135,6 +136,7 @@ class WhatsAppNotificationTest extends TestCase
             ->assertSessionHas('success');
 
         $setting = WhatsappSetting::getSetting();
+        $this->assertEquals('7vPVyswvCqqpoUqiPMa2_custom', $setting->getFonnteToken());
         $this->assertEquals('120363999999999@g.us', $setting->target_group_id);
         $this->assertEquals('18:30', $setting->scheduled_time);
         $this->assertCount(2, $setting->target_phone_numbers);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\WhatsappSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -18,6 +19,18 @@ class FonnteService
         $this->targetGroup = config('services.fonnte.target_group');
         $this->url         = config('services.fonnte.url', 'https://api.fonnte.com/send');
         $this->countryCode = config('services.fonnte.country_code', '62');
+
+        // Fallback ke token di database jika belum terbaca dari config
+        if (empty($this->token)) {
+            try {
+                $setting = WhatsappSetting::first();
+                if ($setting && ! empty($setting->fonnte_token)) {
+                    $this->token = trim($setting->fonnte_token);
+                }
+            } catch (\Throwable $e) {
+                // Ignore during early boot/migration
+            }
+        }
     }
 
     /**
@@ -25,7 +38,25 @@ class FonnteService
      */
     public function isConfigured(): bool
     {
-        return ! empty($this->token) && ! empty($this->targetGroup);
+        $token = $this->getToken();
+        return ! empty($token);
+    }
+
+    /**
+     * Mengambil token aktif
+     */
+    public function getToken(): ?string
+    {
+        if (! empty($this->token)) {
+            return $this->token;
+        }
+
+        try {
+            $setting = WhatsappSetting::getSetting();
+            return $setting->getFonnteToken();
+        } catch (\Throwable $e) {
+            return config('services.fonnte.token');
+        }
     }
 
     /**
@@ -46,9 +77,10 @@ class FonnteService
     public function sendMessage(?string $target, string $message): array
     {
         $target = $target ?: $this->targetGroup;
+        $activeToken = $this->getToken();
 
-        if (empty($this->token)) {
-            $errorMsg = 'Fonnte token belum dikonfigurasi di file .env (FONNTE_TOKEN).';
+        if (empty($activeToken)) {
+            $errorMsg = 'Fonnte token belum dikonfigurasi di pengaturan aplikasi atau .env (FONNTE_TOKEN).';
             Log::warning('[FonnteService] ' . $errorMsg);
             return [
                 'success'  => false,
@@ -59,7 +91,7 @@ class FonnteService
         }
 
         if (empty($target)) {
-            $errorMsg = 'Target nomor atau ID grup WhatsApp belum ditentukan (FONNTE_TARGET_GROUP).';
+            $errorMsg = 'Target nomor atau grup WhatsApp tujuan tidak boleh kosong.';
             Log::warning('[FonnteService] ' . $errorMsg);
             return [
                 'success'  => false,
@@ -70,59 +102,58 @@ class FonnteService
         }
 
         try {
-            $payload = [
+            // Fonnte API documentation:
+            // POST https://api.fonnte.com/send
+            // Header: Authorization: $token
+            // Body: target, message, countryCode
+            $response = Http::withHeaders([
+                'Authorization' => $activeToken,
+            ])->timeout(20)->post($this->url, [
                 'target'      => $target,
                 'message'     => $message,
                 'countryCode' => $this->countryCode,
-            ];
+            ]);
 
-            $response = Http::timeout(20)
-                ->withHeaders([
-                    'Authorization' => $this->token,
-                ])
-                ->asForm()
-                ->post($this->url, $payload);
+            $json = $response->json();
 
-            $result = $response->json();
-
-            // Fonnte mengembalikan status: true atau false dalam payload json
-            $isSuccess = $response->successful() && isset($result['status']) && $result['status'] === true;
-
-            if ($isSuccess) {
-                Log::info('[FonnteService] Pesan WhatsApp berhasil dikirim ke: ' . $target, [
-                    'response' => $result,
+            if ($response->successful() && ! empty($json['status'])) {
+                Log::info("[FonnteService] Pesan WhatsApp berhasil dikirim ke: {$target}", [
+                    'target'   => $target,
+                    'response' => $json,
                 ]);
 
                 return [
                     'success'  => true,
-                    'message'  => 'Pesan WhatsApp berhasil dikirim ke ' . $target,
-                    'response' => $result,
+                    'message'  => 'Pesan berhasil dikirim via Fonnte.',
+                    'response' => $json,
                     'error'    => null,
                 ];
             }
 
-            $reason = $result['reason'] ?? $result['message'] ?? 'Respon Fonnte gagal atau status false.';
-            Log::error('[FonnteService] Gagal mengirim pesan ke ' . $target . ': ' . $reason, [
-                'http_status' => $response->status(),
-                'response'    => $result,
+            // Gagal dari sisi API Fonnte (misal: token expired, invalid target, kuota habis)
+            $reason = $json['reason'] ?? $json['detail'] ?? ($response->body() ?: 'Gagal merespons dari Fonnte.');
+            Log::error("[FonnteService] API Fonnte merespons error saat mengirim ke: {$target}", [
+                'target'   => $target,
+                'reason'   => $reason,
+                'response' => $json,
             ]);
 
             return [
                 'success'  => false,
                 'message'  => 'Gagal mengirim pesan: ' . $reason,
-                'response' => $result,
-                'error'    => 'API_ERROR',
+                'response' => $json,
+                'error'    => $reason,
             ];
         } catch (\Throwable $e) {
-            Log::error('[FonnteService] Exception saat menghubungi Fonnte: ' . $e->getMessage(), [
-                'exception' => $e,
+            Log::error("[FonnteService] Exception saat mengirim pesan ke: {$target}. Error: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [
                 'success'  => false,
-                'message'  => 'Terjadi kesalahan koneksi ke Fonnte: ' . $e->getMessage(),
+                'message'  => 'Terjadi kesalahan jaringan/server: ' . $e->getMessage(),
                 'response' => null,
-                'error'    => 'CONNECTION_EXCEPTION',
+                'error'    => $e->getMessage(),
             ];
         }
     }

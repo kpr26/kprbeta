@@ -64,7 +64,7 @@
                     @else
                         <span style="color: #ef4444; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
                             <span style="width:8px; height:8px; border-radius:50%; background:#ef4444;"></span>
-                            FONNTE_TOKEN Kosong di .env
+                            Token Belum Terhubung
                         </span>
                     @endif
                 </div>
@@ -88,6 +88,47 @@
         <form method="POST" action="{{ route('admin.whatsapp.update') }}" id="waSettingsForm" style="display: flex; flex-direction: column; gap: 20px; margin: 0;">
             @csrf
             @method('PUT')
+
+            {{-- CARD 0: Kredensial API Gateway Fonnte (Bisa Diisi / Diedit Langsung) --}}
+            <div class="panel" style="padding: 22px; border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.1rem;">🔑</span>
+                        <div>
+                            <h3 style="font-size: 1.05rem; font-weight: 700; margin: 0; color: var(--text-primary);">
+                                Token API Gateway Fonnte
+                            </h3>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">
+                                Kredensial otorisasi akun Fonnte untuk mengirimkan pesan WhatsApp
+                            </span>
+                        </div>
+                    </div>
+                    @if($isFonnteConfigured)
+                        <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.35); font-weight: 700; font-size: 0.75rem; padding: 4px 10px;">
+                            🟢 Token Terhubung
+                        </span>
+                    @else
+                        <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 700; font-size: 0.75rem; padding: 4px 10px;">
+                            🔴 Token Belum Diisi
+                        </span>
+                    @endif
+                </div>
+
+                <div>
+                    <label for="fonnte_token" style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">
+                        Fonnte Account Token:
+                    </label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="fonnte_token" name="fonnte_token" value="{{ old('fonnte_token', $setting->getFonnteToken()) }}" placeholder="Masukkan Token Fonnte (contoh: 7vPVyswvCqqpoUqiPMa2)" class="input" style="width: 100%; font-size: 0.9rem; font-family: monospace; padding-right: 44px;" required>
+                        <button type="button" onclick="toggleTokenVisibility()" style="position: absolute; right: 8px; background: transparent; border: none; cursor: pointer; color: var(--text-muted); padding: 4px 8px; font-size: 0.85rem;" title="Lihat/Sembunyikan Token">
+                            👁️
+                        </button>
+                    </div>
+                    <small style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 6px;">
+                        Token dapat disalin dari menu <b>Device &gt; Edit / Token</b> di akun <a href="https://fonnte.com" target="_blank" style="color: #38bdf8; text-decoration: underline;">fonnte.com</a>. Token ini tersimpan aman di database aplikasi.
+                    </small>
+                </div>
+            </div>
 
             {{-- CARD 1: Jadwal & Waktu Kirim --}}
             <div class="panel" style="padding: 22px; border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--border);">
@@ -488,6 +529,12 @@
 <script>
 let groupRowCounter = {{ count($groupsList ?? []) }};
 let phoneRowCounter = {{ count($phoneNumbers ?? []) }};
+
+function toggleTokenVisibility() {
+    const input = document.getElementById('fonnte_token');
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
 
 /* ── MULTI-GROUP JAVASCRIPT HELPERS ── */
 function addGroupRow() {

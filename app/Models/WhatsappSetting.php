@@ -13,6 +13,7 @@ class WhatsappSetting extends Model
     protected $table = 'whatsapp_notification_settings';
 
     protected $fillable = [
+        'fonnte_token',
         'target_group_id',
         'target_group_name',
         'target_groups',
@@ -43,9 +44,12 @@ class WhatsappSetting extends Model
     {
         $setting = static::first();
 
+        $defaultToken = config('services.fonnte.token', '7vPVyswvCqqpoUqiPMa2');
+        $defaultGroupId = config('services.fonnte.target_group');
+
         if (! $setting) {
-            $defaultGroupId = config('services.fonnte.target_group');
             $setting = static::create([
+                'fonnte_token'         => $defaultToken,
                 'target_group_id'      => $defaultGroupId,
                 'target_group_name'    => 'Grup Utama WhatsApp KPR',
                 'target_groups'        => $defaultGroupId ? [
@@ -61,19 +65,46 @@ class WhatsappSetting extends Model
                 'success_template'     => "Seluruh parameter logsheet hari ini telah berhasil dicatat oleh tim on-duty.",
                 'footer_template'      => "_Notifikasi harian otomatis via Fonnte Gateway_",
             ]);
-        } elseif (empty($setting->target_groups) && ! empty($setting->target_group_id)) {
+        } else {
+            $needsSave = false;
+
+            // Inisialisasi token dari .env atau default jika masih kosong di database
+            if (empty($setting->fonnte_token) && ! empty($defaultToken)) {
+                $setting->fonnte_token = $defaultToken;
+                $needsSave = true;
+            }
+
             // Migrasi otomatis data grup lama ke format multi-grup
-            $setting->target_groups = [
-                [
-                    'id'        => $setting->target_group_id,
-                    'name'      => $setting->target_group_name ?: 'Grup WhatsApp KPR',
-                    'is_active' => true,
-                ]
-            ];
-            $setting->saveQuietly();
+            if (empty($setting->target_groups) && ! empty($setting->target_group_id)) {
+                $setting->target_groups = [
+                    [
+                        'id'        => $setting->target_group_id,
+                        'name'      => $setting->target_group_name ?: 'Grup WhatsApp KPR',
+                        'is_active' => true,
+                    ]
+                ];
+                $needsSave = true;
+            }
+
+            if ($needsSave) {
+                $setting->saveQuietly();
+            }
         }
 
         return $setting;
+    }
+
+    /**
+     * Mengambil Token Fonnte aktif (dari database atau fallback ke .env)
+     */
+    public function getFonnteToken(): ?string
+    {
+        if (! empty($this->fonnte_token)) {
+            return trim($this->fonnte_token);
+        }
+
+        $envToken = config('services.fonnte.token');
+        return ! empty($envToken) ? trim($envToken) : null;
     }
 
     /**

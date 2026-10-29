@@ -19,7 +19,7 @@ class WhatsappSettingController extends Controller
         abort_unless($user && $user->isSuperAdmin(), 403, 'Akses ditolak. Fitur ini khusus Role Super Admin.');
 
         $setting = WhatsappSetting::getSetting();
-        $fonnteToken = config('services.fonnte.token');
+        $fonnteToken = $setting->getFonnteToken();
         $isFonnteConfigured = ! empty($fonnteToken);
 
         $todayDate = today()->toDateString();
@@ -30,6 +30,7 @@ class WhatsappSettingController extends Controller
             'user',
             'setting',
             'isFonnteConfigured',
+            'fonnteToken',
             'messagePreview',
             'summaryData',
             'todayDate'
@@ -45,6 +46,7 @@ class WhatsappSettingController extends Controller
         abort_unless($user && $user->isSuperAdmin(), 403, 'Akses ditolak. Fitur ini khusus Role Super Admin.');
 
         $request->validate([
+            'fonnte_token'             => 'nullable|string|max:150',
             'scheduled_time'           => ['required', 'regex:/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/'],
             'header_template'          => 'nullable|string|max:2000',
             'reminder_template'        => 'nullable|string|max:1000',
@@ -124,8 +126,10 @@ class WhatsappSettingController extends Controller
         }
 
         $primaryGroup = $cleanGroups[0] ?? null;
+        $submittedToken = trim($request->input('fonnte_token', ''));
 
         $setting->update([
+            'fonnte_token'         => ! empty($submittedToken) ? $submittedToken : $setting->fonnte_token,
             'target_group_id'      => $primaryGroup ? $primaryGroup['id'] : null,
             'target_group_name'    => $primaryGroup ? $primaryGroup['name'] : null,
             'target_groups'        => $cleanGroups,
@@ -178,15 +182,17 @@ class WhatsappSettingController extends Controller
         $user = Auth::user();
         abort_unless($user && $user->isSuperAdmin(), 403, 'Akses ditolak.');
 
-        if (empty(config('services.fonnte.token'))) {
-            return back()->with('error', 'Gagal: FONNTE_TOKEN belum dikonfigurasi di file .env.');
+        $setting = WhatsappSetting::getSetting();
+        $activeToken = $setting->getFonnteToken();
+
+        if (empty($activeToken)) {
+            return back()->with('error', 'Gagal: Token API Fonnte belum diisi. Masukkan token di formulir pengaturan terlebih dahulu.');
         }
 
         $date = $request->input('date', today()->toDateString());
         $customTarget = trim($request->input('custom_target', ''));
         $sendMode = $request->input('send_mode', 'all'); // 'all', 'group_only', 'numbers_only', 'custom'
 
-        $setting = WhatsappSetting::getSetting();
         $message = $summaryService->formatWhatsAppMessage($date);
 
         $targets = [];
