@@ -442,6 +442,10 @@
             // Jika gagal karena koneksi tiba-tiba putus / no internet, fallback ke IndexedDB!
             e.preventDefault();
 
+            if (typeof window.showKprLoading === 'function') {
+                window.showKprLoading('Mengirim data logsheet...');
+            }
+
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) {
@@ -476,6 +480,7 @@
                     return;
                 } else if (response.status === 422) {
                     // Validasi form gagal dari server
+                    if (typeof window.hideKprLoading === 'function') window.hideKprLoading();
                     const err = await response.json();
                     alert(err.message || 'Mohon periksa isian angka stand dan foto.');
                     if (submitBtn) {
@@ -484,6 +489,7 @@
                     }
                     return;
                 } else if (response.status === 403) {
+                    if (typeof window.hideKprLoading === 'function') window.hideKprLoading();
                     const err = await response.json();
                     alert(err.message || 'Hak akses ditolak.');
                     if (submitBtn) {
@@ -496,6 +502,7 @@
                 }
             } catch (err) {
                 console.warn('Gagal submit online, fallback ke penyimpanan offline:', err);
+                if (typeof window.hideKprLoading === 'function') window.hideKprLoading();
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
@@ -625,10 +632,12 @@
 
         try {
             await savePendingLogsheet(offlineItem);
+            if (typeof window.hideKprLoading === 'function') window.hideKprLoading();
             const customTitle = form.dataset.meterLabel || '';
             const redirectUrl = form.dataset.targetRedirect || (type.startsWith('public_area') ? '/logsheet-public-area' : '/logsheet/hub');
             showOfflineSavedModal(type, redirectUrl, customTitle);
         } catch (err) {
+            if (typeof window.hideKprLoading === 'function') window.hideKprLoading();
             console.error('Gagal menyimpan ke IndexedDB:', err);
             alert('Terjadi kesalahan saat menyimpan data di HP Anda: ' + err.message);
         }

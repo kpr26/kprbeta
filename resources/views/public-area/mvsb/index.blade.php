@@ -775,6 +775,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.mvsb.bulk.verify') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Memverifikasi data logsheet MVSB masal...');
                 bulkForm.submit();
             });
         }
@@ -794,6 +795,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.mvsb.bulk.destroy') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Menghapus data logsheet MVSB masal...');
                 bulkForm.submit();
             });
         }

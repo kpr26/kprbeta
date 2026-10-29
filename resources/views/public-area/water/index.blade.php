@@ -832,6 +832,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.water.bulk.verify') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Memverifikasi data water meter masal...');
                 bulkForm.submit();
             });
         }
@@ -851,6 +852,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.water.bulk.destroy') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Menghapus data water meter masal...');
                 bulkForm.submit();
             });
         }

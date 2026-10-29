@@ -68,7 +68,7 @@
                     <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.7rem;">.XLSX, .XLS, .CSV</span>
                 </div>
 
-                <form method="POST" action="{{ route('logsheet.bulk.air.store') }}" enctype="multipart/form-data" id="bulk-air-form">
+                <form method="POST" action="{{ route('logsheet.bulk.air.store') }}" enctype="multipart/form-data" id="bulk-air-form" data-loading-text="Mengunggah & memproses file Excel...">
                     @csrf
 
                     {{-- Dropzone Area --}}
@@ -132,7 +132,7 @@
                 </p>
 
                 {{-- Form Pilih Bulan Template --}}
-                <form method="GET" action="{{ route('logsheet.bulk.air.template') }}" style="background:rgba(9,13,21,0.6); border:1px solid rgba(200,170,110,0.25); border-radius:10px; padding:14px; margin-bottom:18px;">
+                <form method="GET" action="{{ route('logsheet.bulk.air.template') }}" data-no-loading style="background:rgba(9,13,21,0.6); border:1px solid rgba(200,170,110,0.25); border-radius:10px; padding:14px; margin-bottom:18px;">
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
                         <div style="flex:1; min-width:140px;">
                             <label style="font-size:0.75rem; color:var(--text-muted); font-weight:600; display:block; margin-bottom:4px;">Bulan</label>

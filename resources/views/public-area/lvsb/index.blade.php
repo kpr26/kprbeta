@@ -1164,6 +1164,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.lvsb.bulk.verify') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Memverifikasi data logsheet LVSB masal...');
                 bulkForm.submit();
             });
         }
@@ -1183,6 +1184,7 @@
                     bulkInputs.appendChild(input);
                 });
                 bulkForm.action = '{{ route('public-area.lvsb.bulk.destroy') }}';
+                if (typeof window.showKprLoading === 'function') window.showKprLoading('Menghapus data logsheet LVSB masal...');
                 bulkForm.submit();
             });
         }

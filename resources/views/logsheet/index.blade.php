@@ -1015,6 +1015,7 @@
                         bulkHiddenInputs.appendChild(input);
                     });
                     bulkForm.action = '{{ route('logsheet.bulk.verify') }}';
+                    if (typeof window.showKprLoading === 'function') window.showKprLoading('Memverifikasi data logsheet masal...');
                     bulkForm.submit();
                 }
             });
@@ -1045,6 +1046,7 @@
                         bulkHiddenInputs.appendChild(input);
                     });
                     bulkForm.action = '{{ route('logsheet.bulk.destroy') }}';
+                    if (typeof window.showKprLoading === 'function') window.showKprLoading('Menghapus data logsheet masal...');
                     bulkForm.submit();
                 }
             });

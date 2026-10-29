@@ -2696,4 +2696,117 @@ select.form-input option:disabled {
 .metric-kpi-card--warning{ border-color: var(--warning-border) !important; }
 .metric-kpi-card--success{ border-color: var(--success-border) !important; }
 
+/* =====================================================
+   GLOBAL MINIMALIST LOADING SPINNER & ANTI-DOUBLE-CLICK
+   ===================================================== */
+.kpr-loading-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(9, 13, 21, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0;
+  transition: opacity 0.16s ease-in-out;
+}
+
+[data-theme="light"] .kpr-loading-overlay {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.kpr-loading-overlay.is-active {
+  display: flex;
+  opacity: 1;
+}
+
+.kpr-loading-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--bg-card, #141c2c);
+  color: var(--text-primary, #f8fafc);
+  border: 1px solid rgba(212, 175, 55, 0.38);
+  border-radius: 9999px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(212, 175, 55, 0.12);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  transform: scale(0.96);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] .kpr-loading-card {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12), 0 0 12px rgba(212, 175, 55, 0.16);
+}
+
+.kpr-loading-overlay.is-active .kpr-loading-card {
+  transform: scale(1);
+}
+
+.kpr-spinner-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.kpr-loading-spinner {
+  width: 22px;
+  height: 22px;
+  animation: kprSpinnerSpin 0.75s linear infinite;
+}
+
+.kpr-spinner-track {
+  color: rgba(255, 255, 255, 0.16);
+}
+
+[data-theme="light"] .kpr-spinner-track {
+  color: rgba(15, 23, 42, 0.15);
+}
+
+.kpr-spinner-head {
+  color: #fbbf24;
+}
+
+[data-theme="light"] .kpr-spinner-head {
+  color: #d97706;
+}
+
+@keyframes kprSpinnerSpin {
+  to { transform: rotate(360deg); }
+}
+
+.kpr-loading-text {
+  white-space: nowrap;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.btn.is-submitting,
+button.is-submitting,
+input[type="submit"].is-submitting {
+  opacity: 0.65 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+
 

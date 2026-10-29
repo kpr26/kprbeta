@@ -49,10 +49,121 @@
         })();
     </script>
 
+    <style>
+        /* Minimalist Global Loading Spinner & Anti-Double-Click Styles (Inline Fallback) */
+        .kpr-loading-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            width: 100dvw;
+            height: 100vh;
+            height: 100dvh;
+            background: rgba(9, 13, 21, 0.45);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            pointer-events: all;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            opacity: 0;
+            transition: opacity 0.16s ease-in-out;
+        }
+        [data-theme="light"] .kpr-loading-overlay {
+            background: rgba(15, 23, 42, 0.28);
+        }
+        .kpr-loading-overlay.is-active {
+            display: flex;
+            opacity: 1;
+        }
+        .kpr-loading-card {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: var(--bg-card, #141c2c);
+            color: var(--text-primary, #f8fafc);
+            border: 1px solid rgba(212, 175, 55, 0.38);
+            border-radius: 9999px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(212, 175, 55, 0.12);
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.015em;
+            transform: scale(0.96);
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        [data-theme="light"] .kpr-loading-card {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12), 0 0 12px rgba(212, 175, 55, 0.16);
+        }
+        .kpr-loading-overlay.is-active .kpr-loading-card {
+            transform: scale(1);
+        }
+        .kpr-spinner-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+        .kpr-loading-spinner {
+            width: 22px;
+            height: 22px;
+            animation: kprSpinnerSpin 0.75s linear infinite;
+        }
+        .kpr-spinner-track {
+            color: rgba(255, 255, 255, 0.16);
+        }
+        [data-theme="light"] .kpr-spinner-track {
+            color: rgba(15, 23, 42, 0.15);
+        }
+        .kpr-spinner-head {
+            color: #fbbf24;
+        }
+        [data-theme="light"] .kpr-spinner-head {
+            color: #d97706;
+        }
+        @keyframes kprSpinnerSpin {
+            to { transform: rotate(360deg); }
+        }
+        .kpr-loading-text {
+            white-space: nowrap;
+            font-size: 0.86rem;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .btn.is-submitting,
+        button.is-submitting,
+        input[type="submit"].is-submitting {
+            opacity: 0.65 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+        }
+    </style>
+
     @stack('styles')
 </head>
 <body>
     @yield('content')
+
+    <!-- Global Minimalist Loading Spinner & Anti-Double-Click Overlay -->
+    <div id="kprGlobalLoading" class="kpr-loading-overlay" aria-hidden="true" role="status" aria-live="polite">
+        <div class="kpr-loading-card">
+            <div class="kpr-spinner-wrap">
+                <svg class="kpr-loading-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2.75" class="kpr-spinner-track"></circle>
+                    <path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" class="kpr-spinner-head"></path>
+                </svg>
+            </div>
+            <span id="kprLoadingText" class="kpr-loading-text">Memproses data...</span>
+        </div>
+    </div>
 
     <!-- PWA Service Worker Registration -->
     <script>
@@ -100,6 +211,114 @@
                 });
             });
         });
+
+        // ── Global Anti-Double-Click & Minimalist Loading Spinner Controller ──
+        (function() {
+            const overlay = document.getElementById('kprGlobalLoading');
+            const textEl  = document.getElementById('kprLoadingText');
+            let safetyTimer = null;
+            let isSubmitting = false;
+
+            window.showKprLoading = function(message = 'Memproses data... Mohon tunggu') {
+                if (!overlay) return;
+                if (textEl && message) textEl.textContent = message;
+                overlay.classList.add('is-active');
+                overlay.setAttribute('aria-hidden', 'false');
+                isSubmitting = true;
+
+                // Safety timeout fallback (15 detik jika tidak ada perpindahan halaman)
+                clearTimeout(safetyTimer);
+                safetyTimer = setTimeout(() => {
+                    window.hideKprLoading();
+                }, 15000);
+            };
+
+            window.hideKprLoading = function() {
+                if (!overlay) return;
+                overlay.classList.remove('is-active');
+                overlay.setAttribute('aria-hidden', 'true');
+                isSubmitting = false;
+                clearTimeout(safetyTimer);
+
+                document.querySelectorAll('.is-submitting').forEach(el => {
+                    el.classList.remove('is-submitting');
+                    if (el.tagName === 'BUTTON' || el.tagName === 'INPUT') el.disabled = false;
+                });
+                document.querySelectorAll('form[data-submitting="true"]').forEach(form => {
+                    delete form.dataset.submitting;
+                });
+            };
+
+            // Intercept klik ganda pada tombol submit dalam fase capture
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('button[type="submit"], input[type="submit"], .btn-prevent-double');
+                if (!btn) return;
+
+                if (isSubmitting || btn.classList.contains('is-submitting')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+            }, true);
+
+            // Global Form Submit Handler (Bubbling: dijalankan setelah confirm/inline validation lolos)
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (!form || form.tagName !== 'FORM') return;
+
+                // Jika event dibatalkan (misal klik "Batal" pada window.confirm)
+                if (e.defaultPrevented) return;
+
+                // Abaikan form yang membuka di tab baru (misal cetak PDF target="_blank")
+                if (form.target === '_blank') return;
+
+                // Abaikan form opt-out
+                if (form.hasAttribute('data-no-loading')) return;
+
+                // Cek validasi HTML5 form
+                if (form.checkValidity && !form.checkValidity()) return;
+
+                // Cegah double submit
+                if (isSubmitting || form.dataset.submitting === 'true') {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+                form.dataset.submitting = 'true';
+
+                const customMsg = form.getAttribute('data-loading-text') || 'Menyimpan data... Mohon tunggu';
+                window.showKprLoading(customMsg);
+
+                // Nonaktifkan tombol submit
+                const submitBtns = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+                submitBtns.forEach(btn => {
+                    btn.classList.add('is-submitting');
+                    btn.disabled = true;
+                });
+            }, false);
+
+            // Hook pemanggilan programmatic form.submit() (seperti pada bulk action)
+            const nativeFormSubmit = HTMLFormElement.prototype.submit;
+            HTMLFormElement.prototype.submit = function() {
+                if (!this.hasAttribute('data-no-loading') && this.target !== '_blank') {
+                    const customMsg = this.getAttribute('data-loading-text') || 'Memproses data... Mohon tunggu';
+                    if (typeof window.showKprLoading === 'function') {
+                        window.showKprLoading(customMsg);
+                    }
+                    const submitBtns = this.querySelectorAll('button[type="submit"], input[type="submit"]');
+                    submitBtns.forEach(btn => {
+                        btn.classList.add('is-submitting');
+                        btn.disabled = true;
+                    });
+                }
+                return nativeFormSubmit.apply(this, arguments);
+            };
+
+            // BFCache (Back/Forward Cache): pulihkan kondisi saat navigasi kembali
+            window.addEventListener('pageshow', function() {
+                window.hideKprLoading();
+            });
+        })();
     </script>
 
     @stack('scripts')
