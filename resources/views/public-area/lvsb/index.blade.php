@@ -151,9 +151,101 @@
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 640px) {
+
+        /* Container Layout Responsive */
+        #lvsbCardsContainer.is-grid-layout {
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+        #lvsbCardsContainer.is-slide-layout {
+            display: grid !important;
+            grid-template-columns: 1fr !important;
+            gap: 18px;
+        }
+
+        /* Desktop View (>= 1024px): 3 Kolom Seimbang Sesuai Struktur Feeder */
+        @media (min-width: 1024px) {
+            #lvsbCardsContainer.is-grid-layout {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 20px;
+            }
+
+            /* Baris 1: Incoming Trafo (1 col) + Outgoing 1.2 (2 cols) = 3 cols */
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="incoming_trafo"] {
+                grid-column: span 1;
+            }
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="outgoing_1_2"] {
+                grid-column: span 2;
+            }
+
+            /* Baris 2: Outgoing 1.1 (1 col) + Outgoing 2.1 (2 cols) = 3 cols */
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="outgoing_1_1"] {
+                grid-column: span 1;
+            }
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="outgoing_2_1"] {
+                grid-column: span 2;
+            }
+
+            /* Baris 3: Outgoing 2.2 (2 cols) + Incoming Capacitor (1 col) = 3 cols */
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="outgoing_2_2"] {
+                grid-column: span 2;
+            }
+            #lvsbCardsContainer.is-grid-layout .lvsb-subcard[data-group="incoming_capacitor"] {
+                grid-column: span 1;
+            }
+
+            /* Tata letak Feeder Berdampingan (Side-by-side) pada kartu bertingkat */
+            .lvsb-subcard[data-group="outgoing_1_2"] .lvsb-subgroups-wrap,
+            .lvsb-subcard[data-group="outgoing_2_1"] .lvsb-subgroups-wrap {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+            .lvsb-subcard[data-group="outgoing_2_2"] .lvsb-subgroups-wrap {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 12px !important;
+            }
+
+            /* Mode Slide di Layar Komputer: Feeder tetap rapi berdampingan */
+            #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_1_2"] .lvsb-subgroups-wrap,
+            #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_2_1"] .lvsb-subgroups-wrap {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                gap: 14px !important;
+            }
+            #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_2_2"] .lvsb-subgroups-wrap {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 14px !important;
+            }
+        }
+
+        /* Tablet View (768px - 1023px): 2 Kolom Responsif */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            #lvsbCardsContainer.is-grid-layout {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px;
+            }
+            .lvsb-subcard[data-group="outgoing_1_2"] .lvsb-subgroups-wrap,
+            .lvsb-subcard[data-group="outgoing_2_1"] .lvsb-subgroups-wrap,
+            .lvsb-subcard[data-group="outgoing_2_2"] .lvsb-subgroups-wrap {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+        }
+
+        /* Mobile View (< 768px): Padat & Nyaman di Layar HP */
+        @media (max-width: 767px) {
             .lvsb-subcard {
                 padding: 14px !important;
+            }
+            .lvsb-subgroups-wrap {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
             }
         }
     </style>
@@ -231,7 +323,7 @@
         </div>
 
         {{-- Container Kartu Sub-Menu LVSB --}}
-        <div id="lvsbCardsContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:18px;">
+        <div id="lvsbCardsContainer" class="is-grid-layout" style="gap:18px;">
             @php $slideIndex = 0; @endphp
             @foreach ($structure as $gKey => $group)
                 @php
@@ -240,7 +332,7 @@
                     $groupFoto   = $todayReading?->getFoto($gKey);
                 @endphp
 
-                <div class="meter-card lvsb-subcard" data-group="{{ $gKey }}" data-index="{{ $slideIndex }}" data-title="{{ $group['title'] }}" data-color="{{ $group['color'] }}" style="border:1px solid {{ $group['color'] }}44; border-top:4px solid {{ $group['color'] }}; background:var(--bg-card); padding:18px 20px; border-radius:12px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm);">
+                <div class="meter-card lvsb-subcard" data-group="{{ $gKey }}" data-index="{{ $slideIndex }}" data-title="{{ $group['title'] }}" data-color="{{ $group['color'] }}" style="border:1px solid {{ $group['color'] }}44; border-top:4px solid {{ $group['color'] }}; background:var(--bg-card); padding:18px 20px; border-radius:12px; display:flex; flex-direction:column; justify-content:flex-start; gap:12px; box-shadow:var(--shadow-sm);">
                     <div>
                         {{-- Card Header --}}
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:8px;">
@@ -320,15 +412,15 @@
                     </div>
 
                     {{-- Form Input Mandiri Khusus Sub-Menu Ini --}}
-                    <div>
-                        <form method="POST" action="{{ route('public-area.lvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-lvsb" data-offline-type="public_area_lvsb" data-meter-label="{{ $group['title'] }}" data-target-redirect="{{ route('public-area.lvsb.index') }}" style="margin-top:8px;">
+                    <div style="display:flex; flex-direction:column; flex:1;">
+                        <form method="POST" action="{{ route('public-area.lvsb.store') }}" enctype="multipart/form-data" class="form-offline-pa-lvsb" data-offline-type="public_area_lvsb" data-meter-label="{{ $group['title'] }}" data-target-redirect="{{ route('public-area.lvsb.index') }}" style="display:flex; flex-direction:column; flex:1; margin-top:2px;">
                             @csrf
                             <input type="hidden" name="tanggal" value="{{ \Carbon\Carbon::today()->toDateString() }}">
                             <input type="hidden" name="group_key" value="{{ $gKey }}">
 
                             {{-- Fields List --}}
                             @if ($group['has_subgroups'])
-                                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
+                                <div class="lvsb-subgroups-wrap" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
                                     @foreach ($group['subgroups'] as $sKey => $sub)
                                         <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
                                             <div style="font-weight:700; font-size:0.84rem; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
@@ -336,103 +428,149 @@
                                                 <span>{{ $sub['label'] }}</span>
                                             </div>
 
-                                            <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
-                                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; min-width:280px;">
-                                                    @foreach ($sub['fields'] as $fKey => $fMeta)
-                                                        @php
-                                                            $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $todayReading?->val($gKey, $sKey, $fKey));
-                                                            $prevVal = $prevReading?->val($gKey, $sKey, $fKey);
-                                                        @endphp
-                                                        <div>
-                                                            <label style="font-size:0.72rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:2px;">
-                                                                {{ $fMeta['label'] }}
-                                                            </label>
-                                                            <div class="input-unit" style="position:relative;">
-                                                                <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:52px; font-size:0.84rem; font-weight:600;">
-                                                                <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none;">
-                                                                    {{ $fMeta['unit'] }}
-                                                                </span>
-                                                            </div>
-                                                            @if($prevVal !== null)
-                                                                <div style="font-size:0.67rem; color:var(--text-muted); margin-top:2px;">
-                                                                    Prev: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
-                                                                </div>
-                                                            @endif
+                                            <div class="lvsb-subgroup-fields-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                                                @foreach ($sub['fields'] as $fKey => $fMeta)
+                                                    @php
+                                                        $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $todayReading?->val($gKey, $sKey, $fKey));
+                                                        $prevVal = $prevReading?->val($gKey, $sKey, $fKey);
+                                                        $isEnergy = ($fKey === 'energy');
+                                                    @endphp
+                                                    <div style="{{ $isEnergy ? 'grid-column: 1 / -1;' : '' }}">
+                                                        <label style="font-size:0.72rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ $fMeta['label'] }}">
+                                                            {{ $fMeta['label'] }}
+                                                        </label>
+                                                        <div class="input-unit" style="position:relative;">
+                                                            <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $isEnergy ? '55px' : '45px' }}; font-size:0.82rem; font-weight:600;">
+                                                            <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.68rem; color:var(--text-muted); pointer-events:none;">
+                                                                {{ $fMeta['unit'] }}
+                                                            </span>
                                                         </div>
-                                                    @endforeach
-                                                </div>
+                                                        @if($prevVal !== null)
+                                                            <div style="font-size:0.66rem; color:var(--text-muted); margin-top:2px;">
+                                                                Prev: {{ $n($prevVal, $isEnergy ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
                             @else
-                                <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px;">
-                                    <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px;">
-                                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; min-width:280px;">
+                                @if($gKey === 'incoming_capacitor')
+                                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px;">
+                                        <div style="margin-bottom:12px;">
+                                            <label style="font-size:0.75rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:4px;">
+                                                Power Factor (PF / Cos φ) Kapasitor Bank
+                                            </label>
+                                            <div class="input-unit" style="position:relative;">
+                                                <input type="number" step="0.01" min="0" max="1" inputmode="decimal" name="readings[incoming_capacitor][power_factor]" class="input" value="{{ old('readings.incoming_capacitor.power_factor', $todayReading?->val('incoming_capacitor', 'power_factor')) }}" placeholder="0.98" style="width:100%; padding-right:55px; font-size:0.95rem; font-weight:700; color:#fbbf24;">
+                                                <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted); pointer-events:none;">
+                                                    PF
+                                                </span>
+                                            </div>
+                                            @if($prevReading?->val('incoming_capacitor', 'power_factor') !== null)
+                                                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:3px;">
+                                                    Sebelumnya: <strong style="color:var(--text-primary);">{{ $n($prevReading->val('incoming_capacitor', 'power_factor'), 2) }}</strong> ({{ $prevReading->tanggal->translatedFormat('d M') }})
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Indikator & Panduan Standar PLN --}}
+                                        <div style="background:rgba(234,179,8,0.06); border:1px solid rgba(234,179,8,0.25); border-radius:6px; padding:10px; font-size:0.74rem; color:var(--text-secondary); line-height:1.45;">
+                                            <div style="font-weight:700; color:#facc15; margin-bottom:4px; display:flex; align-items:center; gap:5px;">
+                                                <span>ℹ️</span> Standar Efisiensi Daya PLN:
+                                            </div>
+                                            <div style="display:flex; flex-direction:column; gap:3px;">
+                                                <div style="display:flex; justify-content:space-between;">
+                                                    <span>&bull; Target Ideal:</span>
+                                                    <span style="color:#10b981; font-weight:600;">0.95 — 1.00</span>
+                                                </div>
+                                                <div style="display:flex; justify-content:space-between;">
+                                                    <span>&bull; Batas Minimum PLN:</span>
+                                                    <span style="color:#38bdf8; font-weight:600;">&ge; 0.85 (Bebas Denda)</span>
+                                                </div>
+                                                <div style="display:flex; justify-content:space-between;">
+                                                    <span>&bull; Kena Denda kVARh:</span>
+                                                    <span style="color:#f43f5e; font-weight:600;">&lt; 0.85 (Kompensasi Kurang)</span>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(234,179,8,0.2); font-size:0.7rem; color:var(--text-muted);">
+                                                *Kapasitor bank otomatis menjaga Cos &phi; agar trafo bekerja efisien dan terhindar dari penalti PLN.
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:12px;">
+                                        <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">
                                             @foreach ($group['fields'] as $fKey => $fMeta)
                                                 @php
                                                     $val = old("readings.{$gKey}.{$fKey}", $todayReading?->val($gKey, $fKey));
                                                     $prevVal = $prevReading?->val($gKey, $fKey);
+                                                    $isEnergy = ($fKey === 'energy');
                                                 @endphp
-                                                <div>
+                                                <div style="{{ $isEnergy ? 'grid-column: 1 / -1;' : '' }}">
                                                     <label style="font-size:0.74rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">
                                                         {{ $fMeta['label'] }}
                                                     </label>
                                                     <div class="input-unit" style="position:relative;">
-                                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:55px; font-size:0.86rem; font-weight:600;">
+                                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $isEnergy ? '65px' : '52px' }}; font-size:0.86rem; font-weight:600;">
                                                         <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.74rem; color:var(--text-muted); pointer-events:none;">
                                                             {{ $fMeta['unit'] }}
                                                         </span>
                                                     </div>
                                                     @if($prevVal !== null)
                                                         <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
-                                                            Sebelumnya: {{ $n($prevVal, $fKey === 'energy' ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
+                                                            Sebelumnya: {{ $n($prevVal, $isEnergy ? 8 : ($fMeta['step'] === '0.1' ? 1 : 2)) }}
                                                         </div>
                                                     @endif
                                                 </div>
                                             @endforeach
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
 
-                            {{-- Lampiran Foto Mandiri Sub-Menu --}}
-                            <div class="photo-upload-group" style="margin-bottom:10px;">
-                                <label style="font-size:0.74rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">
-                                    Lampiran Foto Panel {{ $group['badge'] }} <span style="font-size:0.68rem; font-weight:normal; color:var(--text-muted);">{{ $groupFoto ? '(Ganti foto opsional)' : '(Opsional)' }}</span>
-                                </label>
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                                    <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--info);"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
-                                        <span>🖼️ Galeri</span>
-                                        <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;">
+                            {{-- Footer Kartu: Foto, Catatan & Tombol Simpan (Selalu Rapi di Bagian Bawah) --}}
+                            <div class="lvsb-card-footer" style="margin-top:auto; padding-top:10px; display:flex; flex-direction:column; gap:10px;">
+                                {{-- Lampiran Foto Mandiri Sub-Menu --}}
+                                <div class="photo-upload-group">
+                                    <label style="font-size:0.74rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">
+                                        Lampiran Foto Panel {{ $group['badge'] }} <span style="font-size:0.68rem; font-weight:normal; color:var(--text-muted);">{{ $groupFoto ? '(Ganti foto opsional)' : '(Opsional)' }}</span>
                                     </label>
-                                    <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
-                                        <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--warning);"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
-                                        <span>📷 Kamera</span>
-                                        <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
-                                    </label>
-                                </div>
-                                <div class="photo-preview-wrap" style="display:none; margin-top:8px; align-items:center; gap:10px; background:var(--bg-card-subtle); padding:6px 10px; border-radius:8px; border:1px solid var(--border);">
-                                    <img class="img-preview" src="" alt="Thumb" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
-                                    <div style="flex:1; overflow:hidden;">
-                                        <div class="photo-preview-name" style="font-size:0.74rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
-                                        <div style="font-size:0.68rem; color:var(--success);">✓ Foto siap diunggah</div>
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                        <label class="btn-pick-gallery" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--info);"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                                            <span>🖼️ Galeri</span>
+                                            <input type="file" name="foto" accept="image/*" class="input-file-main" style="display:none;">
+                                        </label>
+                                        <label class="btn-pick-camera" style="display:flex; align-items:center; justify-content:center; gap:6px; background:var(--bg-card-subtle); border:1px solid var(--border); padding:7px 10px; border-radius:8px; cursor:pointer; font-size:0.76rem; color:var(--text-secondary); transition:all 0.2s;">
+                                            <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;color:var(--warning);"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg>
+                                            <span>📷 Kamera</span>
+                                            <input type="file" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
+                                        </label>
                                     </div>
-                                    <button type="button" class="btn-clear-photo" style="background:none; border:none; color:var(--danger); font-size:1rem; cursor:pointer;" title="Batalkan foto">✕</button>
+                                    <div class="photo-preview-wrap" style="display:none; margin-top:8px; align-items:center; gap:10px; background:var(--bg-card-subtle); padding:6px 10px; border-radius:8px; border:1px solid var(--border);">
+                                        <img class="img-preview" src="" alt="Thumb" style="width:36px; height:36px; object-fit:cover; border-radius:6px; border:1px solid var(--border);">
+                                        <div style="flex:1; overflow:hidden;">
+                                            <div class="photo-preview-name" style="font-size:0.74rem; color:var(--text-primary); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                                            <div style="font-size:0.68rem; color:var(--success);">✓ Foto siap diunggah</div>
+                                        </div>
+                                        <button type="button" class="btn-clear-photo" style="background:none; border:none; color:var(--danger); font-size:1rem; cursor:pointer;" title="Batalkan foto">✕</button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {{-- Catatan Opsional --}}
-                            <div style="margin-bottom:10px;">
-                                <input type="text" name="catatan" class="input" placeholder="Catatan kondisi {{ $group['badge'] }} (opsional)..." value="{{ old('catatan', $todayReading?->catatan) }}" style="font-size:0.78rem; padding:6px 10px; width:100%;">
-                            </div>
+                                {{-- Catatan Opsional --}}
+                                <div>
+                                    <input type="text" name="catatan" class="input" placeholder="Catatan kondisi {{ $group['badge'] }} (opsional)..." value="{{ old('catatan', $todayReading?->catatan) }}" style="font-size:0.78rem; padding:6px 10px; width:100%;">
+                                </div>
 
-                            {{-- TOMBOL SIMPAN KHUSUS SUB-MENU INI --}}
-                            <button type="submit" class="btn btn-sm btn-primary" style="width:100%; justify-content:center; background:linear-gradient(135deg, {{ $group['color'] }}, #d97706); border:none; color:#090d15; font-weight:700; padding:10px 16px; font-size:0.86rem; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:8px;">
-                                <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
-                                <span>Simpan {{ $group['title'] }}</span>
-                            </button>
+                                {{-- TOMBOL SIMPAN KHUSUS SUB-MENU INI --}}
+                                <button type="submit" class="btn btn-sm btn-primary" style="width:100%; justify-content:center; background:linear-gradient(135deg, {{ $group['color'] }}, #d97706); border:none; color:#090d15; font-weight:700; padding:10px 16px; font-size:0.86rem; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:8px;">
+                                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
+                                    <span>Simpan {{ $group['title'] }}</span>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -745,7 +883,9 @@
                 btnModeGrid?.classList.remove('active');
                 if (slideNavHeader) slideNavHeader.style.display = 'flex';
                 if (container) {
-                    container.style.gridTemplateColumns = '1fr';
+                    container.classList.remove('is-grid-layout');
+                    container.classList.add('is-slide-layout');
+                    container.style.gridTemplateColumns = '';
                 }
 
                 cards.forEach(card => {
@@ -775,12 +915,14 @@
                     }
                 });
             } else {
-                // Mode Grid: Tampilkan semua kartu berjejer responsif seperti water meter
+                // Mode Grid: Tampilkan semua kartu berjejer responsif
                 btnModeSlide?.classList.remove('active');
                 btnModeGrid?.classList.add('active');
                 if (slideNavHeader) slideNavHeader.style.display = 'none';
                 if (container) {
-                    container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(340px, 1fr))';
+                    container.classList.remove('is-slide-layout');
+                    container.classList.add('is-grid-layout');
+                    container.style.gridTemplateColumns = '';
                 }
 
                 cards.forEach(card => {

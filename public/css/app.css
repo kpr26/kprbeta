@@ -1128,12 +1128,15 @@ body {
 .user-avatar-btn {
   background: none;
   border: none;
-  padding: 2px;
+  padding: 4px;
+  min-height: 44px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 5px;
   border-radius: 40px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: all var(--transition);
 }
 
@@ -2240,7 +2243,7 @@ select.form-input option:disabled {
     -webkit-backdrop-filter: blur(20px);
     position: sticky;
     top: 0;
-    z-index: 99;
+    z-index: 999;
   }
   .mobile-topbar-brand {
     display: flex;
@@ -2254,9 +2257,13 @@ select.form-input option:disabled {
     background: none;
     border: none;
     color: var(--text-primary);
-    padding: 6px;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 8px;
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     transition: all var(--transition);
   }
   .mobile-sidebar-toggle:hover {

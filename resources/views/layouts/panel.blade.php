@@ -26,7 +26,7 @@
     <!-- Mobile Topbar for HP & PWA -->
     <header class="mobile-topbar">
         <div class="mobile-topbar-brand">
-            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle" aria-label="Buka Menu Navigasi" title="Menu Navigasi">
+            <button type="button" class="mobile-sidebar-toggle" id="mobileSidebarToggle" onclick="window.openMobileSidebar ? window.openMobileSidebar() : null" aria-label="Buka Menu Navigasi" title="Menu Navigasi">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -67,7 +67,7 @@
 
             <!-- User Avatar with Dropdown (Posisi Kanan Atas) -->
             <div class="user-dropdown-container">
-                <button type="button" class="user-avatar-btn" id="mobileUserBtn" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
+                <button type="button" class="user-avatar-btn" id="mobileUserBtn" onclick="window.toggleMobileUserMenu ? window.toggleMobileUserMenu(event) : null" aria-expanded="false" aria-haspopup="true" title="Menu Akun">
                     <div class="user-avatar-img">
                         @if($authUser->avatar_url)
                             <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}">
@@ -163,7 +163,7 @@
     </header>
 
     <!-- Sidebar Backdrop for Mobile Drawer -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="window.closeMobileSidebar ? window.closeMobileSidebar() : null" aria-hidden="true"></div>
 
     <!-- Sidebar Desktop & Mobile Off-Canvas -->
     <aside class="sidebar" id="mainSidebar">
@@ -180,7 +180,7 @@
                     <div style="font-size:0.7rem; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap; text-overflow:ellipsis;">Role {{ $currentRoleLabel }}</div>
                 </div>
             </div>
-            <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu">
+            <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" onclick="window.closeMobileSidebar ? window.closeMobileSidebar() : null" aria-label="Tutup Menu">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>
                 </svg>
@@ -604,6 +604,7 @@
 
 @push('scripts')
 <script>
+(function() {
     const flash = document.querySelector('.alert');
     if (flash) setTimeout(() => { flash.style.opacity = '0'; flash.style.transform = 'translateY(-10px)'; setTimeout(() => flash.remove(), 400); }, 4000);
 
@@ -620,6 +621,7 @@
             lb.hidden = true;
         }
     });
+
     // User Dropdown (Mobile & Desktop)
     function setupUserDropdown(triggerId, menuId) {
         const trigger = document.getElementById(triggerId);
@@ -647,6 +649,25 @@
     setupUserDropdown('mobileUserBtn', 'mobileUserMenu');
     setupUserDropdown('desktopUserBtn', 'desktopUserMenu');
 
+    // Global toggle function for inline calls or touch events
+    window.toggleMobileUserMenu = function(e) {
+        if (e) e.stopPropagation();
+        const btn = document.getElementById('mobileUserBtn');
+        if (!btn) return;
+        const container = btn.closest('.user-dropdown-container');
+        if (!container) return;
+        const wasActive = container.classList.contains('is-active');
+        document.querySelectorAll('.user-dropdown-container').forEach(c => {
+            c.classList.remove('is-active');
+            const b = c.querySelector('button');
+            if (b) b.setAttribute('aria-expanded', 'false');
+        });
+        if (!wasActive) {
+            container.classList.add('is-active');
+            btn.setAttribute('aria-expanded', 'true');
+        }
+    };
+
     // Close on outside click
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.user-dropdown-container')) {
@@ -665,20 +686,29 @@
     const mainSidebar = document.getElementById('mainSidebar');
 
     function openMobileSidebar() {
-        if (!mainSidebar) return;
-        mainSidebar.classList.add('is-mobile-open');
-        if (sidebarBackdrop) sidebarBackdrop.classList.add('is-active');
+        const sb = document.getElementById('mainSidebar');
+        const bd = document.getElementById('sidebarBackdrop');
+        const tg = document.getElementById('mobileSidebarToggle');
+        if (!sb) return;
+        sb.classList.add('is-mobile-open');
+        if (bd) bd.classList.add('is-active');
         document.body.classList.add('sidebar-open-locked');
-        if (mobileSidebarToggle) mobileSidebarToggle.setAttribute('aria-expanded', 'true');
+        if (tg) tg.setAttribute('aria-expanded', 'true');
     }
 
     function closeMobileSidebar() {
-        if (!mainSidebar) return;
-        mainSidebar.classList.remove('is-mobile-open');
-        if (sidebarBackdrop) sidebarBackdrop.classList.remove('is-active');
+        const sb = document.getElementById('mainSidebar');
+        const bd = document.getElementById('sidebarBackdrop');
+        const tg = document.getElementById('mobileSidebarToggle');
+        if (!sb) return;
+        sb.classList.remove('is-mobile-open');
+        if (bd) bd.classList.remove('is-active');
         document.body.classList.remove('sidebar-open-locked');
-        if (mobileSidebarToggle) mobileSidebarToggle.setAttribute('aria-expanded', 'false');
+        if (tg) tg.setAttribute('aria-expanded', 'false');
     }
+
+    window.openMobileSidebar = openMobileSidebar;
+    window.closeMobileSidebar = closeMobileSidebar;
 
     if (mobileSidebarToggle) mobileSidebarToggle.addEventListener('click', openMobileSidebar);
     if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
@@ -704,6 +734,7 @@
             if (typeof lb !== 'undefined' && lb) lb.hidden = true;
         }
     });
+})();
 </script>
 
 @if($isTeknisi)

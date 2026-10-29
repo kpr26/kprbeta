@@ -6,39 +6,49 @@
 
 @push('styles')
 <style>
-/* ── Ensure Profile Layout and Containers Never Overflow ── */
+/* ── Ensure Profile Layout and Containers are clean and responsive ── */
 .profile-layout {
-    display: grid !important;
-    grid-template-columns: 260px minmax(0, 1fr) !important;
-    gap: 24px !important;
-    align-items: start !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
     transition: grid-template-columns 0.3s ease;
 }
 
 .profile-layout.sidebar-collapsed {
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .profile-layout.sidebar-collapsed .profile-sidebar {
-    display: none !important;
+    display: none;
 }
 
 .profile-main {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .profile-section-card {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.profile-tab:not([hidden]) {
+    animation: profileTabFadeIn 0.22s ease-out;
+}
+@keyframes profileTabFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.profile-mobile-swipe-indicator {
+    display: none;
 }
 
 /* ── Kelola Akun Slider & Responsive Styles ── */
@@ -438,6 +448,179 @@
 }
 
 @media (max-width: 768px) {
+    .profile-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        grid-template-columns: none !important;
+    }
+
+    .profile-sidebar {
+        width: 100% !important;
+        position: static !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .profile-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 14px !important;
+        padding: 12px 16px !important;
+        text-align: left !important;
+        margin-bottom: 0 !important;
+        border-radius: var(--radius-md) !important;
+    }
+
+    .profile-avatar-wrap {
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+    }
+
+    .profile-avatar {
+        width: 52px !important;
+        height: 52px !important;
+        font-size: 1.25rem !important;
+    }
+
+    .profile-meta {
+        text-align: left !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+
+    .profile-meta-name {
+        font-size: 0.95rem !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 100% !important;
+    }
+
+    .profile-meta-role {
+        font-size: 0.76rem !important;
+        margin: 2px 0 !important;
+    }
+
+    .profile-meta-badge {
+        font-size: 0.72rem !important;
+        padding: 1px 8px !important;
+    }
+
+    /* Horizontal scrollable / swipeable pill nav */
+    .profile-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+        gap: 8px !important;
+        padding: 4px 2px 8px 2px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        scrollbar-width: none !important;
+    }
+
+    .profile-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .profile-nav-item {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 8px 14px !important;
+        border-radius: 9999px !important;
+        border: 1px solid var(--border) !important;
+        background: var(--bg-card) !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: var(--text-secondary) !important;
+        text-decoration: none !important;
+        border-left: 1px solid var(--border) !important;
+        box-shadow: var(--shadow-sm) !important;
+        transition: all 0.2s ease !important;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-nav-item svg {
+        width: 16px !important;
+        height: 16px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .profile-nav-item--active {
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+        color: var(--text-on-accent) !important;
+        border-color: var(--accent) !important;
+        border-left: 1px solid var(--accent) !important;
+        box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35) !important;
+    }
+
+    .profile-nav-item--active svg {
+        color: currentColor !important;
+    }
+
+    .profile-mobile-swipe-indicator {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        padding: 2px 0 4px 0;
+        user-select: none;
+    }
+
+    .profile-mobile-swipe-indicator svg {
+        width: 13px;
+        height: 13px;
+        color: var(--accent);
+    }
+
+    .profile-main {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+    }
+
+    .profile-section-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 18px 14px !important;
+        overflow: visible !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .profile-form-footer {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .profile-form-footer .btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
     .kelola-akun-toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -489,7 +672,7 @@
         <div class="profile-card">
             <div class="profile-avatar-wrap">
                 @if($user->avatar_url)
-                    <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="profile-avatar" style="width:72px; height:72px; border-radius:50%; object-fit:cover;">
+                    <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="profile-avatar" style="border-radius:50%; object-fit:cover;">
                 @else
                     <div class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                 @endif
@@ -537,6 +720,10 @@
             </a>
             @endif
         </nav>
+        <div class="profile-mobile-swipe-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.74a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd"/></svg>
+            <span>Geser tab &amp; layar untuk berpindah menu</span>
+        </div>
     </aside>
 
     {{-- ── Main Content ── --}}
@@ -1518,19 +1705,35 @@
 
 @push('scripts')
 <script>
+(function() {
+    'use strict';
+
 // ── Tab switching ──────────────────────────────────────
 const navItems = document.querySelectorAll('.profile-nav-item');
 const tabs     = document.querySelectorAll('.profile-tab');
+let resizeSignatureCanvasFn = null;
 
 function activateTab(target) {
+    if (!target) return;
     navItems.forEach(n => n.classList.remove('profile-nav-item--active'));
     tabs.forEach(t => t.hidden = true);
 
     const targetNav = document.querySelector(`.profile-nav-item[data-tab="${target}"]`);
     const targetTab = document.getElementById('tab-' + target);
-    if (targetNav) targetNav.classList.add('profile-nav-item--active');
-    if (targetTab) targetTab.hidden = false;
+    if (targetNav) {
+        targetNav.classList.add('profile-nav-item--active');
+        if (typeof targetNav.scrollIntoView === 'function') {
+            targetNav.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+    }
+    if (targetTab) {
+        targetTab.hidden = false;
+    }
+    if (target === 'signature' && typeof resizeSignatureCanvasFn === 'function') {
+        setTimeout(resizeSignatureCanvasFn, 60);
+    }
 }
+window.activateTab = activateTab;
 
 navItems.forEach(item => {
     item.addEventListener('click', e => {
@@ -1587,12 +1790,57 @@ if (newPwdInput) {
 }
 
 // Auto-dismiss flash
-const flash = document.querySelector('.alert');
-if (flash) setTimeout(() => {
-    flash.style.opacity = '0';
-    flash.style.transform = 'translateY(-8px)';
-    setTimeout(() => flash.remove(), 300);
+const profileAlert = document.querySelector('.profile-tab .alert') || document.querySelector('.alert');
+if (profileAlert) setTimeout(() => {
+    profileAlert.style.opacity = '0';
+    profileAlert.style.transform = 'translateY(-8px)';
+    setTimeout(() => profileAlert.remove(), 300);
 }, 4000);
+
+// ── Touch swipe navigation for profile tabs on mobile ──
+const profileMain = document.querySelector('.profile-main');
+if (profileMain) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    profileMain.addEventListener('touchstart', (e) => {
+        if (!e.touches || !e.touches[0]) return;
+        // Jangan menginterupsi interaksi canvas ttd, slider tabel user, scroll horizontal, atau input form
+        if (e.target.closest('#signatureCanvas, #kelolaAkunViewport, .user-table-wrap, input, textarea, select, button, canvas')) {
+            return;
+        }
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+    }, { passive: true });
+
+    profileMain.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        if (e.target.closest('#signatureCanvas, #kelolaAkunViewport, .user-table-wrap, input, textarea, select, button, canvas')) {
+            return;
+        }
+        const diffX = e.changedTouches[0].clientX - touchStartX;
+        const diffY = e.changedTouches[0].clientY - touchStartY;
+        const duration = Date.now() - touchStartTime;
+
+        // Swipe horizontal jika pergeseran > 45px, lebih dominan horizontal daripada vertikal, dan durasi < 600ms
+        if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.4 && duration < 600) {
+            const tabButtons = Array.from(document.querySelectorAll('.profile-nav-item[data-tab]'));
+            const tabKeys = tabButtons.map(btn => btn.dataset.tab);
+            const activeBtn = document.querySelector('.profile-nav-item--active');
+            const currentIndex = activeBtn ? tabKeys.indexOf(activeBtn.dataset.tab) : 0;
+
+            if (diffX < 0 && currentIndex < tabKeys.length - 1) {
+                // Swipe ke kiri -> tab berikutnya
+                activateTab(tabKeys[currentIndex + 1]);
+            } else if (diffX > 0 && currentIndex > 0) {
+                // Swipe ke kanan -> tab sebelumnya
+                activateTab(tabKeys[currentIndex - 1]);
+            }
+        }
+    }, { passive: true });
+}
 
 // ── Edit User Modal Handlers ───────────────────────────
 const editUserModal = document.getElementById('editUserModal');
@@ -1928,6 +2176,7 @@ if (sigCanvas) {
         ctx.lineJoin = 'round';
         ctx.strokeStyle = '#0f172a';
     }
+    resizeSignatureCanvasFn = resizeSignatureCanvas;
 
     window.addEventListener('resize', resizeSignatureCanvas);
 
@@ -2027,5 +2276,8 @@ if (sigCanvas) {
         activateTab('users');
     }
 }
+
+window.handleAvatarSelected = handleAvatarSelected;
+})();
 </script>
 @endpush
