@@ -4,6 +4,356 @@
 @section('page-title', 'Pengaturan Akun')
 @section('page-subtitle', 'Kelola informasi pribadi dan keamanan akun Anda')
 
+@push('styles')
+<style>
+/* ── Kelola Akun Slider & Responsive Styles ── */
+.kelola-akun-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.kelola-akun-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.kelola-akun-tabs {
+    display: inline-flex;
+    background: var(--bg-dark);
+    padding: 4px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    gap: 4px;
+}
+
+[data-theme="light"] .kelola-akun-tabs {
+    background: var(--bg-card-subtle);
+}
+
+.btn-slide-user-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 9999px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-slide-user-tab svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.btn-slide-user-tab:hover {
+    color: var(--text-primary);
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.btn-slide-user-tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: var(--text-on-accent);
+    box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+}
+
+.btn-slide-user-tab .user-count-badge {
+    background: rgba(0, 0, 0, 0.2);
+    color: currentColor;
+    font-size: 0.72rem;
+    padding: 1px 7px;
+    border-radius: 9999px;
+    font-weight: 700;
+}
+
+[data-theme="light"] .btn-slide-user-tab.active .user-count-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.kelola-akun-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slide-nav-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-dark);
+    padding: 4px 8px;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+}
+
+[data-theme="light"] .slide-nav-group {
+    background: var(--bg-card-subtle);
+}
+
+.btn-slide-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.btn-slide-arrow:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--bg-card-hover);
+    transform: scale(1.05);
+}
+
+.btn-slide-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.btn-slide-arrow svg {
+    width: 14px;
+    height: 14px;
+}
+
+.slide-counter-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    min-width: 44px;
+    text-align: center;
+}
+
+.btn-slide-mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-slide-mode-toggle:hover,
+.btn-slide-mode-toggle.active {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+}
+
+.btn-slide-mode-toggle svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* ── Viewport & Track ── */
+.kelola-akun-slider-viewport {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: var(--radius-lg);
+    touch-action: pan-y pinch-zoom;
+}
+
+.kelola-akun-slider-track {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+    align-items: flex-start;
+}
+
+.kelola-akun-slide-pane {
+    min-width: 100%;
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+/* Mode Stack (Tampilkan Keduanya) */
+.kelola-akun-slider-viewport.mode-stack {
+    overflow: visible;
+}
+
+.kelola-akun-slider-viewport.mode-stack .kelola-akun-slider-track {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: none !important;
+    transition: none;
+}
+
+.kelola-akun-slider-viewport.mode-stack .kelola-akun-slide-pane {
+    min-width: 100%;
+    width: 100%;
+}
+
+/* ── Header Controls inside Panes ── */
+.pane-header-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+
+.user-search-wrapper {
+    position: relative;
+    min-width: 220px;
+}
+
+.user-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 34px;
+    font-size: 0.82rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color var(--transition);
+}
+
+.user-search-input:focus {
+    border-color: var(--accent);
+}
+
+.user-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.btn-pane-action-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: var(--text-on-accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-pane-action-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-pane-action-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-pane-action-secondary:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+}
+
+.table-scroll-hint-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: rgba(200, 170, 110, 0.08);
+    border: 1px dashed rgba(200, 170, 110, 0.28);
+    border-radius: var(--radius-sm);
+    font-size: 0.76rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+
+.table-scroll-hint-bar svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .kelola-akun-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .kelola-akun-tabs {
+        width: 100%;
+        display: flex;
+    }
+    .btn-slide-user-tab {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 0.78rem;
+    }
+    .kelola-akun-controls {
+        justify-content: space-between;
+        width: 100%;
+    }
+    .pane-header-tools {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    .user-search-wrapper {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+</style>
+@endpush
+
 @section('panel')
 @php
     $user = $user ?? auth()->user();
@@ -432,22 +782,17 @@
             </div>
         </div>
 
-        {{-- Tab: Buat Akun Baru (Admin only) --}}
+        {{-- Tab: Kelola Akun (Admin only) --}}
         @if(auth()->user()->role === 'admin')
+        @php
+            $allUsers = \App\Models\User::orderBy('created_at', 'desc')->get();
+            $hasCreateError = $errors->hasAny(['new_name', 'new_username', 'new_email', 'new_role', 'new_password']);
+        @endphp
         <div class="profile-tab" id="tab-users" hidden>
 
-            {{-- Form buat akun baru --}}
-            <div class="profile-section-card">
-                <div class="profile-section-header">
-                    <div class="profile-section-icon" style="background:rgba(16,185,129,0.15);color:#34d399">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.18.295-.083.658.207.84A7.978 7.978 0 0 0 8 18c1.168 0 2.279-.25 3.279-.7a.75.75 0 0 0-.145-1.377 7.992 7.992 0 0 1-2.405.533 6.484 6.484 0 0 0 .25-.978.75.75 0 0 0-.467-.838A5.5 5.5 0 0 0 5.5 15c-.66 0-1.29.12-1.87.338a.75.75 0 0 0-.421.498 6.01 6.01 0 0 0-.163.417ZM15.5 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM13 9.5a3.986 3.986 0 0 0-1.928 3.42 6.5 6.5 0 0 1 4.428 0A3.988 3.988 0 0 0 13.5 9.5H13ZM11 13.5A5 5 0 0 1 21 13.5v.25a.75.75 0 0 1-.75.75h-8.5A.75.75 0 0 1 11 13.75v-.25Z"/></svg>
-                    </div>
-                    <div>
-                        <h2 class="profile-section-title">Buat Akun Baru</h2>
-                        <p class="profile-section-desc">Tambahkan pengguna baru ke dalam sistem.</p>
-                    </div>
-                </div>
+            <div class="kelola-akun-container">
 
+                {{-- Alert Sukses (User Creation / Update / Delete) --}}
                 @if(session('success') && session('active_tab') === 'users')
                     <div class="alert alert-success" role="alert">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
@@ -455,254 +800,356 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('profile.storeUser') }}" class="profile-form">
-                    @csrf
+                {{-- Slider Toolbar / Switcher --}}
+                <div class="kelola-akun-toolbar">
+                    <div class="kelola-akun-tabs" role="tablist">
+                        <button type="button" class="btn-slide-user-tab {{ $hasCreateError ? '' : 'active' }}" data-slide="0" id="btnSlideUsersList" role="tab" aria-selected="{{ $hasCreateError ? 'false' : 'true' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z"/></svg>
+                            <span>Daftar Pengguna</span>
+                            <span class="user-count-badge" id="userCountBadge">{{ $allUsers->count() }}</span>
+                        </button>
 
-                    <div class="form-row">
-                        <div class="form-group {{ $errors->has('new_name') ? 'has-error' : '' }}">
-                            <label class="form-label">Nama Lengkap</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z"/></svg>
-                                </span>
-                                <input type="text" name="new_name" class="form-input" value="{{ old('new_name') }}" placeholder="Nama lengkap" autocomplete="off">
-                            </div>
-                            @error('new_name')
-                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="form-group {{ $errors->has('new_username') ? 'has-error' : '' }}">
-                            <label class="form-label">Username</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7-4a1 1 0 0 0-1 1v3H4a1 1 0 0 0 0 2h3v3a1 1 0 1 0 2 0v-3h3a1 1 0 1 0 0-2H9V5a1 1 0 0 0-1-1Zm9 4a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 17 8Z" clip-rule="evenodd"/></svg>
-                                </span>
-                                <input type="text" name="new_username" class="form-input" value="{{ old('new_username') }}" placeholder="username_baru" autocomplete="off">
-                            </div>
-                            @error('new_username')
-                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group {{ $errors->has('new_email') ? 'has-error' : '' }}">
-                            <label class="form-label">Alamat Email</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.161V6a2 2 0 0 0-2-2H3Z"/><path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z"/></svg>
-                                </span>
-                                <input type="email" name="new_email" class="form-input" value="{{ old('new_email') }}" placeholder="email@contoh.com" autocomplete="off">
-                            </div>
-                            @error('new_email')
-                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="form-group {{ $errors->has('new_role') ? 'has-error' : '' }}">
-                            <label class="form-label">Role</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
-                                </span>
-                                <select name="new_role" class="form-input form-select">
-                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }}>Pilih role...</option>
-                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }}>User (Staf Operasional)</option>
-                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }}>Teknisi (Hanya Input Logsheet / HP PWA)</option>
-                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }}>Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
-                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }}>Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
-                                    <option value="gm"        {{ old('new_role') === 'gm'        ? 'selected' : '' }}>GM (General Manager - Monitoring &amp; Summary)</option>
-                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }}>Admin (Akses Penuh)</option>
-                                </select>
-                            </div>
-                            @error('new_role')
-                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group {{ $errors->has('new_password') ? 'has-error' : '' }}">
-                            <label class="form-label">Password</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>
-                                </span>
-                                <input type="password" name="new_password" id="create_password" class="form-input" placeholder="Min. 8 karakter" autocomplete="new-password">
-                                <button type="button" class="toggle-password" data-target="create_password" aria-label="Tampilkan">
-                                    <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/></svg>
-                                </button>
-                            </div>
-                            @error('new_password')
-                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Konfirmasi Password</label>
-                            <div class="input-wrapper">
-                                <span class="input-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
-                                </span>
-                                <input type="password" name="new_password_confirmation" id="create_password_confirm" class="form-input" placeholder="Ulangi password" autocomplete="new-password">
-                                <button type="button" class="toggle-password" data-target="create_password_confirm" aria-label="Tampilkan">
-                                    <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-form-footer">
-                        <button type="submit" class="btn-profile-save btn-profile-save--green">
+                        <button type="button" class="btn-slide-user-tab {{ $hasCreateError ? 'active' : '' }}" data-slide="1" id="btnSlideCreateUser" role="tab" aria-selected="{{ $hasCreateError ? 'true' : 'false' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.18.295-.083.658.207.84A7.978 7.978 0 0 0 8 18c1.168 0 2.279-.25 3.279-.7a.75.75 0 0 0-.145-1.377 7.992 7.992 0 0 1-2.405.533 6.484 6.484 0 0 0 .25-.978.75.75 0 0 0-.467-.838A5.5 5.5 0 0 0 5.5 15c-.66 0-1.29.12-1.87.338a.75.75 0 0 0-.421.498 6.01 6.01 0 0 0-.163.417ZM15.5 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM13 9.5a3.986 3.986 0 0 0-1.928 3.42 6.5 6.5 0 0 1 4.428 0A3.988 3.988 0 0 0 13.5 9.5H13ZM11 13.5A5 5 0 0 1 21 13.5v.25a.75.75 0 0 1-.75.75h-8.5A.75.75 0 0 1 11 13.75v-.25Z"/></svg>
-                            Buat Akun
+                            <span>Buat Akun Baru</span>
                         </button>
                     </div>
-                </form>
-            </div>
 
-            {{-- Daftar akun pengguna --}}
-            <div class="profile-section-card">
-                <div class="profile-section-header" style="margin-bottom:20px;padding-bottom:16px">
-                    <div class="profile-section-icon" style="background:rgba(99,102,241,0.12);color:var(--accent-light)">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z"/></svg>
-                    </div>
-                    <div>
-                        <h2 class="profile-section-title">Daftar Pengguna</h2>
-                        <p class="profile-section-desc">Semua akun terdaftar, status aktivasi, dan kontrol hak akses.</p>
+                    <div class="kelola-akun-controls">
+                        <div class="slide-nav-group">
+                            <button type="button" class="btn-slide-arrow" id="btnSlidePrev" title="Slide ke sebelumnya" aria-label="Slide sebelumnya" {{ $hasCreateError ? '' : 'disabled' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd"/></svg>
+                            </button>
+                            <span class="slide-counter-badge" id="slideCounterBadge">{{ $hasCreateError ? '2 / 2' : '1 / 2' }}</span>
+                            <button type="button" class="btn-slide-arrow" id="btnSlideNext" title="Slide ke selanjutnya" aria-label="Slide selanjutnya" {{ $hasCreateError ? 'disabled' : '' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/></svg>
+                            </button>
+                        </div>
+
+                        <button type="button" class="btn-slide-mode-toggle" id="btnToggleSlideMode" title="Alihkan mode tampilan slide atau tampilkan keduanya sekaligus">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.25A2.25 2.25 0 0 1 4.25 2h11.5A2.25 2.25 0 0 1 18 4.25v11.5A2.25 2.25 0 0 1 15.75 18H4.25A2.25 2.25 0 0 1 2 15.75V4.25Zm2.25-.75a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h11.5a.75.75 0 0 0 .75-.75v-4.5a.75.75 0 0 0-.75-.75H4.25Zm0 7.5a.75.75 0 0 0-.75.75v4c0 .414.336.75.75.75h11.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 0-.75-.75H4.25Z" clip-rule="evenodd"/></svg>
+                            <span id="slideModeLabel">Tampilkan Keduanya</span>
+                        </button>
                     </div>
                 </div>
 
-                @if($errors->has('edit_name') || $errors->has('edit_username') || $errors->has('edit_email') || $errors->has('edit_role') || $errors->has('edit_password') || $errors->has('error'))
-                    <div class="alert alert-danger" role="alert" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;margin-bottom:16px">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
-                        <span>Gagal memperbarui akun: {{ $errors->first() }}</span>
-                    </div>
-                @endif
+                {{-- Viewport & Animated Slider Track --}}
+                <div class="kelola-akun-slider-viewport" id="kelolaAkunViewport">
+                    <div class="kelola-akun-slider-track" id="kelolaAkunTrack" style="{{ $hasCreateError ? 'transform: translateX(-100%);' : 'transform: translateX(0%);' }}">
 
-                <div class="user-table-wrap">
-                    <table class="user-table">
-                        <thead>
-                            <tr>
-                                <th>Pengguna</th>
-                                <th>Username & Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Dibuat</th>
-                                <th style="text-align: right;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse(\App\Models\User::orderBy('created_at','desc')->get() as $u)
-                            <tr class="{{ $u->id === auth()->id() ? 'user-table__row--self' : '' }} {{ ! $u->is_active ? 'user-table__row--inactive' : '' }}">
-                                <td>
-                                    <div class="user-table-name">
-                                        <div class="user-table-avatar {{ ! $u->is_active ? 'user-table-avatar--inactive' : '' }}">
-                                            {{ strtoupper(substr($u->name,0,1)) }}
+                        {{-- Pane 1: Daftar Akun Pengguna (Default Fokus Utama) --}}
+                        <div class="kelola-akun-slide-pane" id="paneUsersList">
+                            <div class="profile-section-card">
+                                <div class="profile-section-header" style="flex-wrap:wrap; gap:16px;">
+                                    <div style="display:flex; align-items:center; gap:16px;">
+                                        <div class="profile-section-icon" style="background:rgba(99,102,241,0.12);color:var(--accent-light)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM6 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM1.49 15.326a.78.78 0 0 1-.358-.442 3 3 0 0 1 4.308-3.516 6.484 6.484 0 0 0-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 0 1-2.07-.655ZM16.44 15.98a4.97 4.97 0 0 0 2.07-.654.78.78 0 0 0 .357-.442 3 3 0 0 0-4.308-3.517 6.484 6.484 0 0 1 1.907 3.96 2.32 2.32 0 0 1-.026.654ZM18 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM5.304 16.19a.844.844 0 0 1-.277-.71 5 5 0 0 1 9.947 0 .843.843 0 0 1-.277.71A6.975 6.975 0 0 1 10 18a6.974 6.974 0 0 1-4.696-1.81Z"/></svg>
                                         </div>
                                         <div>
-                                            <div style="font-weight: 600; color: var(--text-primary);">
-                                                {{ $u->name }}
-                                                @if($u->id === auth()->id())
-                                                    <span class="you-badge">Anda</span>
-                                                @endif
-                                            </div>
-                                            <small class="text-muted">ID: #{{ $u->id }}</small>
+                                            <h2 class="profile-section-title">Daftar Pengguna</h2>
+                                            <p class="profile-section-desc">Semua akun terdaftar, status aktivasi, dan kontrol hak akses.</p>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <div style="font-weight: 500;">{{ '@' . $u->username }}</div>
-                                    <small class="text-muted">{{ $u->email }}</small>
-                                </td>
-                                <td>
-                                    <span class="role-badge role-badge--{{ $u->role ?? 'user' }}">
-                                        {{ $roleNames[$u->role] ?? ucfirst($u->role ?? 'user') }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($u->is_active)
-                                        <span class="status-badge status-badge--active">
-                                            <span class="status-dot status-dot--active"></span>
-                                            Aktif
-                                        </span>
-                                    @else
-                                        <span class="status-badge status-badge--inactive">
-                                            <span class="status-dot status-dot--inactive"></span>
-                                            Nonaktif
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="text-muted" style="font-size: 0.8rem;">
-                                    {{ $u->created_at ? $u->created_at->translatedFormat('d M Y') : '-' }}
-                                </td>
-                                <td style="text-align: right;">
-                                    <div class="table-actions">
-                                        {{-- Tombol Edit Modal --}}
-                                        <button type="button" 
-                                            class="btn-action btn-action--edit"
-                                            title="Edit Akun & Hak Akses"
-                                            data-action="edit-user"
-                                            data-id="{{ $u->id }}"
-                                            data-name="{{ $u->name }}"
-                                            data-username="{{ $u->username }}"
-                                            data-email="{{ $u->email }}"
-                                            data-role="{{ $u->role }}"
-                                            data-is-active="{{ $u->is_active ? '1' : '0' }}"
-                                            data-is-self="{{ $u->id === auth()->id() ? '1' : '0' }}"
-                                            data-update-url="{{ route('profile.updateUser', $u) }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/></svg>
-                                            <span>Edit</span>
+
+                                    <div class="pane-header-tools">
+                                        {{-- Live Search Filter --}}
+                                        <div class="user-search-wrapper">
+                                            <svg class="user-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />
+                                            </svg>
+                                            <input type="text" id="userFilterInput" class="user-search-input" placeholder="Cari nama, user, email, role..." autocomplete="off">
+                                        </div>
+
+                                        {{-- Tombol Cepat Slide ke Buat Akun --}}
+                                        <button type="button" class="btn-pane-action-primary" id="btnQuickGoToCreate" title="Buka form pembuatan akun baru">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>
+                                            <span>Buat Akun Baru</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                @if($errors->has('edit_name') || $errors->has('edit_username') || $errors->has('edit_email') || $errors->has('edit_role') || $errors->has('edit_password') || $errors->has('error'))
+                                    <div class="alert alert-danger" role="alert" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;margin-bottom:16px">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
+                                        <span>Gagal memperbarui akun: {{ $errors->first() }}</span>
+                                    </div>
+                                @endif
+
+                                {{-- Petunjuk Slide Horizontal Tabel --}}
+                                <div class="table-scroll-hint-bar">
+                                    <div style="display:flex; align-items:center; gap:6px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
+                                        <span>Tabel dapat digeser ke kiri/kanan (horizontal slide) untuk melihat seluruh kolom data &amp; tombol aksi.</span>
+                                    </div>
+                                    <span style="font-weight:600; opacity:0.8;">↔ Geser</span>
+                                </div>
+
+                                <div class="user-table-wrap">
+                                    <table class="user-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Pengguna</th>
+                                                <th>Username & Email</th>
+                                                <th>Role</th>
+                                                <th>Status</th>
+                                                <th>Dibuat</th>
+                                                <th style="text-align: right;">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="userTableBody">
+                                            @forelse($allUsers as $u)
+                                            <tr class="user-table-row {{ $u->id === auth()->id() ? 'user-table__row--self' : '' }} {{ ! $u->is_active ? 'user-table__row--inactive' : '' }}"
+                                                data-search="{{ strtolower($u->name . ' ' . $u->username . ' ' . $u->email . ' ' . ($roleNames[$u->role] ?? $u->role) . ' ' . ($u->is_active ? 'aktif' : 'nonaktif')) }}">
+                                                <td>
+                                                    <div class="user-table-name">
+                                                        <div class="user-table-avatar {{ ! $u->is_active ? 'user-table-avatar--inactive' : '' }}">
+                                                            {{ strtoupper(substr($u->name,0,1)) }}
+                                                        </div>
+                                                        <div>
+                                                            <div style="font-weight: 600; color: var(--text-primary);">
+                                                                {{ $u->name }}
+                                                                @if($u->id === auth()->id())
+                                                                    <span class="you-badge">Anda</span>
+                                                                @endif
+                                                            </div>
+                                                            <small class="text-muted">ID: #{{ $u->id }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div style="font-weight: 500;">{{ '@' . $u->username }}</div>
+                                                    <small class="text-muted">{{ $u->email }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="role-badge role-badge--{{ $u->role ?? 'user' }}">
+                                                        {{ $roleNames[$u->role] ?? ucfirst($u->role ?? 'user') }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if($u->is_active)
+                                                        <span class="status-badge status-badge--active">
+                                                            <span class="status-dot status-dot--active"></span>
+                                                            Aktif
+                                                        </span>
+                                                    @else
+                                                        <span class="status-badge status-badge--inactive">
+                                                            <span class="status-dot status-dot--inactive"></span>
+                                                            Nonaktif
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-muted" style="font-size: 0.8rem;">
+                                                    {{ $u->created_at ? $u->created_at->translatedFormat('d M Y') : '-' }}
+                                                </td>
+                                                <td style="text-align: right;">
+                                                    <div class="table-actions">
+                                                        {{-- Tombol Edit Modal --}}
+                                                        <button type="button" 
+                                                            class="btn-action btn-action--edit"
+                                                            title="Edit Akun & Hak Akses"
+                                                            data-action="edit-user"
+                                                            data-id="{{ $u->id }}"
+                                                            data-name="{{ $u->name }}"
+                                                            data-username="{{ $u->username }}"
+                                                            data-email="{{ $u->email }}"
+                                                            data-role="{{ $u->role }}"
+                                                            data-is-active="{{ $u->is_active ? '1' : '0' }}"
+                                                            data-is-self="{{ $u->id === auth()->id() ? '1' : '0' }}"
+                                                            data-update-url="{{ route('profile.updateUser', $u) }}">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/></svg>
+                                                            <span>Edit</span>
+                                                        </button>
+
+                                                        {{-- Tombol Toggle Status (Aktifkan / Nonaktifkan) & Hapus --}}
+                                                        @if($u->id !== auth()->id())
+                                                            <form method="POST" action="{{ route('profile.toggleUserStatus', $u) }}" style="display: inline-block;">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                @if($u->is_active)
+                                                                    <button type="submit" 
+                                                                        class="btn-action btn-action--deactivate" 
+                                                                        title="Nonaktifkan Akun"
+                                                                        onclick="return confirm('Apakah Anda yakin ingin menonaktifkan akun {{ $u->name }}? User ini tidak akan bisa login.')">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd"/></svg>
+                                                                        <span>Nonaktifkan</span>
+                                                                    </button>
+                                                                @else
+                                                                    <button type="submit" 
+                                                                        class="btn-action btn-action--activate" 
+                                                                        title="Aktifkan Akun"
+                                                                        onclick="return confirm('Aktifkan kembali akun {{ $u->name }}?')">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
+                                                                        <span>Aktifkan</span>
+                                                                    </button>
+                                                                @endif
+                                                            </form>
+
+                                                            {{-- Tombol Hapus Akun Permanen --}}
+                                                            <form method="POST" action="{{ route('profile.destroyUser', $u) }}" style="display: inline-block;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" 
+                                                                    class="btn-action btn-action--delete" 
+                                                                    title="Hapus Akun Selamanya"
+                                                                    onclick="return confirm('PERINGATAN: Apakah Anda yakin ingin menghapus akun {{ $u->name }} ({{ '@' . $u->username }}) secara permanen? Akun ini akan dihapus selamanya.')">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .7.798l-.5 6a.75.75 0 1 1-1.496-.124l.5-6a.75.75 0 0 1 .796-.674Zm3.54 0a.75.75 0 0 1 .796.674l.5 6a.75.75 0 1 1-1.496.124l-.5-6a.75.75 0 0 1 .7-.798Z" clip-rule="evenodd"/></svg>
+                                                                    <span>Hapus</span>
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr id="userTableInitialEmpty"><td colspan="6" class="user-table-empty">Belum ada pengguna.</td></tr>
+                                            @endforelse
+                                            <tr id="userTableNoMatchRow" style="display: none;"><td colspan="6" class="user-table-empty">Tidak ada pengguna yang cocok dengan pencarian.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Pane 2: Form Buat Akun Baru --}}
+                        <div class="kelola-akun-slide-pane" id="paneCreateUser">
+                            <div class="profile-section-card">
+                                <div class="profile-section-header" style="flex-wrap:wrap; gap:16px;">
+                                    <div style="display:flex; align-items:center; gap:16px;">
+                                        <div class="profile-section-icon" style="background:rgba(16,185,129,0.15);color:#34d399">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.18.295-.083.658.207.84A7.978 7.978 0 0 0 8 18c1.168 0 2.279-.25 3.279-.7a.75.75 0 0 0-.145-1.377 7.992 7.992 0 0 1-2.405.533 6.484 6.484 0 0 0 .25-.978.75.75 0 0 0-.467-.838A5.5 5.5 0 0 0 5.5 15c-.66 0-1.29.12-1.87.338a.75.75 0 0 0-.421.498 6.01 6.01 0 0 0-.163.417ZM15.5 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM13 9.5a3.986 3.986 0 0 0-1.928 3.42 6.5 6.5 0 0 1 4.428 0A3.988 3.988 0 0 0 13.5 9.5H13ZM11 13.5A5 5 0 0 1 21 13.5v.25a.75.75 0 0 1-.75.75h-8.5A.75.75 0 0 1 11 13.75v-.25Z"/></svg>
+                                        </div>
+                                        <div>
+                                            <h2 class="profile-section-title">Buat Akun Baru</h2>
+                                            <p class="profile-section-desc">Tambahkan pengguna baru ke dalam sistem.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="pane-header-tools">
+                                        <button type="button" class="btn-pane-action-secondary" id="btnQuickBackToList" title="Kembali ke Daftar Pengguna">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd"/></svg>
+                                            <span>Lihat Daftar Pengguna</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="{{ route('profile.storeUser') }}" class="profile-form">
+                                    @csrf
+
+                                    <div class="form-row">
+                                        <div class="form-group {{ $errors->has('new_name') ? 'has-error' : '' }}">
+                                            <label class="form-label">Nama Lengkap</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z"/></svg>
+                                                </span>
+                                                <input type="text" name="new_name" class="form-input" value="{{ old('new_name') }}" placeholder="Nama lengkap" autocomplete="off">
+                                            </div>
+                                            @error('new_name')
+                                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group {{ $errors->has('new_username') ? 'has-error' : '' }}">
+                                            <label class="form-label">Username</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7-4a1 1 0 0 0-1 1v3H4a1 1 0 0 0 0 2h3v3a1 1 0 1 0 2 0v-3h3a1 1 0 1 0 0-2H9V5a1 1 0 0 0-1-1Zm9 4a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 17 8Z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                                <input type="text" name="new_username" class="form-input" value="{{ old('new_username') }}" placeholder="username_baru" autocomplete="off">
+                                            </div>
+                                            @error('new_username')
+                                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group {{ $errors->has('new_email') ? 'has-error' : '' }}">
+                                            <label class="form-label">Alamat Email</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.161V6a2 2 0 0 0-2-2H3Z"/><path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z"/></svg>
+                                                </span>
+                                                <input type="email" name="new_email" class="form-input" value="{{ old('new_email') }}" placeholder="email@contoh.com" autocomplete="off">
+                                            </div>
+                                            @error('new_email')
+                                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group {{ $errors->has('new_role') ? 'has-error' : '' }}">
+                                            <label class="form-label">Role</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                                <select name="new_role" class="form-input form-select">
+                                                    <option value="" disabled {{ old('new_role') ? '' : 'selected' }}>Pilih role...</option>
+                                                    <option value="user"      {{ old('new_role') === 'user'      ? 'selected' : '' }}>User (Staf Operasional)</option>
+                                                    <option value="teknisi"   {{ old('new_role') === 'teknisi'   ? 'selected' : '' }}>Teknisi (Hanya Input Logsheet / HP PWA)</option>
+                                                    <option value="eng_admin" {{ old('new_role') === 'eng_admin' ? 'selected' : '' }}>Eng Admin (Lihat, Edit & Verifikasi Logsheet)</option>
+                                                    <option value="eng_spv"   {{ old('new_role') === 'eng_spv'   ? 'selected' : '' }}>Eng Spv (Supervisor - Lihat, Edit & Verifikasi)</option>
+                                                    <option value="gm"        {{ old('new_role') === 'gm'        ? 'selected' : '' }}>GM (General Manager - Monitoring &amp; Summary)</option>
+                                                    <option value="admin"     {{ old('new_role') === 'admin'     ? 'selected' : '' }}>Admin (Akses Penuh)</option>
+                                                </select>
+                                            </div>
+                                            @error('new_role')
+                                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group {{ $errors->has('new_password') ? 'has-error' : '' }}">
+                                            <label class="form-label">Password</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                                <input type="password" name="new_password" id="create_password" class="form-input" placeholder="Min. 8 karakter" autocomplete="new-password">
+                                                <button type="button" class="toggle-password" data-target="create_password" aria-label="Tampilkan">
+                                                    <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/></svg>
+                                                </button>
+                                            </div>
+                                            @error('new_password')
+                                                <p class="form-error"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>{{ $message }}</p>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Konfirmasi Password</label>
+                                            <div class="input-wrapper">
+                                                <span class="input-icon">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                                <input type="password" name="new_password_confirmation" id="create_password_confirm" class="form-input" placeholder="Ulangi password" autocomplete="new-password">
+                                                <button type="button" class="toggle-password" data-target="create_password_confirm" aria-label="Tampilkan">
+                                                    <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" clip-rule="evenodd"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-form-footer" style="display:flex; justify-content:space-between; align-items:center;">
+                                        <button type="button" class="btn-modal-cancel" id="btnCancelCreateUser" style="display:inline-flex; align-items:center; gap:6px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd"/></svg>
+                                            <span>Kembali ke Daftar</span>
                                         </button>
 
-                                        {{-- Tombol Toggle Status (Aktifkan / Nonaktifkan) & Hapus --}}
-                                        @if($u->id !== auth()->id())
-                                            <form method="POST" action="{{ route('profile.toggleUserStatus', $u) }}" style="display: inline-block;">
-                                                @csrf
-                                                @method('PATCH')
-                                                @if($u->is_active)
-                                                    <button type="submit" 
-                                                        class="btn-action btn-action--deactivate" 
-                                                        title="Nonaktifkan Akun"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menonaktifkan akun {{ $u->name }}? User ini tidak akan bisa login.')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd"/></svg>
-                                                        <span>Nonaktifkan</span>
-                                                    </button>
-                                                @else
-                                                    <button type="submit" 
-                                                        class="btn-action btn-action--activate" 
-                                                        title="Aktifkan Akun"
-                                                        onclick="return confirm('Aktifkan kembali akun {{ $u->name }}?')">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/></svg>
-                                                        <span>Aktifkan</span>
-                                                    </button>
-                                                @endif
-                                            </form>
-
-                                            {{-- Tombol Hapus Akun Permanen --}}
-                                            <form method="POST" action="{{ route('profile.destroyUser', $u) }}" style="display: inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                    class="btn-action btn-action--delete" 
-                                                    title="Hapus Akun Selamanya"
-                                                    onclick="return confirm('PERINGATAN: Apakah Anda yakin ingin menghapus akun {{ $u->name }} ({{ '@' . $u->username }}) secara permanen? Akun ini akan dihapus selamanya.')">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .7.798l-.5 6a.75.75 0 1 1-1.496-.124l.5-6a.75.75 0 0 1 .796-.674Zm3.54 0a.75.75 0 0 1 .796.674l.5 6a.75.75 0 1 1-1.496.124l-.5-6a.75.75 0 0 1 .7-.798Z" clip-rule="evenodd"/></svg>
-                                                    <span>Hapus</span>
-                                                </button>
-                                            </form>
-                                        @endif
+                                        <button type="submit" class="btn-profile-save btn-profile-save--green">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM2.046 15.253c-.18.295-.083.658.207.84A7.978 7.978 0 0 0 8 18c1.168 0 2.279-.25 3.279-.7a.75.75 0 0 0-.145-1.377 7.992 7.992 0 0 1-2.405.533 6.484 6.484 0 0 0 .25-.978.75.75 0 0 0-.467-.838A5.5 5.5 0 0 0 5.5 15c-.66 0-1.29.12-1.87.338a.75.75 0 0 0-.421.498 6.01 6.01 0 0 0-.163.417ZM15.5 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM13 9.5a3.986 3.986 0 0 0-1.928 3.42 6.5 6.5 0 0 1 4.428 0A3.988 3.988 0 0 0 13.5 9.5H13ZM11 13.5A5 5 0 0 1 21 13.5v.25a.75.75 0 0 1-.75.75h-8.5A.75.75 0 0 1 11 13.75v-.25Z"/></svg>
+                                            Buat Akun
+                                        </button>
                                     </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr><td colspan="6" class="user-table-empty">Belum ada pengguna.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>{{-- /.kelola-akun-slider-track --}}
+                </div>{{-- /.kelola-akun-slider-viewport --}}
+
+            </div>{{-- /.kelola-akun-container --}}
 
             {{-- Modal Edit Pengguna --}}
             <div class="user-modal-overlay" id="editUserModal" hidden>
@@ -1110,6 +1557,142 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ── Kelola Akun Window Slider & Controls ─────────────────
+(function initKelolaAkunSlider() {
+    const track = document.getElementById('kelolaAkunTrack');
+    const viewport = document.getElementById('kelolaAkunViewport');
+    const btnTabUsers = document.getElementById('btnSlideUsersList');
+    const btnTabCreate = document.getElementById('btnSlideCreateUser');
+    const btnPrev = document.getElementById('btnSlidePrev');
+    const btnNext = document.getElementById('btnSlideNext');
+    const counterBadge = document.getElementById('slideCounterBadge');
+    const btnToggleMode = document.getElementById('btnToggleSlideMode');
+    const modeLabel = document.getElementById('slideModeLabel');
+
+    const btnQuickCreate = document.getElementById('btnQuickGoToCreate');
+    const btnQuickBack = document.getElementById('btnQuickBackToList');
+    const btnCancelCreate = document.getElementById('btnCancelCreateUser');
+    const filterInput = document.getElementById('userFilterInput');
+
+    if (!track || !viewport) return;
+
+    let currentSlide = {{ !empty($hasCreateError) ? '1' : '0' }};
+    let isStackMode = false;
+
+    function updateSlider(index) {
+        currentSlide = Math.max(0, Math.min(1, index));
+
+        if (isStackMode) {
+            isStackMode = false;
+            viewport.classList.remove('mode-stack');
+            if (btnToggleMode) btnToggleMode.classList.remove('active');
+            if (modeLabel) modeLabel.textContent = 'Tampilkan Keduanya';
+        }
+
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+        if (btnTabUsers) {
+            btnTabUsers.classList.toggle('active', currentSlide === 0);
+            btnTabUsers.setAttribute('aria-selected', currentSlide === 0 ? 'true' : 'false');
+        }
+        if (btnTabCreate) {
+            btnTabCreate.classList.toggle('active', currentSlide === 1);
+            btnTabCreate.setAttribute('aria-selected', currentSlide === 1 ? 'true' : 'false');
+        }
+
+        if (counterBadge) counterBadge.textContent = `${currentSlide + 1} / 2`;
+        if (btnPrev) btnPrev.disabled = (currentSlide === 0);
+        if (btnNext) btnNext.disabled = (currentSlide === 1);
+    }
+
+    if (btnTabUsers) btnTabUsers.addEventListener('click', () => updateSlider(0));
+    if (btnTabCreate) btnTabCreate.addEventListener('click', () => updateSlider(1));
+    if (btnPrev) btnPrev.addEventListener('click', () => updateSlider(currentSlide - 1));
+    if (btnNext) btnNext.addEventListener('click', () => updateSlider(currentSlide + 1));
+
+    if (btnQuickCreate) btnQuickCreate.addEventListener('click', () => updateSlider(1));
+    if (btnQuickBack) btnQuickBack.addEventListener('click', () => updateSlider(0));
+    if (btnCancelCreate) btnCancelCreate.addEventListener('click', () => updateSlider(0));
+
+    // Toggle Mode: Slide Fokus vs Tampilkan Keduanya (Stack)
+    if (btnToggleMode) {
+        btnToggleMode.addEventListener('click', () => {
+            isStackMode = !isStackMode;
+            viewport.classList.toggle('mode-stack', isStackMode);
+            btnToggleMode.classList.toggle('active', isStackMode);
+            if (modeLabel) modeLabel.textContent = isStackMode ? 'Mode Slide' : 'Tampilkan Keduanya';
+            if (btnPrev) btnPrev.disabled = isStackMode;
+            if (btnNext) btnNext.disabled = isStackMode;
+            if (!isStackMode) {
+                updateSlider(currentSlide);
+            }
+        });
+    }
+
+    // Touch Swipe Navigation for mobile & tablet
+    let touchStartX = 0;
+    let touchStartY = 0;
+    viewport.addEventListener('touchstart', (e) => {
+        if (isStackMode || !e.touches || !e.touches[0]) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', (e) => {
+        if (isStackMode || !e.changedTouches || !e.changedTouches[0]) return;
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+            if (diffX < 0 && currentSlide === 0) {
+                updateSlider(1); // Swipe left -> ke Buat Akun Baru
+            } else if (diffX > 0 && currentSlide === 1) {
+                updateSlider(0); // Swipe right -> kembali ke Daftar Pengguna
+            }
+        }
+    }, { passive: true });
+
+    // Live search filter in User Table
+    if (filterInput) {
+        filterInput.addEventListener('input', () => {
+            const query = filterInput.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.user-table-row');
+            let matchCount = 0;
+
+            rows.forEach(row => {
+                const searchData = row.dataset.search || row.textContent.toLowerCase();
+                if (!query || searchData.includes(query)) {
+                    row.style.display = '';
+                    matchCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const noMatchRow = document.getElementById('userTableNoMatchRow');
+            if (noMatchRow) {
+                noMatchRow.style.display = (rows.length > 0 && matchCount === 0) ? '' : 'none';
+            }
+
+            const badge = document.getElementById('userCountBadge');
+            if (badge) {
+                badge.textContent = query ? matchCount : rows.length;
+            }
+        });
+    }
+
+    // Re-check slider when clicking tab users
+    document.querySelectorAll('.profile-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.dataset.tab === 'users') {
+                setTimeout(() => updateSlider(currentSlide), 50);
+            }
+        });
+    });
+})();
+
 // ── Avatar Preview Handler ─────────────────────────────
 function handleAvatarSelected(input) {
     if (input.files && input.files[0]) {
@@ -1255,6 +1838,8 @@ if (sigCanvas) {
         setTimeout(resizeSignatureCanvas, 60);
     } else if (window.location.hash === '#photo') {
         activateTab('photo');
+    } else if (window.location.hash === '#users') {
+        activateTab('users');
     }
 }
 </script>
