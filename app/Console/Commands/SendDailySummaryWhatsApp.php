@@ -69,10 +69,11 @@ class SendDailySummaryWhatsApp extends Command
             return self::SUCCESS;
         }
 
-        // Cek ketersediaan token
-        if (empty(config('services.fonnte.token'))) {
-            $this->error("ERROR: FONNTE_TOKEN belum dikonfigurasi di file .env!");
-            $this->warn("Silakan atur variabel FONNTE_TOKEN di .env Anda terlebih dahulu.");
+        // Cek ketersediaan token (dari database atau .env)
+        $activeToken = $setting->getFonnteToken() ?: $fonnteService->getToken();
+        if (empty($activeToken)) {
+            $this->error("ERROR: Token Fonnte belum dikonfigurasi di pengaturan aplikasi atau .env!");
+            $this->warn("Silakan atur token di menu Pengaturan WhatsApp atau variabel FONNTE_TOKEN di .env.");
             return self::FAILURE;
         }
 
