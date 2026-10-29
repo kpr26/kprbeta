@@ -1438,9 +1438,20 @@ body {
 
 .profile-layout {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-layout.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.profile-layout.sidebar-collapsed .profile-sidebar {
+  display: none !important;
 }
 
 /* ── Profile Sidebar ── */
@@ -1548,14 +1559,26 @@ body {
 .profile-nav-item--active:hover { background: var(--bg-card-hover); }
 
 /* ── Profile Main ── */
-.profile-main { display: flex; flex-direction: column; gap: 20px; }
+.profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .profile-section-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 32px;
+  padding: 24px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .profile-section-header {
@@ -1732,15 +1755,36 @@ select.form-input option:disabled {
 
 /* ── User Table ── */
 .user-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  box-sizing: border-box;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg-card);
+}
+
+.user-table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+.user-table-wrap::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+.user-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
 }
 
 .user-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
+  min-width: 780px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
 }
 
 .user-table thead tr {
@@ -1749,9 +1793,9 @@ select.form-input option:disabled {
 }
 
 .user-table th {
-  padding: 12px 16px;
+  padding: 10px 14px;
   text-align: left;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--accent-light);
   text-transform: uppercase;
@@ -1760,10 +1804,45 @@ select.form-input option:disabled {
 }
 
 .user-table td {
-  padding: 13px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid rgba(200,170,110,0.08);
   color: var(--text-primary);
   vertical-align: middle;
+}
+
+/* Sticky Action Column so Aksi is ALWAYS visible */
+.user-table th.col-aksi,
+.user-table td.col-aksi {
+  position: sticky;
+  right: 0;
+  background: var(--bg-card);
+  z-index: 2;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.35);
+  text-align: right;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .user-table th.col-aksi,
+[data-theme="light"] .user-table td.col-aksi {
+  background: #ffffff;
+  box-shadow: -6px 0 14px rgba(0, 0, 0, 0.08);
+}
+
+.user-table thead th.col-aksi {
+  background: var(--bg-card);
+  z-index: 3;
+}
+
+[data-theme="light"] .user-table thead th.col-aksi {
+  background: #f8fafc;
+}
+
+.user-table tbody tr:hover td.col-aksi {
+  background: var(--bg-card-hover);
+}
+
+.user-table tbody tr.user-table__row--self td.col-aksi {
+  background: rgba(200,170,110,0.12);
 }
 
 .user-table tbody tr:last-child td { border-bottom: none; }

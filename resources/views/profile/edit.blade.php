@@ -6,12 +6,50 @@
 
 @push('styles')
 <style>
+/* ── Ensure Profile Layout and Containers Never Overflow ── */
+.profile-layout {
+    display: grid !important;
+    grid-template-columns: 260px minmax(0, 1fr) !important;
+    gap: 24px !important;
+    align-items: start !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.profile-layout.sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.profile-layout.sidebar-collapsed .profile-sidebar {
+    display: none !important;
+}
+
+.profile-main {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.profile-section-card {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
 /* ── Kelola Akun Slider & Responsive Styles ── */
 .kelola-akun-container {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 100%;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .kelola-akun-toolbar {
@@ -314,12 +352,89 @@
     font-size: 0.76rem;
     color: var(--accent);
     margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .table-scroll-hint-bar svg {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
+}
+
+.btn-table-slide {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.btn-table-slide:hover {
+    border-color: var(--accent);
+    color: var(--accent-light);
+    background: var(--bg-card-hover);
+}
+
+.btn-table-slide--expand {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: var(--accent-light);
+}
+
+.btn-table-slide--expand:hover,
+.btn-table-slide--expand.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: var(--text-on-accent);
+}
+
+.user-table-wrap.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+/* Sticky Action Column so Aksi is ALWAYS visible on screen */
+.user-table th.col-aksi,
+.user-table td.col-aksi {
+    position: sticky !important;
+    right: 0 !important;
+    background: var(--bg-card) !important;
+    z-index: 2 !important;
+    box-shadow: -6px 0 14px rgba(0, 0, 0, 0.35) !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+[data-theme="light"] .user-table th.col-aksi,
+[data-theme="light"] .user-table td.col-aksi {
+    background: #ffffff !important;
+    box-shadow: -6px 0 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+.user-table thead th.col-aksi {
+    background: var(--bg-card) !important;
+    z-index: 3 !important;
+}
+
+[data-theme="light"] .user-table thead th.col-aksi {
+    background: #f8fafc !important;
+}
+
+.user-table tbody tr:hover td.col-aksi {
+    background: var(--bg-card-hover) !important;
+}
+
+.user-table tbody tr.user-table__row--self td.col-aksi {
+    background: rgba(200, 170, 110, 0.12) !important;
 }
 
 @media (max-width: 768px) {
@@ -876,13 +991,26 @@
                                     </div>
                                 @endif
 
-                                {{-- Petunjuk Slide Horizontal Tabel --}}
+                                {{-- Petunjuk & Tombol Geser Horizontal Tabel --}}
                                 <div class="table-scroll-hint-bar">
-                                    <div style="display:flex; align-items:center; gap:6px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
-                                        <span>Tabel dapat digeser ke kiri/kanan (horizontal slide) untuk melihat seluruh kolom data &amp; tombol aksi.</span>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0;"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>
+                                        <span>Geser tabel untuk melihat seluruh data (Kolom Aksi di sebelah kanan selalu terlihat):</span>
                                     </div>
-                                    <span style="font-weight:600; opacity:0.8;">↔ Geser</span>
+                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                        <button type="button" class="btn-table-slide" id="btnSlideTableLeft" title="Geser tabel ke kiri">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd"/></svg>
+                                            <span>Geser Kiri</span>
+                                        </button>
+                                        <button type="button" class="btn-table-slide" id="btnSlideTableRight" title="Geser tabel ke kanan">
+                                            <span>Geser Kanan</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/></svg>
+                                        </button>
+                                        <button type="button" class="btn-table-slide btn-table-slide--expand" id="btnToggleExpandLayout" title="Lebarkan tampilan ke layar penuh (sembunyikan menu samping profil)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.25 3A2.25 2.25 0 0 0 1 5.25v9.5A2.25 2.25 0 0 0 3.25 17h13.5A2.25 2.25 0 0 0 19 14.75v-9.5A2.25 2.25 0 0 0 16.75 3H3.25Zm0 1.5h13.5c.414 0 .75.336.75.75v9.5a.75.75 0 0 1-.75.75H3.25a.75.75 0 0 1-.75-.75v-9.5c0-.414.336-.75.75-.75Z" clip-rule="evenodd"/><path d="M6 7.5a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 6 7.5Z"/></svg>
+                                            <span id="expandLayoutLabel">Lebarkan Layar</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="user-table-wrap">
@@ -894,7 +1022,7 @@
                                                 <th>Role</th>
                                                 <th>Status</th>
                                                 <th>Dibuat</th>
-                                                <th style="text-align: right;">Aksi</th>
+                                                <th style="text-align: right;" class="col-aksi">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody id="userTableBody">
@@ -942,7 +1070,7 @@
                                                 <td class="text-muted" style="font-size: 0.8rem;">
                                                     {{ $u->created_at ? $u->created_at->translatedFormat('d M Y') : '-' }}
                                                 </td>
-                                                <td style="text-align: right;">
+                                                <td style="text-align: right;" class="col-aksi">
                                                     <div class="table-actions">
                                                         {{-- Tombol Edit Modal --}}
                                                         <button type="button" 
@@ -1680,6 +1808,63 @@ document.addEventListener('keydown', (e) => {
             if (badge) {
                 badge.textContent = query ? matchCount : rows.length;
             }
+        });
+    }
+
+    // Table Horizontal Slide Buttons & Expand Layout Toggle
+    const tableWrap = document.querySelector('.user-table-wrap');
+    const btnSlideTableLeft = document.getElementById('btnSlideTableLeft');
+    const btnSlideTableRight = document.getElementById('btnSlideTableRight');
+    const btnToggleExpandLayout = document.getElementById('btnToggleExpandLayout');
+    const expandLayoutLabel = document.getElementById('expandLayoutLabel');
+    const profileLayout = document.querySelector('.profile-layout');
+
+    if (btnSlideTableLeft && tableWrap) {
+        btnSlideTableLeft.addEventListener('click', () => {
+            tableWrap.scrollBy({ left: -240, behavior: 'smooth' });
+        });
+    }
+    if (btnSlideTableRight && tableWrap) {
+        btnSlideTableRight.addEventListener('click', () => {
+            tableWrap.scrollBy({ left: 240, behavior: 'smooth' });
+        });
+    }
+    if (btnToggleExpandLayout && profileLayout) {
+        btnToggleExpandLayout.addEventListener('click', () => {
+            const isCollapsed = profileLayout.classList.toggle('sidebar-collapsed');
+            if (expandLayoutLabel) {
+                expandLayoutLabel.textContent = isCollapsed ? 'Kembalikan Menu' : 'Lebarkan Layar';
+            }
+            btnToggleExpandLayout.classList.toggle('active', isCollapsed);
+        });
+    }
+
+    // Mouse Drag to slide table horizontally
+    if (tableWrap) {
+        let isMouseDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+
+        tableWrap.addEventListener('mousedown', (e) => {
+            if (e.target.closest('button, a, input, select')) return;
+            isMouseDown = true;
+            tableWrap.classList.add('is-dragging');
+            startX = e.pageX - tableWrap.offsetLeft;
+            scrollLeft = tableWrap.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            tableWrap.classList.remove('is-dragging');
+        });
+
+        tableWrap.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            e.preventDefault();
+            const x = e.pageX - tableWrap.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            tableWrap.scrollLeft = scrollLeft - walk;
         });
     }
 
