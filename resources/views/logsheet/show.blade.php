@@ -15,8 +15,8 @@
     <div class="panel-head">
         <div>
             <h2>Crosscheck Stand Meter</h2>
-            <p>Dicatat oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b> · {{ $r->created_at?->translatedFormat('d M Y H:i') ?? '—' }}
-                @if ($r->isVerified()) · <span class="badge badge-ok">✓ Diverifikasi {{ $r->verified_at ? ($r->verifier?->name ?? 'Admin') . ' (' . ($r->verified_at?->format('d/m/Y H:i') ?? '—') . ')' : 'secara otomatis (Input Admin / Backdate)' }}</span>
+            <p>Dicatat oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b> · {{ $r->created_at ? $r->created_at->translatedFormat('d M Y H:i') . ' WIB' : '—' }}
+                @if ($r->isVerified()) · <span class="badge badge-ok">✓ Diverifikasi {{ $r->verified_at ? ($r->verifier?->name ?? 'Admin') . ' (' . $r->verified_at->format('d/m/Y H:i') . ' WIB)' : 'secara otomatis (Input Admin / Backdate)' }}</span>
                 @else · <span class="badge badge-wait">Menunggu verifikasi</span>@endif
             </p>
         </div>

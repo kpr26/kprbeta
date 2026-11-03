@@ -46,7 +46,7 @@
                 <p style="margin:0 0 10px 20px; color:var(--text-secondary); font-size:0.86rem;">
                     Tercatat pada stand Air: <b>{{ $n($reading->stand_air) }} m³</b> 
                     @if($reading->user) oleh <b>{{ $reading->user->name }}</b> @endif
-                    @if($reading->created_at) pada {{ $reading->created_at->format('d/m/Y H:i') }} @endif.
+                    @if($reading->created_at) pada {{ $reading->created_at->format('d/m/Y H:i') }} WIB @endif.
                     <br><span style="color:#38bdf8;">Menyimpan form ini akan memperbarui dan mengoreksi data water meter tanggal tersebut.</span>
                 </p>
                 <div style="margin-left:20px; display:flex; gap:8px;">

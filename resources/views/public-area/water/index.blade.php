@@ -159,7 +159,7 @@
                                 </div>
                                 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
                                     <span>Petugas: <b style="color:var(--accent-light);">{{ $rec->user?->name ?? 'Teknisi' }}</b></span>
-                                    <span>Pukul: {{ $rec->updated_at->format('H:i') }}</span>
+                                    <span>Pukul: {{ $rec->updated_at->format('H:i') }} WIB</span>
                                 </div>
                                 @if($rec->catatan)
                                     <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:6px; padding-top:6px; border-top:1px dashed rgba(200,170,110,0.15);">

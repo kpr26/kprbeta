@@ -82,7 +82,7 @@
                                 {{ $n($todayReading->stand_meter) }} <small style="font-size:0.9rem; color:var(--text-muted); font-family:var(--font-sans);">kWh</small>
                             </div>
                             <div style="font-size:0.78rem; color:var(--text-muted); margin-top:4px;">
-                                Dicatat oleh <b style="color:var(--accent-light);">{{ $todayReading->user?->name ?? 'Teknisi' }}</b> pukul {{ $todayReading->updated_at->format('H:i') }}
+                                Dicatat oleh <b style="color:var(--accent-light);">{{ $todayReading->user?->name ?? 'Teknisi' }}</b> pukul {{ $todayReading->updated_at->format('H:i') }} WIB
                             </div>
                         </div>
 

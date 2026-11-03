@@ -59,7 +59,7 @@
                         Tercatat pada Stand LWBP: <b>{{ $n($reading->stand_lwbp) }} kWh</b> · WBP: <b>{{ $n($reading->stand_wbp) }} kWh</b>
                     @endif
                     @if($reading->user) oleh <b>{{ $reading->user->name }}</b> @endif
-                    @if($reading->created_at) pada {{ $reading->created_at->format('d/m/Y H:i') }} @endif.
+                    @if($reading->created_at) pada {{ $reading->created_at->format('d/m/Y H:i') }} WIB @endif.
                     <br><span style="color:#fbbf24;">Menyimpan form ini akan memperbarui dan mengoreksi data listrik tanggal tersebut.</span>
                 </p>
                 <div style="margin-left:20px; display:flex; gap:8px;">

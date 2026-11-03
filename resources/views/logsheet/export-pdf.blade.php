@@ -41,7 +41,7 @@
 </div>
 <div class="page">
     <h1>LOGSHEET REKAPITULASI AMR PLN T33N &amp; AIR BERSIH GEDUNG</h1>
-    <p class="sub">Periode: {{ $bulan }} · Dicetak: {{ now()->format('d/m/Y H:i') }} oleh {{ auth()->user()->name }}</p>
+    <p class="sub">Periode: {{ $bulan }} · Dicetak: {{ now()->format('d/m/Y H:i') }} WIB oleh {{ auth()->user()->name }}</p>
 
     <div class="sum">
         <div>Beban Puncak (BP)<b>{{ $n($pakaiBp) }} kWh</b></div>

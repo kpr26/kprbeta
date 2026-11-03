@@ -17,7 +17,7 @@
 <body>
 <table>
     <tr><td colspan="15" style="border:0;font-size:14pt;font-weight:bold">{{ $judul }}</td></tr>
-    <tr><td colspan="15" style="border:0;font-size:10pt;">Dicetak: {{ now()->format('d/m/Y H:i') }} oleh {{ auth()->user()->name }}</td></tr>
+    <tr><td colspan="15" style="border:0;font-size:10pt;">Dicetak: {{ now()->format('d/m/Y H:i') }} WIB oleh {{ auth()->user()->name }}</td></tr>
     <tr><td colspan="15" style="border:0"></td></tr>
     <tr>
         <th rowspan="2">No</th>

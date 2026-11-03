@@ -62,7 +62,7 @@
                 @else
                     Tercatat Stand LWBP: <b>{{ $n($today->stand_lwbp) }} kWh</b> · WBP: <b>{{ $n($today->stand_wbp) }} kWh</b>
                 @endif
-                <br>oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b> pukul {{ $today->updated_at?->format('H:i') ?? '—' }}.
+                <br>oleh <b>{{ $today->user?->name ?? 'Teknisi' }}</b> pukul {{ $today->updated_at?->format('H:i') ?? '—' }} WIB.
             </p>
             <div style="margin-left:20px; display:flex; gap:10px; flex-wrap:wrap;">
                 @if(!$today->foto_air)

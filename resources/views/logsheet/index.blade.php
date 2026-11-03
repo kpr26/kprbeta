@@ -441,7 +441,14 @@
                     </td>
 
                     {{-- Teknisi & Status --}}
-                    <td class="l">{{ $r->user?->name ?? 'User Terhapus' }}</td>
+                    <td class="l">
+                        <div>{{ $r->user?->name ?? 'User Terhapus' }}</div>
+                        @if ($r->created_at)
+                            <div style="font-size:0.75rem; color:var(--text-muted); font-variant-numeric:tabular-nums;">
+                                {{ $r->created_at->format('H:i') }} WIB
+                            </div>
+                        @endif
+                    </td>
                     <td class="c">
                         @if ($r->isVerified())
                             <span class="badge badge-ok" title="{{ $r->verified_at ? 'Oleh ' . ($r->verifier?->name ?? 'Admin') : 'Otomatis Terverifikasi (Input Admin / Backdate)' }}">✓ Terverifikasi</span>
@@ -515,7 +522,7 @@
                         @endif
                         <div>
                             <span class="mlc-date">{{ $r->tanggal->translatedFormat('D, d M Y') }}</span>
-                            <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b></div>
+                            <div class="mlc-tech">Oleh <b>{{ $r->user?->name ?? 'User Terhapus' }}</b>@if ($r->created_at) · {{ $r->created_at->format('H:i') }} WIB @endif</div>
                         </div>
                     </div>
                     <div>

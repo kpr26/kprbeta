@@ -606,7 +606,8 @@
             }
         }
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const _now = new Date();
+        const todayStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
         const recordId = `${type}_${fields.meter_key || fields.group_key || ''}_${todayStr}_${Date.now()}`;
 
         let fileField = 'foto';

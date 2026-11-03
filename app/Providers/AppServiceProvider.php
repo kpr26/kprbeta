@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        date_default_timezone_set(config('app.timezone', 'Asia/Jakarta'));
+        \Carbon\Carbon::setLocale('id');
+
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('users') && ! \Illuminate\Support\Facades\Schema::hasTable('daily_log_books')) {
                 \Illuminate\Support\Facades\Schema::create('daily_log_books', function (\Illuminate\Database\Schema\Blueprint $table) {
