@@ -114,17 +114,20 @@
             </div>
             @endforeach
 
-            <div class="field">
-                <label>Foto Fisik Meteran AMR PLN <span class="req">{{ $editing ? '' : '*' }}</span></label>
-                <label class="upload {{ $editing ? 'has-img' : '' }}">
-                    <input type="file" name="foto_kwh" accept="image/*" capture="environment" {{ $editing ? '' : 'required' }}>
-                    @if ($editing)<img class="preview" src="{{ asset('storage/'.$reading->foto_kwh) }}" alt="Foto kWh">@endif
+            <div class="field" style="margin-top:20px;">
+                <label>Foto Fisik Meteran AMR PLN <span class="req" id="req-foto-kwh">{{ $editing ? '' : '*' }}</span></label>
+                <div class="upload {{ $reading->foto_kwh ? 'has-img' : '' }}" id="upload-box-kwh" role="button" tabindex="0" title="Klik untuk ambil foto dari kamera atau pilih dari galeri">
+                    <input type="file" name="foto_kwh" id="foto_kwh_gallery" accept="image/*" class="input-file-gallery" style="display:none;" {{ $editing ? '' : 'required' }}>
+                    <input type="file" id="foto_kwh_camera" accept="image/*" capture="environment" class="input-file-camera" style="display:none;">
+                    @if ($editing && $reading->foto_kwh)
+                        <img class="preview" id="kwh-preview-img" src="{{ asset('storage/'.$reading->foto_kwh) }}" alt="Foto kWh AMR PLN">
+                    @endif
                     <span class="upload-text">
                         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/></svg><br>
-                        Ambil foto / pilih gambar<br><small>Cukup 1 foto fisik meteran AMR PLN T33N mencakup register stand · maks 5 MB</small>
+                        Ambil foto / pilih gambar<br><small>Pastikan angka meter terbaca jelas · maks 5 MB</small>
                     </span>
                     <span class="change">Ganti foto</span>
-                </label>
+                </div>
                 @error('foto_kwh')<p class="err">{{ $message }}</p>@enderror
             </div>
         </div>
@@ -174,6 +177,59 @@
         </button>
     </div>
 </form>
+
+{{-- Modal / Bottom Sheet Pilih Sumber Foto AMR (Kamera & Galeri) --}}
+<div class="photo-source-modal" id="photoSourceModal" aria-hidden="true" style="display:none;">
+    <div class="photo-source-backdrop" id="photoSourceBackdrop"></div>
+    <div class="photo-source-sheet" role="dialog" aria-modal="true" aria-labelledby="photoSourceTitle">
+        <div class="photo-source-handle"></div>
+        <div class="photo-source-header">
+            <h4 id="photoSourceTitle">Pilih Sumber Foto AMR PLN</h4>
+            <p>Ambil langsung menggunakan kamera HP atau pilih dari galeri foto / file</p>
+        </div>
+        <div class="photo-source-options">
+            <button type="button" class="photo-source-btn btn-src-camera" id="btnChooseCamera">
+                <div class="photo-source-icon">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M1 8a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 8.07 3h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 16.07 6H17a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8Zm13.5 3a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM10 14a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="photo-source-text">
+                    <strong>Buka Kamera</strong>
+                    <span>Buka kamera HP langsung untuk memotret fisik meteran AMR</span>
+                </div>
+                <div class="photo-source-arrow">›</div>
+            </button>
+
+            <button type="button" class="photo-source-btn btn-src-gallery" id="btnChooseGallery">
+                <div class="photo-source-icon">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-4.22-4.219a.75.75 0 0 0-1.06 0L2.5 11.06Zm10.25-3.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="photo-source-text">
+                    <strong>Pilih dari Galeri</strong>
+                    <span>Pilih foto fisik meteran dari album galeri HP atau file</span>
+                </div>
+                <div class="photo-source-arrow">›</div>
+            </button>
+
+            <button type="button" class="photo-source-btn btn-src-remove" id="btnRemovePhotoSource" style="display:none; border-color:rgba(239,68,68,0.25);">
+                <div class="photo-source-icon" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3);">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 .75-.75Zm3.59.75a.75.75 0 0 0-1.5 0v6a.75.75 0 0 0 1.5 0v-6Z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="photo-source-text">
+                    <strong style="color:#ef4444;">Hapus Foto Terpilih</strong>
+                    <span>Kosongkan foto fisik meteran AMR</span>
+                </div>
+                <div class="photo-source-arrow" style="color:#ef4444;">✕</div>
+            </button>
+        </div>
+        <button type="button" class="photo-source-cancel" id="btnCancelPhotoSource">Batal</button>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -194,9 +250,189 @@
         inp.addEventListener('input', update); update();
     });
 
-    // Preview foto
+    // ── Handler Upload Foto AMR PLN (Seragam dengan Water Meter + Pilihan Kamera/Galeri) ──
+    const uploadBox    = document.getElementById('upload-box-kwh');
+    const galleryInput = document.getElementById('foto_kwh_gallery');
+    const cameraInput  = document.getElementById('foto_kwh_camera');
+    const reqIndicator = document.getElementById('req-foto-kwh');
+
+    const sourceModal  = document.getElementById('photoSourceModal');
+    const backdrop     = document.getElementById('photoSourceBackdrop');
+    const btnCamera    = document.getElementById('btnChooseCamera');
+    const btnGallery   = document.getElementById('btnChooseGallery');
+    const btnRemove    = document.getElementById('btnRemovePhotoSource');
+    const btnCancel    = document.getElementById('btnCancelPhotoSource');
+
+    const hasInitialPhoto = {{ $reading->foto_kwh ? 'true' : 'false' }};
+    let currentPhotoPresent = hasInitialPhoto;
+
+    function openSourceModal() {
+        if (!sourceModal) return;
+        if (btnRemove) {
+            btnRemove.style.display = currentPhotoPresent ? 'flex' : 'none';
+        }
+        sourceModal.style.display = 'flex';
+        sourceModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSourceModal() {
+        if (!sourceModal) return;
+        sourceModal.style.display = 'none';
+        sourceModal.setAttribute('aria-hidden', 'true');
+    }
+
+    if (uploadBox) {
+        uploadBox.addEventListener('click', function (e) {
+            if (e.target.tagName === 'INPUT') return;
+            openSourceModal();
+        });
+        uploadBox.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openSourceModal();
+            }
+        });
+    }
+
+    if (backdrop)  backdrop.addEventListener('click', closeSourceModal);
+    if (btnCancel) btnCancel.addEventListener('click', closeSourceModal);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sourceModal && sourceModal.style.display !== 'none') {
+            closeSourceModal();
+        }
+    });
+
+    if (btnCamera) {
+        btnCamera.addEventListener('click', function () {
+            closeSourceModal();
+            cameraInput.click();
+        });
+    }
+
+    if (btnGallery) {
+        btnGallery.addEventListener('click', function () {
+            closeSourceModal();
+            galleryInput.click();
+        });
+    }
+
+    function handleSelectedPhoto(file, source) {
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Ukuran foto melebihi batas maksimal 5 MB. Silakan pilih foto dengan ukuran lebih kecil.');
+            if (source === 'camera') cameraInput.value = '';
+            else galleryInput.value = '';
+            return;
+        }
+
+        let previewImg = uploadBox.querySelector('img.preview');
+        if (!previewImg) {
+            previewImg = document.createElement('img');
+            previewImg.className = 'preview';
+            previewImg.id = 'kwh-preview-img';
+            previewImg.alt = 'Foto kWh AMR PLN';
+            uploadBox.insertBefore(previewImg, uploadBox.firstChild);
+        }
+        previewImg.src = URL.createObjectURL(file);
+        uploadBox.classList.add('has-img');
+        currentPhotoPresent = true;
+
+        if (source === 'camera') {
+            let transferred = false;
+            try {
+                if (window.DataTransfer) {
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    galleryInput.files = dt.files;
+                    transferred = (galleryInput.files.length > 0);
+                }
+            } catch (err) {}
+
+            if (!transferred) {
+                cameraInput.name = 'foto_kwh';
+                galleryInput.removeAttribute('name');
+            } else {
+                galleryInput.name = 'foto_kwh';
+                cameraInput.removeAttribute('name');
+            }
+        } else {
+            galleryInput.name = 'foto_kwh';
+            cameraInput.removeAttribute('name');
+            cameraInput.value = '';
+        }
+
+        galleryInput.required = false;
+        cameraInput.required = false;
+        if (reqIndicator) reqIndicator.style.display = 'none';
+    }
+
+    if (galleryInput) {
+        galleryInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                handleSelectedPhoto(this.files[0], 'gallery');
+            }
+        });
+    }
+
+    if (cameraInput) {
+        cameraInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                handleSelectedPhoto(this.files[0], 'camera');
+            }
+        });
+    }
+
+    if (btnRemove) {
+        btnRemove.addEventListener('click', function () {
+            closeSourceModal();
+            galleryInput.value = '';
+            cameraInput.value = '';
+            galleryInput.name = 'foto_kwh';
+            cameraInput.removeAttribute('name');
+
+            const previewImg = uploadBox.querySelector('img.preview');
+            if (previewImg) previewImg.remove();
+            uploadBox.classList.remove('has-img');
+            currentPhotoPresent = false;
+
+            if (!hasInitialPhoto) {
+                galleryInput.required = true;
+                if (reqIndicator) reqIndicator.style.display = 'inline';
+            }
+        });
+    }
+
+    if (uploadBox) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadBox.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBox.classList.add('drag');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadBox.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBox.classList.remove('drag');
+            });
+        });
+
+        uploadBox.addEventListener('drop', e => {
+            const dt = e.dataTransfer;
+            if (dt && dt.files && dt.files[0]) {
+                handleSelectedPhoto(dt.files[0], 'gallery');
+            }
+        });
+    }
+
+    // Preview foto lainnya (seperti air)
     document.querySelectorAll('.upload input[type=file]').forEach(inp => {
         const box = inp.closest('.upload');
+        if (box && box.id === 'upload-box-kwh') return;
         inp.addEventListener('change', () => {
             const f = inp.files[0]; if (!f) return;
             let img = box.querySelector('img.preview');
@@ -204,8 +440,10 @@
             img.src = URL.createObjectURL(f);
             box.classList.add('has-img');
         });
-        ['dragenter', 'dragover'].forEach(e => box.addEventListener(e, () => box.classList.add('drag')));
-        ['dragleave', 'drop'].forEach(e => box.addEventListener(e, () => box.classList.remove('drag')));
+        if (box) {
+            ['dragenter', 'dragover'].forEach(e => box.addEventListener(e, () => box.classList.add('drag')));
+            ['dragleave', 'drop'].forEach(e => box.addEventListener(e, () => box.classList.remove('drag')));
+        }
     });
 </script>
 @endpush

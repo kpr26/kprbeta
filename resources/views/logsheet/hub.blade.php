@@ -60,7 +60,7 @@
                 </div>
 
                 <p class="choice-desc">
-                    Catat angka stand AMR PLN T33N: BP, LBP 1, LBP 2, dan Total (kWh) pada gardu utama dengan 1 foto fisik meteran.
+                    Catat angka stand AMR PLN T33N: BP, LBP 1, LBP 2, dan Total (kWh) pada gardu utama dengan 1 foto fisik meteran (bisa langsung dari kamera atau pilih dari galeri).
                 </p>
 
                 <div class="choice-status-box">

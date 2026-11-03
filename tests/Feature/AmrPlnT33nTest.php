@@ -172,4 +172,78 @@ class AmrPlnT33nTest extends TestCase
         $pdfRes->assertStatus(200);
         $pdfRes->assertDontSee('<th>Stand Total</th>', false);
     }
+
+    public function test_all_roles_can_access_amr_form_and_see_camera_and_gallery_options(): void
+    {
+        $roles = ['teknisi', 'eng_admin', 'eng_spv', 'admin', 'gm', 'user'];
+
+        foreach ($roles as $role) {
+            $user = User::factory()->create(['role' => $role]);
+            $res = $this->actingAs($user)->get(route('logsheet.create.listrik'));
+            $res->assertStatus(200);
+            $res->assertSee('Pilih dari Galeri');
+            $res->assertSee('Buka Kamera');
+            $res->assertSee('id="foto_kwh_gallery"', false);
+            $res->assertSee('id="foto_kwh_camera"', false);
+        }
+    }
+
+    public function test_all_roles_can_upload_amr_photo_from_gallery(): void
+    {
+        $roles = ['teknisi', 'eng_admin', 'admin'];
+
+        foreach ($roles as $idx => $role) {
+            $user = User::factory()->create(['role' => $role]);
+            $file = $this->createFakePng("amr_gallery_{$role}.png");
+            $date = today()->subDays($idx + 1)->toDateString();
+
+            $response = $this->actingAs($user)->post(route('logsheet.store.listrik'), [
+                'tanggal_pencatatan' => $date,
+                'stand_bp'           => 1100 + $idx,
+                'stand_lbp1'         => 3300 + $idx,
+                'stand_lbp2'         => 1900 + $idx,
+                'stand_total'        => 6300 + ($idx * 3),
+                'foto_kwh'           => $file,
+                'catatan'            => "Upload dari galeri oleh {$role}",
+            ]);
+
+            $targetRoute = $role === 'teknisi' ? route('logsheet.hub') : route('logsheet.index');
+            $response->assertRedirect($targetRoute);
+
+            $reading = MeterReading::whereDate('tanggal', $date)->first();
+            $this->assertNotNull($reading);
+            $this->assertNotNull($reading->foto_kwh);
+            Storage::disk('public')->assertExists($reading->foto_kwh);
+        }
+    }
+
+    public function test_super_admin_manual_amr_form_has_camera_and_gallery_options(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $res = $this->actingAs($admin)->get(route('logsheet.manual.listrik'));
+        $res->assertStatus(200);
+        $res->assertSee('Pilih dari Galeri');
+        $res->assertSee('Buka Kamera');
+        $res->assertSee('id="foto_kwh_gallery"', false);
+        $res->assertSee('id="foto_kwh_camera"', false);
+
+        $file = $this->createFakePng('manual_amr_gallery.png');
+        $pastDate = now()->subDays(10)->format('Y-m-d');
+
+        $storeRes = $this->actingAs($admin)->post(route('logsheet.manual.listrik.store'), [
+            'tanggal'     => $pastDate,
+            'stand_bp'    => 500.00,
+            'stand_lbp1'  => 1200.00,
+            'stand_lbp2'  => 800.00,
+            'stand_total' => 2500.00,
+            'foto_kwh'    => $file,
+            'catatan'     => 'Input manual backdate dari galeri',
+        ]);
+
+        $storeRes->assertRedirect();
+        $record = MeterReading::whereDate('tanggal', $pastDate)->first();
+        $this->assertNotNull($record);
+        $this->assertNotNull($record->foto_kwh);
+        Storage::disk('public')->assertExists($record->foto_kwh);
+    }
 }
