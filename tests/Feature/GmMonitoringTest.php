@@ -158,4 +158,63 @@ class GmMonitoringTest extends TestCase
             'role'     => 'gm',
         ]);
     }
+
+    public function test_gm_sees_actual_pln_kwh_multiplied_by_factor_meter_5000_and_rupiah_calculation_with_tax(): void
+    {
+        $gm = User::factory()->create(['role' => 'gm']);
+
+        $d1 = now()->startOfMonth()->format('Y-m-d');
+        $d2 = now()->startOfMonth()->addDay()->format('Y-m-d');
+
+        MeterReading::create([
+            'user_id'     => $gm->id,
+            'tanggal'     => $d1,
+            'waktu'       => '08:00:00',
+            'stand_bp'    => 10.00,
+            'stand_lbp1'  => 20.00,
+            'stand_lbp2'  => 30.00,
+            'stand_total' => 60.00,
+            'stand_wbp'   => 10.00,
+            'stand_lwbp'  => 50.00,
+        ]);
+
+        MeterReading::create([
+            'user_id'     => $gm->id,
+            'tanggal'     => $d2,
+            'waktu'       => '08:00:00',
+            'stand_bp'    => 12.00,  // delta BP = 2.00 -> 2 x 5000 = 10.000 kWh WBP
+            'stand_lbp1'  => 23.00,  // delta LBP1 = 3.00
+            'stand_lbp2'  => 34.00,  // delta LBP2 = 4.00 -> (3x5000) + (4x5000) = 35.000 kWh LWBP
+            'stand_total' => 69.00,
+            'stand_wbp'   => 12.00,
+            'stand_lwbp'  => 57.00,
+        ]);
+
+        $response = $this->actingAs($gm)->get(route('gm.monitoring', ['periode' => now()->format('Y-m')]));
+
+        $response->assertStatus(200);
+
+        // Pastikan kalkulasi actual kWh dan Rupiah tampil
+        // LWBP: 35.000 kWh, WBP: 10.000 kWh, Total: 45.000 kWh
+        $response->assertSee('45.000,00');
+        $response->assertSee('35.000,00');
+        $response->assertSee('10.000,00');
+
+        // Subtotal: 35.000 * 1035.78 = 36.252.300 + 10.000 * 1553.67 = 15.536.700 => 51.789.000
+        // PPJ 2.4%: 1.242.936
+        // Total: 53.031.936
+        $response->assertSee('51.789.000,00');
+        $response->assertSee('1.242.936,00');
+        $response->assertSee('53.031.936,00');
+
+        // Pastikan badge & label strategis tampil
+        $response->assertSee('Faktor Meter:');
+        $response->assertSee('5.000x');
+        $response->assertSee('Tarif LWBP:');
+        $response->assertSee('1.035,78');
+        $response->assertSee('Tarif WBP:');
+        $response->assertSee('1.553,67');
+        $response->assertSee('Pajak Penerangan:');
+        $response->assertSee('2,4%');
+    }
 }

@@ -2,6 +2,8 @@
 
 @php
     $n = fn ($v) => $v !== null ? number_format($v, 2, ',', '.') : '—';
+    $rp = fn ($v) => $v !== null ? 'Rp ' . number_format($v, 2, ',', '.') : 'Rp 0';
+    $rp0 = fn ($v) => $v !== null ? 'Rp ' . number_format($v, 0, ',', '.') : 'Rp 0';
     $selectedMonthName = \Carbon\Carbon::create($year, $month, 1)->translatedFormat('F Y');
 @endphp
 
@@ -170,47 +172,72 @@
 
     <div class="meter-grid" style="margin-bottom:24px;">
         {{-- Card 1: Listrik PLN Total --}}
-        <div class="meter-card mc-total">
-            <div class="mc-label">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
-                Total Listrik PLN (Gedung)
+        <div class="meter-card mc-total" style="border-top:3px solid #fbbf24;">
+            <div class="mc-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
+                    Total Listrik PLN (Gedung)
+                </span>
+                <span class="badge" style="background:rgba(251,191,36,0.15); color:#fbbf24; font-size:0.65rem; border:1px solid rgba(251,191,36,0.3); padding:2px 6px;">
+                    Faktor 5.000x
+                </span>
             </div>
-            <div class="mc-value">{{ $n($summaryGedung['kwh']) }}<small>kWh</small></div>
-            <div class="mc-sub">
-                LWBP: {{ $n($summaryGedung['lwbp']) }} · WBP: {{ $n($summaryGedung['wbp']) }} kWh
+            <div class="mc-value" style="color:#fbbf24;">{{ $n($summaryGedung['kwh']) }}<small>kWh</small></div>
+            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:4px 0 6px; font-variant-numeric:tabular-nums;">
+                {{ $rp($summaryGedung['total_rupiah']) }}
+                <span style="font-size:0.7rem; font-weight:500; color:var(--text-muted);">(incl. PPJ 2,4%)</span>
             </div>
-            <div style="font-size:0.75rem; color:var(--accent-light); margin-top:6px;">
-                Rata-rata: <b>{{ $n($summaryGedung['rata_kwh']) }} kWh / hari</b> ({{ $summaryGedung['jumlah_hari'] }} hari)
+            <div class="mc-sub" style="font-size:0.78rem;">
+                LWBP: <b>{{ $n($summaryGedung['lwbp']) }}</b> · WBP: <b>{{ $n($summaryGedung['wbp']) }}</b> kWh
+            </div>
+            <div style="font-size:0.75rem; color:var(--accent-light); margin-top:8px; padding-top:6px; border-top:1px dashed rgba(251,191,36,0.2);">
+                Rata-rata: <b>{{ $n($summaryGedung['rata_kwh']) }} kWh / hari</b> ({{ $rp($summaryGedung['rata_rupiah']) }}/hari)
             </div>
         </div>
 
         {{-- Card 2: Air Gedung Utama --}}
-        <div class="meter-card mc-air">
-            <div class="mc-label">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
-                Total Air Gedung (Utama)
+        <div class="meter-card mc-air" style="border-top:3px solid #38bdf8;">
+            <div class="mc-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
+                    Total Air Gedung (Utama)
+                </span>
+                <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.65rem; border:1px solid rgba(56,189,248,0.3); padding:2px 6px;">
+                    Rp 21.500/m³
+                </span>
             </div>
-            <div class="mc-value">{{ $n($summaryGedung['air']) }}<small>m³</small></div>
+            <div class="mc-value" style="color:#38bdf8;">{{ $n($summaryGedung['air']) }}<small>m³</small></div>
+            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:4px 0 6px; font-variant-numeric:tabular-nums;">
+                {{ $rp($summaryGedung['biaya_air']) }}
+            </div>
             <div class="mc-sub">
                 Konsumsi air bersih meteran utama
             </div>
-            <div style="font-size:0.75rem; color:var(--water); margin-top:6px;">
-                Rata-rata: <b>{{ $n($summaryGedung['rata_air']) }} m³ / hari</b>
+            <div style="font-size:0.75rem; color:var(--water); margin-top:8px; padding-top:6px; border-top:1px dashed rgba(56,189,248,0.2);">
+                Rata-rata: <b>{{ $n($summaryGedung['rata_air']) }} m³ / hari</b> ({{ $rp($summaryGedung['rata_biaya_air']) }}/hari)
             </div>
         </div>
 
         {{-- Card 3: Air Public Area --}}
-        <div class="meter-card" style="--c:#06b6d4;">
-            <div class="mc-label">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4Zm3 1h6v2H7V5Zm6 4H7v2h6V9Zm-6 4h6v2H7v-2Z" clip-rule="evenodd"/></svg>
-                Total Air Public Area
+        <div class="meter-card" style="--c:#06b6d4; border-top:3px solid #06b6d4;">
+            <div class="mc-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4Zm3 1h6v2H7V5Zm6 4H7v2h6V9Zm-6 4h6v2H7v-2Z" clip-rule="evenodd"/></svg>
+                    Total Air Public Area
+                </span>
+                <span class="badge" style="background:rgba(6,182,212,0.15); color:#06b6d4; font-size:0.65rem; border:1px solid rgba(6,182,212,0.3); padding:2px 6px;">
+                    Rp 21.500/m³
+                </span>
             </div>
-            <div class="mc-value">{{ $n($totalWaterPa) }}<small>m³</small></div>
+            <div class="mc-value" style="color:#06b6d4;">{{ $n($totalWaterPa) }}<small>m³</small></div>
+            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:4px 0 6px; font-variant-numeric:tabular-nums;">
+                {{ $rp($biayaWaterPa) }}
+            </div>
             <div class="mc-sub">
-                Cooling Tower: {{ $n($waterPaByMeter['cooling_tower']['total_pakai'] ?? 0) }} m³
+                Cooling Tower: {{ $n($waterPaByMeter['cooling_tower']['total_pakai'] ?? 0) }} m³ ({{ $rp($waterPaByMeter['cooling_tower']['biaya'] ?? 0) }})
             </div>
-            <div style="font-size:0.75rem; color:#06b6d4; margin-top:6px;">
-                Toilet: {{ $n($waterPaByMeter['toilet_sky_lobby']['total_pakai'] ?? 0) }} · Pantry: {{ $n($waterPaByMeter['pantry_office']['total_pakai'] ?? 0) }} m³
+            <div style="font-size:0.75rem; color:#06b6d4; margin-top:8px; padding-top:6px; border-top:1px dashed rgba(6,182,212,0.2);">
+                Toilet: {{ $rp($waterPaByMeter['toilet_sky_lobby']['biaya'] ?? 0) }} &middot; Pantry: {{ $rp($waterPaByMeter['pantry_office']['biaya'] ?? 0) }}
             </div>
         </div>
 
@@ -230,13 +257,401 @@
         </div>
     </div>
 
+    {{-- ── 3.A. Grand Total Executive Utility OpEx (Listrik + Air) ── --}}
+    <div class="panel" style="margin-bottom:24px; padding:22px; border:1px solid rgba(16,185,129,0.35); background:linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(2,132,199,0.05) 50%, var(--bg-card) 100%); box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span class="badge" style="background:linear-gradient(135deg, #10b981, #0284c7); color:#fff; border:none; padding:4px 10px; font-weight:700; letter-spacing:0.04em;">
+                        ⚡ + 💧 GRAND TOTAL OPEX UTILITAS
+                    </span>
+                    <span style="font-size:0.8rem; color:var(--accent); font-weight:600;">
+                        Periode {{ $selectedMonthName }}
+                    </span>
+                </div>
+                <h3 style="font-size:1.25rem; font-weight:700; color:var(--text-primary); margin:2px 0 0; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    Ikhtisar Eksekutif Biaya Utilitas Gedung (Listrik PLN &amp; Air PDAM)
+                </h3>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:4px 0 0;">
+                    Ringkasan terpadu biaya operasional energi &amp; air bersih untuk kebutuhan analisis strategis General Manager.
+                </p>
+            </div>
+
+            {{-- Grand Total Metric Callout --}}
+            <div style="background:var(--bg-card); border:1.5px solid rgba(16,185,129,0.4); border-radius:var(--radius-md); padding:12px 20px; text-align:right; box-shadow:0 4px 14px rgba(16,185,129,0.15);">
+                <div style="font-size:0.7rem; text-transform:uppercase; font-weight:800; color:var(--text-muted); letter-spacing:0.06em;">
+                    Total Biaya Utilitas (Listrik + Air)
+                </div>
+                <div style="font-size:1.85rem; font-weight:800; color:#10b981; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif); font-variant-numeric:tabular-nums; margin:2px 0;">
+                    {{ $rp($summaryGedung['grand_total_utilitas']) }}
+                </div>
+                <div style="font-size:0.74rem; color:var(--text-secondary); font-weight:600;">
+                    Rata-rata: <b>{{ $rp($summaryGedung['rata_grand_total']) }} / hari</b> ({{ $summaryGedung['jumlah_hari'] }} hari)
+                </div>
+            </div>
+        </div>
+
+        {{-- 2 Core Pillars: Listrik vs Air --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:18px;">
+            {{-- Biaya Listrik PLN --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid rgba(251,191,36,0.3); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#fbbf24;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.85rem; font-weight:700; color:#fbbf24;">
+                        ⚡ Biaya Listrik PLN (AMR T33N)
+                    </span>
+                    <span class="badge" style="background:rgba(251,191,36,0.15); color:#fbbf24; font-size:0.72rem; font-weight:700;">
+                        {{ $summaryGedung['persen_biaya_listrik'] }}% dari OpEx Utilitas
+                    </span>
+                </div>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $rp($summaryGedung['total_rupiah']) }}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-secondary); margin-top:4px;">
+                    Konsumsi: <b>{{ $n($summaryGedung['kwh']) }} kWh</b> (Faktor 5.000x &middot; incl. PPJ 2,4%)
+                </div>
+                <div style="font-size:0.73rem; color:var(--accent-light); margin-top:6px;">
+                    Run-rate: <b>{{ $rp($summaryGedung['rata_rupiah']) }} / hari</b>
+                </div>
+            </div>
+
+            {{-- Biaya Air Gedung Utama --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid rgba(56,189,248,0.3); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#38bdf8;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.85rem; font-weight:700; color:#38bdf8;">
+                        💧 Biaya Air Bersih (Gedung Utama)
+                    </span>
+                    <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.72rem; font-weight:700;">
+                        {{ $summaryGedung['persen_biaya_air'] }}% dari OpEx Utilitas
+                    </span>
+                </div>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $rp($summaryGedung['biaya_air']) }}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-secondary); margin-top:4px;">
+                    Konsumsi: <b>{{ $n($summaryGedung['air']) }} m³</b> (Tarif Rp 21.500 / m³)
+                </div>
+                <div style="font-size:0.73rem; color:#38bdf8; margin-top:6px;">
+                    Run-rate: <b>{{ $rp($summaryGedung['rata_biaya_air']) }} / hari</b>
+                </div>
+            </div>
+        </div>
+
+        {{-- Visual Utility Proportion Bar --}}
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.76rem; color:var(--text-muted);">
+                <span>
+                    ⚡ Listrik PLN: <b>{{ $summaryGedung['persen_biaya_listrik'] }}%</b> ({{ $rp($summaryGedung['total_rupiah']) }})
+                </span>
+                <span>
+                    💧 Air Bersih: <b>{{ $summaryGedung['persen_biaya_air'] }}%</b> ({{ $rp($summaryGedung['biaya_air']) }})
+                </span>
+            </div>
+            <div style="height:10px; border-radius:999px; overflow:hidden; display:flex; background:rgba(255,255,255,0.06);">
+                <div style="width:{{ $summaryGedung['persen_biaya_listrik'] }}%; background:linear-gradient(90deg, #d97706, #fbbf24);" title="Listrik PLN: {{ $summaryGedung['persen_biaya_listrik'] }}%"></div>
+                <div style="width:{{ $summaryGedung['persen_biaya_air'] }}%; background:linear-gradient(90deg, #0284c7, #38bdf8);" title="Air Gedung: {{ $summaryGedung['persen_biaya_air'] }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── 3.B. Strategic Executive Energy & Financial Analysis (Listrik PLN AMR T33N) ── --}}
+    <div class="panel" style="margin-bottom:24px; padding:22px; border:1px solid rgba(251,191,36,0.35); background:linear-gradient(180deg, rgba(251,191,36,0.05) 0%, var(--bg-card) 100%); box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+        {{-- Header Section --}}
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:rgba(251,191,36,0.15); color:#fbbf24; font-size:0.95rem; border:1px solid rgba(251,191,36,0.3);">
+                        ⚡
+                    </span>
+                    <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin:0; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                        Ringkasan Strategis Biaya &amp; Konsumsi Listrik PLN (AMR T33N)
+                    </h3>
+                </div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:0; line-height:1.4;">
+                    Monitoring terintegrasi konsumsi energi aktual dengan <b>Faktor Kali Meter 5.000x (CT/PT)</b> dan kalkulasi tarif resmi operasional (OpEx) periode <b>{{ $selectedMonthName }}</b>.
+                </p>
+            </div>
+
+            {{-- Strategic Parameter Badges --}}
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="badge" style="background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.3); font-size:0.72rem; padding:4px 9px; font-weight:600;">
+                    ⚙️ Faktor Meter: <b>5.000x</b>
+                </span>
+                <span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.72rem; padding:4px 9px; font-weight:600;">
+                    💡 Tarif LWBP: <b>Rp 1.035,78</b>/kWh
+                </span>
+                <span class="badge" style="background:rgba(244,63,94,0.12); color:#fb7185; border:1px solid rgba(244,63,94,0.3); font-size:0.72rem; padding:4px 9px; font-weight:600;">
+                    🔥 Tarif WBP: <b>Rp 1.553,67</b>/kWh
+                </span>
+                <span class="badge" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.3); font-size:0.72rem; padding:4px 9px; font-weight:600;">
+                    🏛️ Pajak Penerangan: <b>2,4%</b>
+                </span>
+            </div>
+        </div>
+
+        {{-- 4 Executive Metric Pillars --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:22px;">
+            {{-- Pillar 1: Total Energi Aktual --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+                <div style="font-size:0.72rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.05em; margin-bottom:6px;">
+                    1. Konsumsi Total Aktual
+                </div>
+                <div style="font-size:1.6rem; font-weight:700; color:#fbbf24; font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $n($summaryGedung['kwh']) }} <span style="font-size:0.85rem; font-family:var(--font-sans, sans-serif); color:var(--text-secondary); font-weight:500;">kWh</span>
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-secondary); margin-top:4px;">
+                    Rumus: <code>LWBP + WBP</code> (Faktor 5.000)
+                </div>
+                <div style="font-size:0.74rem; color:var(--accent-light); margin-top:6px; font-weight:600;">
+                    Rata-rata: {{ $n($summaryGedung['rata_kwh']) }} kWh / hari
+                </div>
+            </div>
+
+            {{-- Pillar 2: Subtotal Biaya Pemakaian --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+                <div style="font-size:0.72rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.05em; margin-bottom:6px;">
+                    2. Subtotal Pemakaian Listrik
+                </div>
+                <div style="font-size:1.6rem; font-weight:700; color:var(--text-primary); font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $rp($summaryGedung['subtotal_rupiah']) }}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-secondary); margin-top:4px;">
+                    Biaya LWBP + Biaya WBP (Sebelum Pajak)
+                </div>
+                <div style="font-size:0.74rem; color:var(--text-muted); margin-top:6px;">
+                    Beban harian: {{ $rp($summaryGedung['rata_subtotal_rp']) }} / hari
+                </div>
+            </div>
+
+            {{-- Pillar 3: Pajak Penerangan Jalan --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+                <div style="font-size:0.72rem; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.05em; margin-bottom:6px;">
+                    3. Pajak Penerangan (PBJT 2,4%)
+                </div>
+                <div style="font-size:1.6rem; font-weight:700; color:#38bdf8; font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $rp($summaryGedung['pajak_penerangan']) }}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-secondary); margin-top:4px;">
+                    Biaya 2,4% atas Subtotal Pemakaian
+                </div>
+                <div style="font-size:0.74rem; color:var(--text-muted); margin-top:6px;">
+                    Tarif PBJT Tenaga Listrik Daerah
+                </div>
+            </div>
+
+            {{-- Pillar 4: Total Tagihan PLN --}}
+            <div style="background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(251,191,36,0.03)); border:1.5px solid rgba(251,191,36,0.4); border-radius:var(--radius-md); padding:16px; box-shadow:0 4px 14px rgba(251,191,36,0.1);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.72rem; text-transform:uppercase; font-weight:800; color:#fbbf24; letter-spacing:0.05em;">
+                        4. Total Estimasi Tagihan PLN
+                    </span>
+                    <span class="badge" style="background:#fbbf24; color:#0f172a; font-weight:700; font-size:0.62rem; padding:1px 5px;">
+                        TOTAL OPEX
+                    </span>
+                </div>
+                <div style="font-size:1.6rem; font-weight:800; color:#fbbf24; font-variant-numeric:tabular-nums; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    {{ $rp($summaryGedung['total_rupiah']) }}
+                </div>
+                <div style="font-size:0.76rem; color:var(--text-primary); margin-top:4px; font-weight:600;">
+                    Subtotal + Pajak Penerangan (2,4%)
+                </div>
+                <div style="font-size:0.74rem; color:#fde047; margin-top:6px; font-weight:600;">
+                    Run-rate: {{ $rp($summaryGedung['rata_rupiah']) }} / hari
+                </div>
+            </div>
+        </div>
+
+        {{-- Comparative Split: LWBP vs WBP --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px; margin-bottom:20px;">
+            {{-- LWBP Card --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid rgba(56,189,248,0.3); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#38bdf8;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.88rem; font-weight:700; color:var(--text-primary);">
+                        🌙 LWBP (Luar Waktu Beban Puncak)
+                    </span>
+                    <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.7rem; font-weight:600;">
+                        Tarif: Rp 1.035,78 / kWh
+                    </span>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.25); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:12px; font-size:0.76rem; color:var(--text-secondary); font-family:monospace;">
+                    Formula: (LBP1 &times; 5.000) + (LBP2 &times; 5.000) = LWBP (kWh)
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                    <div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Energi Aktual</div>
+                        <div style="font-size:1.25rem; font-weight:700; color:#38bdf8;">
+                            {{ $n($summaryGedung['lwbp']) }} <small style="font-size:0.75rem; color:var(--text-muted);">kWh</small>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">
+                            Porsi Energi: <b>{{ $summaryGedung['persen_lwbp'] }}%</b>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Subtotal Biaya LWBP</div>
+                        <div style="font-size:1.25rem; font-weight:700; color:var(--text-primary);">
+                            {{ $rp($summaryGedung['biaya_lwbp']) }}
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">
+                            Porsi Biaya: <b>{{ $summaryGedung['persen_biaya_lwbp'] }}%</b>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size:0.74rem; color:var(--text-muted); line-height:1.4; border-top:1px solid var(--border); padding-top:8px;">
+                    🕒 <b>19 Jam Operasional (22:00 - 17:00 WIB)</b> &middot; Tarif dasar efisien untuk operasional rutin chiller, tata udara hunian &amp; fasilitas umum.
+                </div>
+            </div>
+
+            {{-- WBP Card --}}
+            <div style="background:var(--bg-card-subtle); border:1px solid rgba(244,63,94,0.3); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#f43f5e;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:0.88rem; font-weight:700; color:var(--text-primary);">
+                        🔥 WBP (Waktu Beban Puncak)
+                    </span>
+                    <span class="badge" style="background:rgba(244,63,94,0.15); color:#fb7185; font-size:0.7rem; font-weight:600;">
+                        Tarif: Rp 1.553,67 / kWh (+50%)
+                    </span>
+                </div>
+
+                <div style="background:rgba(0,0,0,0.25); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:12px; font-size:0.76rem; color:var(--text-secondary); font-family:monospace;">
+                    Formula: (BP &times; 5.000) = WBP (kWh)
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                    <div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Energi Aktual</div>
+                        <div style="font-size:1.25rem; font-weight:700; color:#fb7185;">
+                            {{ $n($summaryGedung['wbp']) }} <small style="font-size:0.75rem; color:var(--text-muted);">kWh</small>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">
+                            Porsi Energi: <b>{{ $summaryGedung['persen_wbp'] }}%</b>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Subtotal Biaya WBP</div>
+                        <div style="font-size:1.25rem; font-weight:700; color:var(--text-primary);">
+                            {{ $rp($summaryGedung['biaya_wbp']) }}
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted);">
+                            Porsi Biaya: <b>{{ $summaryGedung['persen_biaya_wbp'] }}%</b>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-size:0.74rem; color:var(--text-muted); line-height:1.4; border-top:1px solid var(--border); padding-top:8px;">
+                    🕒 <b>5 Jam Beban Puncak (17:00 - 22:00 WIB)</b> &middot; Tarif premium 150%. Manajemen operasional chiller, pompa &amp; penerangan fasad pada jam ini sangat krusial untuk menekan tagihan.
+                </div>
+            </div>
+        </div>
+
+        {{-- Visual Split Bar & Strategic Summary Table --}}
+        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:0.78rem; font-weight:700; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.04em;">
+                    Proporsi Konsumsi Energi: LWBP vs WBP
+                </span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">
+                    Total: <b>{{ $n($summaryGedung['kwh']) }} kWh</b> (100%)
+                </span>
+            </div>
+
+            {{-- Dual Color Progress Bar --}}
+            <div style="height:10px; border-radius:999px; overflow:hidden; display:flex; background:rgba(255,255,255,0.06); margin-bottom:14px;">
+                <div style="width:{{ $summaryGedung['persen_lwbp'] }}%; background:linear-gradient(90deg, #0284c7, #38bdf8);" title="LWBP: {{ $summaryGedung['persen_lwbp'] }}%"></div>
+                <div style="width:{{ $summaryGedung['persen_wbp'] }}%; background:linear-gradient(90deg, #f43f5e, #fb7185);" title="WBP: {{ $summaryGedung['persen_wbp'] }}%"></div>
+            </div>
+
+            {{-- Strategic Transparency Table --}}
+            <div class="table-wrap" style="margin-top:10px;">
+                <table class="log-table" style="font-size:0.8rem; margin:0;">
+                    <thead>
+                        <tr>
+                            <th class="l">Komponen Tarif PLN</th>
+                            <th class="r">Stand Mentah (Delta)</th>
+                            <th class="c">Faktor Meter</th>
+                            <th class="r">Konsumsi Aktual (kWh)</th>
+                            <th class="r">Tarif Satuan</th>
+                            <th class="r">Subtotal Biaya</th>
+                            <th class="c">Proporsi Energi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="l">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:6px;"></span>
+                                <b>LWBP</b> (Luar Waktu Beban Puncak: LBP 1 + LBP 2)
+                            </td>
+                            <td class="r" style="font-family:monospace;">{{ $n($summaryGedung['raw_lwbp']) }}</td>
+                            <td class="c"><span class="badge" style="background:rgba(251,191,36,0.1); color:#fbbf24; font-size:0.7rem;">5.000x</span></td>
+                            <td class="r" style="color:#38bdf8; font-weight:700;">{{ $n($summaryGedung['lwbp']) }} kWh</td>
+                            <td class="r">Rp 1.035,78</td>
+                            <td class="r" style="font-weight:600;">{{ $rp($summaryGedung['biaya_lwbp']) }}</td>
+                            <td class="c"><b>{{ $summaryGedung['persen_lwbp'] }}%</b></td>
+                        </tr>
+                        <tr>
+                            <td class="l">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f43f5e; margin-right:6px;"></span>
+                                <b>WBP</b> (Waktu Beban Puncak: BP 17:00 - 22:00 WIB)
+                            </td>
+                            <td class="r" style="font-family:monospace;">{{ $n($summaryGedung['raw_wbp']) }}</td>
+                            <td class="c"><span class="badge" style="background:rgba(251,191,36,0.1); color:#fbbf24; font-size:0.7rem;">5.000x</span></td>
+                            <td class="r" style="color:#fb7185; font-weight:700;">{{ $n($summaryGedung['wbp']) }} kWh</td>
+                            <td class="r">Rp 1.553,67</td>
+                            <td class="r" style="font-weight:600;">{{ $rp($summaryGedung['biaya_wbp']) }}</td>
+                            <td class="c"><b>{{ $summaryGedung['persen_wbp'] }}%</b></td>
+                        </tr>
+                        <tr style="border-top:1.5px solid var(--border); font-weight:700;">
+                            <td class="l" colspan="3"><b>JUMLAH PEMAKAIAN LISTRIK (SUBTOTAL)</b></td>
+                            <td class="r" style="color:#fbbf24; font-weight:800;">{{ $n($summaryGedung['kwh']) }} kWh</td>
+                            <td class="r">—</td>
+                            <td class="r" style="color:var(--text-primary); font-weight:800;">{{ $rp($summaryGedung['subtotal_rupiah']) }}</td>
+                            <td class="c"><b>100%</b></td>
+                        </tr>
+                        <tr>
+                            <td class="l" colspan="4">
+                                🏛️ <b>Pajak Penerangan Jalan (PBJT Tenaga Listrik 2,4%)</b>
+                            </td>
+                            <td class="r">2,4%</td>
+                            <td class="r" style="color:#38bdf8; font-weight:700;">+ {{ $rp($summaryGedung['pajak_penerangan']) }}</td>
+                            <td class="c"><span class="badge" style="font-size:0.65rem; background:rgba(56,189,248,0.15); color:#38bdf8;">Pajak Daerah</span></td>
+                        </tr>
+                        <tr style="background:rgba(251,191,36,0.06); font-weight:800; border-top:2px solid rgba(251,191,36,0.3);">
+                            <td class="l" colspan="3" style="color:#fbbf24; font-size:0.88rem;">
+                                ⚡ TOTAL ESTIMASI BIAYA LISTRIK PLN (GEDUNG)
+                            </td>
+                            <td class="r" style="color:#fbbf24; font-size:0.95rem;">
+                                {{ $n($summaryGedung['kwh']) }} kWh
+                            </td>
+                            <td class="r" style="font-size:0.75rem; color:var(--text-muted);">
+                                Rata-rata: {{ $n($summaryGedung['rata_kwh']) }} kWh/hr
+                            </td>
+                            <td class="r" style="color:#fbbf24; font-size:1.05rem;">
+                                {{ $rp($summaryGedung['total_rupiah']) }}
+                            </td>
+                            <td class="c">
+                                <span class="badge" style="background:#fbbf24; color:#0f172a; font-weight:800; font-size:0.7rem; padding:3px 8px;">
+                                    FINAL OPEX
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- ── 4. Grafik Tren Pemakaian ── --}}
     <div class="form-grid" style="margin-bottom:24px;">
         <section class="panel">
             <div class="panel-head">
                 <div>
                     <h2>Tren Pemakaian Listrik Harian (kWh)</h2>
-                    <p>AMR PLN T33N &middot; Bulan {{ $selectedMonthName }}</p>
+                    <p>AMR PLN T33N &middot; Konsumsi Aktual (Faktor Meter 5.000x) &middot; Bulan {{ $selectedMonthName }}</p>
                 </div>
             </div>
             <div class="chart-box"><canvas id="gmChartListrik"></canvas></div>
@@ -246,7 +661,7 @@
             <div class="panel-head">
                 <div>
                     <h2>Tren Pemakaian Air Harian (m³)</h2>
-                    <p>Water Meter Gedung &middot; Bulan {{ $selectedMonthName }}</p>
+                    <p>Water Meter Gedung &middot; Tarif Rp 21.500/m³ &middot; Bulan {{ $selectedMonthName }}</p>
                 </div>
             </div>
             <div class="chart-box"><canvas id="gmChartAir"></canvas></div>
@@ -289,10 +704,21 @@
                 <tbody>
                     {{-- 1. Listrik PLN AMR --}}
                     <tr>
-                        <td class="l"><b>⚡ AMR PLN T33N (LWBP &amp; WBP)</b></td>
+                        <td class="l">
+                            <b>⚡ AMR PLN T33N (LWBP &amp; WBP)</b>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
+                                Faktor Meter: <b>5.000x</b> &middot; Termasuk Pajak Penerangan 2,4%
+                            </div>
+                        </td>
                         <td class="l">Main Incoming Gardu PLN Gedung</td>
-                        <td class="r" style="color:#fbbf24; font-weight:700;">{{ $n($summaryGedung['kwh']) }} kWh</td>
-                        <td class="r">{{ $n($summaryGedung['rata_kwh']) }} kWh</td>
+                        <td class="r" style="color:#fbbf24; font-weight:700;">
+                            <div>{{ $n($summaryGedung['kwh']) }} kWh</div>
+                            <div style="font-size:0.74rem; color:var(--text-primary); font-weight:600; margin-top:2px;">{{ $rp($summaryGedung['total_rupiah']) }}</div>
+                        </td>
+                        <td class="r">
+                            <div>{{ $n($summaryGedung['rata_kwh']) }} kWh</div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">{{ $rp($summaryGedung['rata_rupiah']) }}</div>
+                        </td>
                         <td class="c">{{ $summaryGedung['jumlah_hari'] }} hari</td>
                         <td class="c">
                             @if($summaryGedung['pending'] === 0 && $summaryGedung['jumlah_hari'] > 0)
@@ -305,10 +731,21 @@
 
                     {{-- 2. Air Gedung Utama --}}
                     <tr>
-                        <td class="l"><b>💧 Water Meter Gedung Utama</b></td>
-                        <td class="l">Suplai Air Bersih Utama Gedung</td>
-                        <td class="r" style="color:#38bdf8; font-weight:700;">{{ $n($summaryGedung['air']) }} m³</td>
-                        <td class="r">{{ $n($summaryGedung['rata_air']) }} m³</td>
+                        <td class="l">
+                            <b>💧 Water Meter Gedung Utama</b>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
+                                Suplai Air Bersih Utama Gedung &middot; Tarif: <b>Rp 21.500 / m³</b>
+                            </div>
+                        </td>
+                        <td class="l">Main Suplai Meteran Gedung</td>
+                        <td class="r" style="color:#38bdf8; font-weight:700;">
+                            <div>{{ $n($summaryGedung['air']) }} m³</div>
+                            <div style="font-size:0.74rem; color:var(--text-primary); font-weight:600; margin-top:2px;">{{ $rp($summaryGedung['biaya_air']) }}</div>
+                        </td>
+                        <td class="r">
+                            <div>{{ $n($summaryGedung['rata_air']) }} m³</div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">{{ $rp($summaryGedung['rata_biaya_air']) }}</div>
+                        </td>
                         <td class="c">{{ $summaryGedung['jumlah_hari'] }} hari</td>
                         <td class="c">
                             <span class="badge badge-ok">Aktif</span>
@@ -317,9 +754,15 @@
 
                     {{-- 3. Cooling Tower 12A --}}
                     <tr>
-                        <td class="l"><b>🏢 Water Meter Cooling Tower</b></td>
+                        <td class="l">
+                            <b>🏢 Water Meter Cooling Tower</b>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Tarif: Rp 21.500 / m³</div>
+                        </td>
                         <td class="l">Operasional Chiller Lantai 12A</td>
-                        <td class="r" style="color:#06b6d4; font-weight:700;">{{ $n($waterPaByMeter['cooling_tower']['total_pakai'] ?? 0) }} m³</td>
+                        <td class="r" style="color:#06b6d4; font-weight:700;">
+                            <div>{{ $n($waterPaByMeter['cooling_tower']['total_pakai'] ?? 0) }} m³</div>
+                            <div style="font-size:0.74rem; color:var(--text-primary); font-weight:600; margin-top:2px;">{{ $rp($waterPaByMeter['cooling_tower']['biaya'] ?? 0) }}</div>
+                        </td>
                         <td class="r">{{ ($waterPaByMeter['cooling_tower']['count'] ?? 0) > 0 ? $n(($waterPaByMeter['cooling_tower']['total_pakai'] ?? 0) / $waterPaByMeter['cooling_tower']['count']) : '—' }} m³</td>
                         <td class="c">{{ $waterPaByMeter['cooling_tower']['count'] ?? 0 }} data</td>
                         <td class="c"><span class="badge badge-ok">Public Area</span></td>
@@ -327,9 +770,15 @@
 
                     {{-- 4. Toilet Sky Lobby & Mushola --}}
                     <tr>
-                        <td class="l"><b>🏢 Water Meter Toilet &amp; Mushola</b></td>
+                        <td class="l">
+                            <b>🏢 Water Meter Toilet &amp; Mushola</b>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Tarif: Rp 21.500 / m³</div>
+                        </td>
                         <td class="l">Sky Lobby Lt. 11 &amp; Mushola Lt. 12</td>
-                        <td class="r" style="color:#3b82f6; font-weight:700;">{{ $n($waterPaByMeter['toilet_sky_lobby']['total_pakai'] ?? 0) }} m³</td>
+                        <td class="r" style="color:#3b82f6; font-weight:700;">
+                            <div>{{ $n($waterPaByMeter['toilet_sky_lobby']['total_pakai'] ?? 0) }} m³</div>
+                            <div style="font-size:0.74rem; color:var(--text-primary); font-weight:600; margin-top:2px;">{{ $rp($waterPaByMeter['toilet_sky_lobby']['biaya'] ?? 0) }}</div>
+                        </td>
                         <td class="r">{{ ($waterPaByMeter['toilet_sky_lobby']['count'] ?? 0) > 0 ? $n(($waterPaByMeter['toilet_sky_lobby']['total_pakai'] ?? 0) / $waterPaByMeter['toilet_sky_lobby']['count']) : '—' }} m³</td>
                         <td class="c">{{ $waterPaByMeter['toilet_sky_lobby']['count'] ?? 0 }} data</td>
                         <td class="c"><span class="badge badge-ok">Public Area</span></td>
@@ -337,9 +786,15 @@
 
                     {{-- 5. Pantry Office --}}
                     <tr>
-                        <td class="l"><b>🏢 Water Meter Pantry Office</b></td>
+                        <td class="l">
+                            <b>🏢 Water Meter Pantry Office</b>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Tarif: Rp 21.500 / m³</div>
+                        </td>
                         <td class="l">Area Pantry Office</td>
-                        <td class="r" style="color:#10b981; font-weight:700;">{{ $n($waterPaByMeter['pantry_office']['total_pakai'] ?? 0) }} m³</td>
+                        <td class="r" style="color:#10b981; font-weight:700;">
+                            <div>{{ $n($waterPaByMeter['pantry_office']['total_pakai'] ?? 0) }} m³</div>
+                            <div style="font-size:0.74rem; color:var(--text-primary); font-weight:600; margin-top:2px;">{{ $rp($waterPaByMeter['pantry_office']['biaya'] ?? 0) }}</div>
+                        </td>
                         <td class="r">{{ ($waterPaByMeter['pantry_office']['count'] ?? 0) > 0 ? $n(($waterPaByMeter['pantry_office']['total_pakai'] ?? 0) / $waterPaByMeter['pantry_office']['count']) : '—' }} m³</td>
                         <td class="c">{{ $waterPaByMeter['pantry_office']['count'] ?? 0 }} data</td>
                         <td class="c"><span class="badge badge-ok">Public Area</span></td>
@@ -456,6 +911,14 @@ document.addEventListener('DOMContentLoaded', function () {
         plugins: {
             legend: {
                 labels: { color: th.textColor, font: { family: 'Inter', size: 11 } }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (ctx) {
+                        const val = ctx.parsed.y !== null ? new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(ctx.parsed.y) : '0';
+                        return ` ${ctx.dataset.label}: ${val}`;
+                    }
+                }
             }
         },
         scales: {
@@ -524,7 +987,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 ]
             },
-            options: commonOptions
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: th.textColor, font: { family: 'Inter', size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const m3 = ctx.parsed.y !== null ? ctx.parsed.y : 0;
+                                const rp = Math.round(m3 * 21500);
+                                const fmtM3 = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(m3);
+                                const fmtRp = new Intl.NumberFormat('id-ID').format(rp);
+                                return ` Pemakaian: ${fmtM3} m³ (Rp ${fmtRp})`;
+                            }
+                        }
+                    }
+                },
+                scales: commonOptions.scales
+            }
         });
     }
 
