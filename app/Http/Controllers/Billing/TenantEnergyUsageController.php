@@ -157,6 +157,12 @@ class TenantEnergyUsageController extends Controller
         $prevStand = $selectedTenant ? $selectedTenant->getPreviousEnergyStand($year, $month, $meterType) : 0.00;
         $existingReading = $selectedTenant ? $selectedTenant->getEnergyReadingFor($year, $month, $meterType) : null;
 
+        // Proteksi: Teknisi tidak diizinkan mengubah data yang sudah tercatat
+        if ($existingReading && ! Auth::user()->canModifyBillingData()) {
+            return redirect()->route('billing.energy.index', ['year' => $year, 'month' => $month])
+                ->with('error', 'Akses ditolak. Fitur ubah data meteran listrik hanya tersedia untuk Super Admin dan Supervisor.');
+        }
+
         return view('billing.energy.create', compact('tenants', 'selectedTenant', 'meterType', 'year', 'month', 'prevStand', 'existingReading'));
     }
 
@@ -260,6 +266,10 @@ class TenantEnergyUsageController extends Controller
         $meterLabel = ($meterType === 'ev') ? 'EV Charger' : 'Reguler';
 
         if ($reading) {
+            // Proteksi: Teknisi tidak diizinkan mengubah data yang sudah ada
+            if (! Auth::user()->canModifyBillingData()) {
+                return back()->withInput()->with('error', 'Akses ditolak. Data meteran listrik unit ini sudah tercatat. Pengubahan data hanya dapat dilakukan oleh Super Admin dan Supervisor.');
+            }
             $reading->update($data);
             $msg = "Data listrik ({$meterLabel}) tenant '{$tenant->nama_tenant}' periode {$validated['periode_bulan']}/{$validated['periode_tahun']} berhasil diperbarui.";
         } else {
@@ -296,6 +306,10 @@ class TenantEnergyUsageController extends Controller
      */
     public function destroy(TenantEnergyReading $energyReading)
     {
+        if (! Auth::user()->canModifyBillingData()) {
+            abort(403, 'Akses ditolak. Fitur hapus data meteran listrik hanya untuk Super Admin dan Supervisor.');
+        }
+
         if ($energyReading->foto_meter) {
             Storage::disk('public')->delete($energyReading->foto_meter);
         }

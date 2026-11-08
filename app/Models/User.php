@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->isSuperAdmin() || $this->isSupervisor();
     }
 
+    public function canModifyBillingData(): bool
+    {
+        return $this->isSuperAdmin() || $this->isSupervisor();
+    }
+
     public function isAdmin(): bool
     {
         return in_array($this->role, ['admin', 'superadmin', 'eng_admin'], true);

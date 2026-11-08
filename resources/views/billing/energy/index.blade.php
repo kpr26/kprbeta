@@ -233,40 +233,70 @@
                             @endif
                         </td>
                         <td style="padding:12px 14px; text-align:right;">
-                            <div style="display:inline-flex; flex-direction:column; gap:4px; align-items:flex-end;">
-                                <div style="display:inline-flex; gap:4px;">
-                                    <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'regular', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm {{ $row->is_recorded ? '' : 'btn-primary' }}" style="padding:3px 8px; font-size:0.75rem;">
-                                        {{ $row->is_recorded ? 'Ubah' : 'Input' }}
-                                    </a>
-                                    @if($t->has_ev_charger)
-                                        <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'ev', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm" style="padding:3px 8px; font-size:0.75rem; color:#38bdf8; border-color:rgba(56,189,248,0.4);">
-                                            {{ $row->ev_reading ? 'Ubah EV' : '+ EV' }}
-                                        </a>
-                                    @endif
-                                </div>
-                                @if($row->regular_reading || $row->ev_reading)
+                            @php
+                                $canModify = auth()->user()->canModifyBillingData();
+                            @endphp
+
+                            @if($canModify)
+                                {{-- Aksi untuk Super Admin dan SPV: Kontrol penuh Ubah dan Hapus --}}
+                                <div style="display:inline-flex; flex-direction:column; gap:4px; align-items:flex-end;">
                                     <div style="display:inline-flex; gap:4px;">
-                                        @if($row->regular_reading)
-                                            <form method="POST" action="{{ route('billing.energy.destroy', $row->regular_reading) }}" onsubmit="return confirm('Hapus data stand listrik reguler ini?')" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm" style="color:var(--danger); padding:2px 6px; font-size:0.7rem;" title="Hapus Reguler">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        @endif
-                                        @if($row->ev_reading)
-                                            <form method="POST" action="{{ route('billing.energy.destroy', $row->ev_reading) }}" onsubmit="return confirm('Hapus data stand EV charger ini?')" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm" style="color:#f87171; padding:2px 6px; font-size:0.7rem;" title="Hapus EV">
-                                                    Hapus EV
-                                                </button>
-                                            </form>
+                                        <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'regular', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm {{ $row->is_recorded ? '' : 'btn-primary' }}" style="padding:3px 8px; font-size:0.75rem;">
+                                            {{ $row->is_recorded ? 'Ubah' : 'Input' }}
+                                        </a>
+                                        @if($t->has_ev_charger)
+                                            <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'ev', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm" style="padding:3px 8px; font-size:0.75rem; color:#38bdf8; border-color:rgba(56,189,248,0.4);">
+                                                {{ $row->ev_reading ? 'Ubah EV' : '+ EV' }}
+                                            </a>
                                         @endif
                                     </div>
+                                    @if($row->regular_reading || $row->ev_reading)
+                                        <div style="display:inline-flex; gap:4px;">
+                                            @if($row->regular_reading)
+                                                <form method="POST" action="{{ route('billing.energy.destroy', $row->regular_reading) }}" onsubmit="return confirm('Hapus data stand listrik reguler ini?')" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm" style="color:var(--danger); padding:2px 6px; font-size:0.7rem;" title="Hapus Reguler">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            @if($row->ev_reading)
+                                                <form method="POST" action="{{ route('billing.energy.destroy', $row->ev_reading) }}" onsubmit="return confirm('Hapus data stand EV charger ini?')" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm" style="color:#f87171; padding:2px 6px; font-size:0.7rem;" title="Hapus EV">
+                                                        Hapus EV
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            @else
+                                {{-- Aksi untuk Role Teknisi: Hanya Input Baru saat Belum Tercatat, TIDAK BISA Ubah/Hapus --}}
+                                @if($row->is_fully_recorded)
+                                    <span class="badge badge-ok" style="font-size:0.72rem; padding:4px 8px;" title="Data stand sudah tersimpan dan terkunci. Pengubahan hanya oleh Super Admin/SPV.">
+                                        ✓ Tercatat
+                                    </span>
+                                @elseif($row->is_recorded)
+                                    @if($t->has_ev_charger && ! $row->ev_reading && ($setting->is_open ?? true))
+                                        <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'ev', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm btn-primary" style="padding:3px 8px; font-size:0.75rem;">
+                                            + Input EV
+                                        </a>
+                                    @else
+                                        <span class="badge badge-ok" style="font-size:0.72rem; padding:4px 8px;">✓ Tercatat</span>
+                                    @endif
+                                @else
+                                    @if($setting->is_open ?? true)
+                                        <a href="{{ route('billing.energy.create', ['tenant_id' => $t->id, 'meter_type' => 'regular', 'year' => $year, 'month' => $month]) }}" class="btn btn-sm btn-primary" style="padding:3px 8px; font-size:0.75rem;">
+                                            + Input
+                                        </a>
+                                    @else
+                                        <span style="font-size:0.72rem; color:var(--text-muted);">Terkunci</span>
+                                    @endif
                                 @endif
-                            </div>
+                            @endif
                         </td>
                     </tr>
                 @empty

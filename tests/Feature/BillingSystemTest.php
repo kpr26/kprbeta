@@ -1141,4 +1141,117 @@ class BillingSystemTest extends TestCase
         $response->assertSee('Grand Total Penagihan');
         $response->assertSee('Rekonsiliasi &amp; Analisis Beban Utilitas Bersama', false);
     }
+
+    public function test_teknisi_cannot_see_ubah_or_hapus_buttons_and_cannot_modify_or_delete_billing_data(): void
+    {
+        $teknisi = User::factory()->create(['role' => 'teknisi']);
+
+        $tenant = Tenant::create([
+            'nama_tenant'         => 'Unit 12 A1',
+            'kode_tenant'         => 'TNT-12-A1',
+            'lantai'              => '12',
+            'nomor_unit'          => 'A1',
+            'daya_listrik'        => 21.12,
+            'nomor_meter_listrik' => 'KWH-12-A1',
+            'nomor_meter_air'     => 'PAM-12-A1',
+            'is_active'           => true,
+        ]);
+
+        $eReading = TenantEnergyReading::create([
+            'tenant_id'     => $tenant->id,
+            'meter_type'    => 'regular',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'stand_awal'    => 1000.00,
+            'stand_akhir'   => 1500.00,
+            'pemakaian'     => 500.00,
+        ]);
+
+        $wReading = TenantWaterReading::create([
+            'tenant_id'     => $tenant->id,
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'stand_awal'    => 20.000,
+            'stand_akhir'   => 25.000,
+            'pemakaian'     => 5.000,
+        ]);
+
+        // 1. Pada view Tenant Energy Usage, teknisi TIDAK melihat tombol "Ubah" atau "Hapus", hanya "✓ Tercatat"
+        $resEnergy = $this->actingAs($teknisi)->get(route('billing.energy.index', ['year' => 2026, 'month' => 10]));
+        $resEnergy->assertOk();
+        $resEnergy->assertSee('✓ Tercatat');
+        $resEnergy->assertDontSee('Ubah');
+        $resEnergy->assertDontSee('Hapus');
+
+        // 2. Pada view Tenant Water Usage, teknisi TIDAK melihat tombol "Ubah" atau "Hapus"
+        $resWater = $this->actingAs($teknisi)->get(route('billing.water.index', ['year' => 2026, 'month' => 10]));
+        $resWater->assertOk();
+        $resWater->assertSee('✓ Tercatat');
+        $resWater->assertDontSee('Ubah');
+
+        // 3. Teknisi mencoba DELETE energi -> 403 Forbidden
+        $resDelE = $this->actingAs($teknisi)->delete(route('billing.energy.destroy', $eReading));
+        $resDelE->assertStatus(403);
+
+        // 4. Teknisi mencoba DELETE air -> 403 Forbidden
+        $resDelW = $this->actingAs($teknisi)->delete(route('billing.water.destroy', $wReading));
+        $resDelW->assertStatus(403);
+
+        // 5. Teknisi mencoba akses form edit/create untuk unit yang sudah tercatat -> redirect error
+        $resEditE = $this->actingAs($teknisi)->get(route('billing.energy.create', [
+            'tenant_id'  => $tenant->id,
+            'meter_type' => 'regular',
+            'year'       => 2026,
+            'month'      => 10,
+        ]));
+        $resEditE->assertRedirect(route('billing.energy.index', ['year' => 2026, 'month' => 10]));
+        $resEditE->assertSessionHas('error');
+    }
+
+    public function test_superadmin_and_spv_can_see_ubah_and_hapus_buttons_and_can_modify_billing_data(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'superadmin']);
+        $spv = User::factory()->create(['role' => 'eng_spv']);
+
+        $tenant = Tenant::create([
+            'nama_tenant'         => 'Unit 15 A1',
+            'kode_tenant'         => 'TNT-15-A1',
+            'lantai'              => '15',
+            'nomor_unit'          => 'A1',
+            'daya_listrik'        => 21.12,
+            'nomor_meter_listrik' => 'KWH-15-A1',
+            'nomor_meter_air'     => 'PAM-15-A1',
+            'is_active'           => true,
+        ]);
+
+        $eReading = TenantEnergyReading::create([
+            'tenant_id'     => $tenant->id,
+            'meter_type'    => 'regular',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'stand_awal'    => 1000.00,
+            'stand_akhir'   => 1200.00,
+            'pemakaian'     => 200.00,
+        ]);
+
+        // Super Admin melihat tombol Ubah dan Hapus
+        $resSa = $this->actingAs($superAdmin)->get(route('billing.energy.index', ['year' => 2026, 'month' => 10]));
+        $resSa->assertOk();
+        $resSa->assertSee('Ubah');
+        $resSa->assertSee('Hapus');
+
+        // SPV juga melihat tombol Ubah dan Hapus
+        $resSpv = $this->actingAs($spv)->get(route('billing.energy.index', ['year' => 2026, 'month' => 10]));
+        $resSpv->assertOk();
+        $resSpv->assertSee('Ubah');
+        $resSpv->assertSee('Hapus');
+
+        // SPV dapat menghapus data
+        $resDel = $this->actingAs($spv)->delete(route('billing.energy.destroy', $eReading));
+        $resDel->assertRedirect();
+        $this->assertDatabaseMissing('tenant_energy_readings', ['id' => $eReading->id]);
+    }
 }

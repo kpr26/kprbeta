@@ -135,6 +135,12 @@ class TenantWaterUsageController extends Controller
         $prevStand = $selectedTenant ? $selectedTenant->getPreviousWaterStand($year, $month) : 0.000;
         $existingReading = $selectedTenant ? $selectedTenant->getWaterReadingFor($year, $month) : null;
 
+        // Proteksi: Teknisi tidak diizinkan mengubah data water meter yang sudah tercatat
+        if ($existingReading && ! Auth::user()->canModifyBillingData()) {
+            return redirect()->route('billing.water.index', ['year' => $year, 'month' => $month])
+                ->with('error', 'Akses ditolak. Fitur ubah data water meter hanya tersedia untuk Super Admin dan Supervisor.');
+        }
+
         return view('billing.water.create', compact('tenants', 'selectedTenant', 'year', 'month', 'prevStand', 'existingReading'));
     }
 
@@ -227,6 +233,10 @@ class TenantWaterUsageController extends Controller
         }
 
         if ($reading) {
+            // Proteksi: Teknisi tidak diizinkan mengubah data water meter yang sudah ada
+            if (! Auth::user()->canModifyBillingData()) {
+                return back()->withInput()->with('error', 'Akses ditolak. Data water meter unit ini sudah tercatat. Pengubahan data hanya dapat dilakukan oleh Super Admin dan Supervisor.');
+            }
             $reading->update($data);
             $msg = "Data air tenant '{$tenant->nama_tenant}' periode {$validated['periode_bulan']}/{$validated['periode_tahun']} berhasil diperbarui.";
         } else {
@@ -262,6 +272,10 @@ class TenantWaterUsageController extends Controller
      */
     public function destroy(TenantWaterReading $waterReading)
     {
+        if (! Auth::user()->canModifyBillingData()) {
+            abort(403, 'Akses ditolak. Fitur hapus data water meter hanya untuk Super Admin dan Supervisor.');
+        }
+
         if ($waterReading->foto_meter) {
             Storage::disk('public')->delete($waterReading->foto_meter);
         }

@@ -333,6 +333,45 @@ class BillingHubController extends Controller
             }
         }
 
+        // PROTEKSI: TEKNISI TIDAK DIIZINKAN MENGUBAH DATA YANG SUDAH TERCATAT
+        if (! Auth::user()->canModifyBillingData()) {
+            $isUpdating = false;
+
+            if ($request->filled('stand_akhir_listrik')) {
+                $hasRegular = TenantEnergyReading::where('tenant_id', $tenant->id)
+                    ->where('periode_tahun', $validated['periode_tahun'])
+                    ->where('periode_bulan', $validated['periode_bulan'])
+                    ->where('meter_type', 'regular')
+                    ->exists();
+                if ($hasRegular) $isUpdating = true;
+            }
+
+            if ($request->filled('stand_akhir_ev')) {
+                $hasEv = TenantEnergyReading::where('tenant_id', $tenant->id)
+                    ->where('periode_tahun', $validated['periode_tahun'])
+                    ->where('periode_bulan', $validated['periode_bulan'])
+                    ->where('meter_type', 'ev')
+                    ->exists();
+                if ($hasEv) $isUpdating = true;
+            }
+
+            if ($request->filled('stand_akhir_air')) {
+                $hasWater = TenantWaterReading::where('tenant_id', $tenant->id)
+                    ->where('periode_tahun', $validated['periode_tahun'])
+                    ->where('periode_bulan', $validated['periode_bulan'])
+                    ->exists();
+                if ($hasWater) $isUpdating = true;
+            }
+
+            if ($isUpdating) {
+                $errUpdate = "Akses ditolak. Stand meteran unit {$tenant->unit_label} sudah pernah dicatat. Pengubahan data hanya dapat dilakukan oleh Super Admin dan Supervisor.";
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => $errUpdate], 403);
+                }
+                return back()->withInput()->with('error', $errUpdate);
+            }
+        }
+
         DB::beginTransaction();
         try {
             // 1. Simpan Listrik Reguler jika ada stand akhir

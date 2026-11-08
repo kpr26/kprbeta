@@ -205,20 +205,42 @@
                             @endif
                         </td>
                         <td style="padding:12px 14px; text-align:right;">
-                            <div style="display:inline-flex; gap:6px;">
-                                <a href="{{ route('billing.water.create', ['tenant_id' => $t->id, 'year' => $year, 'month' => $month]) }}" class="btn btn-sm {{ $row->is_recorded ? '' : 'btn-primary' }}" style="padding:4px 10px; font-size:0.78rem;">
-                                    {{ $row->is_recorded ? 'Ubah' : 'Input' }}
-                                </a>
-                                @if($row->reading)
-                                    <form method="POST" action="{{ route('billing.water.destroy', $row->reading) }}" onsubmit="return confirm('Hapus data stand air ini?')" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm" style="color:var(--danger); padding:4px 8px; font-size:0.78rem;" title="Hapus">
-                                            &times;
-                                        </button>
-                                    </form>
+                            @php
+                                $canModify = auth()->user()->canModifyBillingData();
+                            @endphp
+
+                            @if($canModify)
+                                {{-- Aksi untuk Super Admin dan SPV: Kontrol penuh Ubah dan Hapus --}}
+                                <div style="display:inline-flex; gap:6px;">
+                                    <a href="{{ route('billing.water.create', ['tenant_id' => $t->id, 'year' => $year, 'month' => $month]) }}" class="btn btn-sm {{ $row->is_recorded ? '' : 'btn-primary' }}" style="padding:4px 10px; font-size:0.78rem;">
+                                        {{ $row->is_recorded ? 'Ubah' : 'Input' }}
+                                    </a>
+                                    @if($row->reading)
+                                        <form method="POST" action="{{ route('billing.water.destroy', $row->reading) }}" onsubmit="return confirm('Hapus data stand air ini?')" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm" style="color:var(--danger); padding:4px 8px; font-size:0.78rem;" title="Hapus">
+                                                &times;
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @else
+                                {{-- Aksi untuk Role Teknisi: Hanya Input Baru saat Belum Tercatat, TIDAK BISA Ubah/Hapus --}}
+                                @if($row->is_recorded)
+                                    <span class="badge badge-ok" style="font-size:0.72rem; padding:4px 8px;" title="Data stand sudah tersimpan dan terkunci. Pengubahan hanya oleh Super Admin/SPV.">
+                                        ✓ Tercatat
+                                    </span>
+                                @else
+                                    @if($setting->is_open ?? true)
+                                        <a href="{{ route('billing.water.create', ['tenant_id' => $t->id, 'year' => $year, 'month' => $month]) }}" class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:0.78rem;">
+                                            + Input
+                                        </a>
+                                    @else
+                                        <span style="font-size:0.72rem; color:var(--text-muted);">Terkunci</span>
+                                    @endif
                                 @endif
-                            </div>
+                            @endif
                         </td>
                     </tr>
                 @empty

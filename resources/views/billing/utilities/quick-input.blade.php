@@ -226,9 +226,26 @@
 
                 <!-- Tombol Aksi Bawah -->
                 <div style="margin-top:14px; display:flex; gap:8px;">
-                    <button type="button" class="btn btn-sm btn-primary" onclick="openQuickInputModal({{ $t->id }})" style="flex:1; justify-content:center; padding:8px 12px; font-weight:600;">
-                        {{ $isDone ? '✏️ Ubah Data Stand' : '⚡ Input Stand Meter' }}
-                    </button>
+                    @php
+                        $canModify = auth()->user()->canModifyBillingData();
+                    @endphp
+
+                    @if($isDone)
+                        @if($canModify)
+                            <button type="button" class="btn btn-sm btn-primary" onclick="openQuickInputModal({{ $t->id }})" style="flex:1; justify-content:center; padding:8px 12px; font-weight:600;">
+                                ✏️ Ubah Data Stand
+                            </button>
+                        @else
+                            <span class="btn btn-sm" style="flex:1; justify-content:center; padding:8px 12px; font-weight:600; background:rgba(34,197,94,0.12); color:#22c55e; border:1px solid rgba(34,197,94,0.3); cursor:default;" title="Data stand sudah tersimpan. Pengubahan hanya oleh Super Admin/SPV.">
+                                ✓ Selesai Dicatat
+                            </span>
+                        @endif
+                    @else
+                        <button type="button" class="btn btn-sm btn-primary" onclick="openQuickInputModal({{ $t->id }})" style="flex:1; justify-content:center; padding:8px 12px; font-weight:600;">
+                            ⚡ Input Stand Meter
+                        </button>
+                    @endif
+
                     @if($e?->foto_url || $evReading?->foto_url || $w?->foto_url)
                         <button type="button" class="btn btn-sm" onclick="showTenantPhotos({{ $t->id }})" style="padding:8px 10px;" title="Lihat Foto Bukti">
                             📷
