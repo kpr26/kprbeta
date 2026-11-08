@@ -216,14 +216,25 @@
                         @endif
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; padding-bottom:6px;">
                         <span style="font-size:0.8rem; color:var(--text-muted);">Total Konsumsi Listrik:</span>
                         <strong style="font-size:1.15rem; color:#facc15; font-family:var(--font-mono, monospace);">{{ $n($totalKwh) }} <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">kWh</span></strong>
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
-                        <span style="color:var(--text-muted);">Tenant Terdata:</span>
-                        <span style="font-weight:600; color:var(--text-primary);">{{ $energyCount }} dari {{ $totalTenants }} Tenant</span>
+                    {{-- Pemisahan Reguler + EV --}}
+                    <div style="font-size:0.73rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
+                        <span>⚡ Reguler: <b style="color:#fde047;">{{ $n($kwhRegular) }} kWh</b></span>
+                        <span>🚗 EV: <b style="color:#38bdf8;">{{ $n($kwhEv) }} kWh</b></span>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; margin-bottom:4px;">
+                        <span style="color:var(--text-muted);">Tenant Aktif:</span>
+                        <span style="font-weight:700; color:var(--text-primary);">{{ $energyCount }} dari {{ $totalTenants }} Tenant</span>
+                    </div>
+
+                    <div style="font-size:0.73rem; color:var(--accent-light); background:rgba(250,204,21,0.08); padding:4px 8px; border-radius:4px; border:1px solid rgba(250,204,21,0.15); display:flex; justify-content:space-between;">
+                        <span>Titik Meter Terdata:</span>
+                        <span style="font-weight:700;">{{ $energyRegularCount }} Reguler + {{ $energyEvCount }} EV = {{ $totalTitikMeter }} Meter</span>
                     </div>
                 </div>
             </div>
@@ -276,14 +287,24 @@
                         @endif
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; padding-bottom:6px;">
                         <span style="font-size:0.8rem; color:var(--text-muted);">Total Konsumsi Air:</span>
                         <strong style="font-size:1.15rem; color:#38bdf8; font-family:var(--font-mono, monospace);">{{ $n($totalWater) }} <span style="font-size:0.8rem; font-weight:normal; color:var(--text-secondary);">m³</span></strong>
                     </div>
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
-                        <span style="color:var(--text-muted);">Tenant Terdata:</span>
-                        <span style="font-weight:600; color:var(--text-primary);">{{ $waterCount }} dari {{ $totalTenants }} Tenant</span>
+                    <div style="font-size:0.73rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:8px; padding-bottom:8px; border-bottom:1px dashed var(--border-color);">
+                        <span>💧 Tarif Standar: <b style="color:#38bdf8;">Rp 21.500 / m³</b></span>
+                        <span>Estimasi: <b style="color:var(--text-primary);">Rp {{ number_format($totalWater * 21500, 0, ',', '.') }}</b></span>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; margin-bottom:4px;">
+                        <span style="color:var(--text-muted);">Tenant Aktif:</span>
+                        <span style="font-weight:700; color:var(--text-primary);">{{ $waterCount }} dari {{ $totalTenants }} Tenant</span>
+                    </div>
+
+                    <div style="font-size:0.73rem; color:var(--water); background:rgba(56,189,248,0.08); padding:4px 8px; border-radius:4px; border:1px solid rgba(56,189,248,0.15); display:flex; justify-content:space-between;">
+                        <span>Titik Meter Terdata:</span>
+                        <span style="font-weight:700;">{{ $waterCount }} Meter Air PAM / Gedung</span>
                     </div>
                 </div>
             </div>

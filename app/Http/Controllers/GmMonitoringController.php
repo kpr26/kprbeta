@@ -7,6 +7,9 @@ use App\Models\MeterReading;
 use App\Models\PublicAreaLvsbReading;
 use App\Models\PublicAreaMeterReading;
 use App\Models\PublicAreaMvsbReading;
+use App\Models\Tenant;
+use App\Models\TenantEnergyReading;
+use App\Models\TenantWaterReading;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -312,6 +315,126 @@ class GmMonitoringController extends Controller
             'biaya_air'   => $meterReadings->map(fn ($r) => $r->pakai_air !== null ? round($r->pakai_air * $tarifAir, 2) : 0)->values(),
         ];
 
+        // 8. Data Utilitas Tenant Bulanan & Analisis Pemulihan Biaya (Tenant Billing & Recovery Analysis)
+        $tenantEnergyReadings = TenantEnergyReading::with('tenant')
+            ->where('periode_tahun', $year)
+            ->where('periode_bulan', $month)
+            ->get();
+
+        $tenantWaterReadings = TenantWaterReading::with('tenant')
+            ->where('periode_tahun', $year)
+            ->where('periode_bulan', $month)
+            ->get();
+
+        $energyRegular = $tenantEnergyReadings->where('meter_type', 'regular');
+        $energyEv      = $tenantEnergyReadings->where('meter_type', 'ev');
+
+        $countTenantListrik     = $tenantEnergyReadings->pluck('tenant_id')->unique()->count();
+        $countMeterRegular      = $energyRegular->count();
+        $countMeterEv           = $energyEv->count();
+        $countTotalMeterListrik = $tenantEnergyReadings->count();
+
+        $kwhRegular             = (float) $energyRegular->sum('pemakaian');
+        $kwhEv                  = (float) $energyEv->sum('pemakaian');
+        $totalKwhTenant         = (float) $tenantEnergyReadings->sum('pemakaian');
+
+        // Finansial Listrik Reguler (Ketentuan: 40 Jam Nyala, PPJ 2,4%, Materai 10rb)
+        $regularMinChargeTotal    = (float) $energyRegular->sum(fn ($r) => $r->min_charge);
+        $regularActualChargeTotal = (float) $energyRegular->sum(fn ($r) => $r->actual_charge);
+        $regularBillingTotal      = (float) $energyRegular->sum(fn ($r) => $r->billing);
+        $regularPpjTotal          = (float) $energyRegular->sum(fn ($r) => $r->ppj);
+        $regularMateraiTotal      = (float) $energyRegular->sum(fn ($r) => $r->biaya_materai);
+        $regularTotalTagihan      = (float) $energyRegular->sum(fn ($r) => $r->total_tagihan);
+        $regularMinAppliedCount   = $energyRegular->filter(fn ($r) => $r->actual_charge < $r->min_charge)->count();
+
+        // Finansial Listrik Fasilitas EV Charging
+        $evMinChargeTotal         = (float) $energyEv->sum(fn ($r) => $r->min_charge);
+        $evActualChargeTotal      = (float) $energyEv->sum(fn ($r) => $r->actual_charge);
+        $evBillingTotal           = (float) $energyEv->sum(fn ($r) => $r->billing);
+        $evPpjTotal               = (float) $energyEv->sum(fn ($r) => $r->ppj);
+        $evMateraiTotal           = (float) $energyEv->sum(fn ($r) => $r->biaya_materai);
+        $evTotalTagihan           = (float) $energyEv->sum(fn ($r) => $r->total_tagihan);
+        $evMinAppliedCount        = $energyEv->filter(fn ($r) => $r->actual_charge < $r->min_charge)->count();
+
+        // Total Listrik Tenant
+        $totalBillingListrik      = round($regularBillingTotal + $evBillingTotal, 2);
+        $totalPpjListrik          = round($regularPpjTotal + $evPpjTotal, 2);
+        $totalMateraiListrik      = round($regularMateraiTotal + $evMateraiTotal, 2);
+        $grandTotalListrikTenant  = round($regularTotalTagihan + $evTotalTagihan, 2);
+
+        // Finansial Air Tenant (Tarif Rp 21.500 / m³)
+        $countTenantAir           = $tenantWaterReadings->pluck('tenant_id')->unique()->count();
+        $totalM3AirTenant         = (float) $tenantWaterReadings->sum('pemakaian');
+        $tarifAirTenant           = 21500.00;
+        $grandTotalAirTenant      = round($totalM3AirTenant * $tarifAirTenant, 2);
+
+        // Grand Total Penagihan Utilitas Tenant (Listrik + Air)
+        $grandTotalBillingTenant  = round($grandTotalListrikTenant + $grandTotalAirTenant, 2);
+
+        // Analisis Rasio Cost Recovery (Pemulihan Tagihan Tenant vs Beban OpEx Gedung Utama)
+        $plnCostRecoveryPct       = $totalBiayaPln > 0 ? round(($grandTotalListrikTenant / $totalBiayaPln) * 100, 1) : 0;
+        $pdamCostRecoveryPct      = $biayaAirGedung > 0 ? round(($grandTotalAirTenant / $biayaAirGedung) * 100, 1) : 0;
+        $totalCostRecoveryPct     = $grandTotalUtilitas > 0 ? round(($grandTotalBillingTenant / $grandTotalUtilitas) * 100, 1) : 0;
+
+        $netSelisihListrik        = round($totalBiayaPln - $grandTotalListrikTenant, 2);
+        $netSelisihAir            = round($biayaAirGedung - $grandTotalAirTenant, 2);
+        $netSelisihTotal          = round($grandTotalUtilitas - $grandTotalBillingTenant, 2);
+
+        $tenantBillingSummary = [
+            'has_data'                => ($countTotalMeterListrik > 0 || $countTenantAir > 0),
+            'count_tenant_listrik'    => $countTenantListrik,
+            'count_meter_regular'     => $countMeterRegular,
+            'count_meter_ev'          => $countMeterEv,
+            'count_total_meter'       => $countTotalMeterListrik,
+            'kwh_regular'             => $kwhRegular,
+            'kwh_ev'                  => $kwhEv,
+            'total_kwh'               => $totalKwhTenant,
+            'tarif_listrik'           => 1699.53,
+            'ppj_rate'                => 0.024,
+            'biaya_materai_unit'      => 10000.00,
+
+            // Reguler
+            'regular_min_charge'      => $regularMinChargeTotal,
+            'regular_actual_charge'   => $regularActualChargeTotal,
+            'regular_billing'         => $regularBillingTotal,
+            'regular_ppj'             => $regularPpjTotal,
+            'regular_materai'         => $regularMateraiTotal,
+            'regular_total'           => $regularTotalTagihan,
+            'regular_min_applied'     => $regularMinAppliedCount,
+
+            // EV
+            'ev_min_charge'           => $evMinChargeTotal,
+            'ev_actual_charge'        => $evActualChargeTotal,
+            'ev_billing'              => $evBillingTotal,
+            'ev_ppj'                  => $evPpjTotal,
+            'ev_materai'              => $evMateraiTotal,
+            'ev_total'                => $evTotalTagihan,
+            'ev_min_applied'          => $evMinAppliedCount,
+
+            // Total Listrik
+            'total_billing_listrik'   => $totalBillingListrik,
+            'total_ppj_listrik'       => $totalPpjListrik,
+            'total_materai_listrik'   => $totalMateraiListrik,
+            'grand_total_listrik'     => $grandTotalListrikTenant,
+
+            // Air Tenant
+            'count_tenant_air'        => $countTenantAir,
+            'total_m3_air'            => $totalM3AirTenant,
+            'tarif_air'               => $tarifAirTenant,
+            'grand_total_air'         => $grandTotalAirTenant,
+
+            // Grand Total Gabungan
+            'grand_total_billing'     => $grandTotalBillingTenant,
+
+            // Analisis Pemulihan Biaya (Recovery vs Beban OpEx Gedung)
+            'pln_recovery_pct'        => $plnCostRecoveryPct,
+            'pdam_recovery_pct'       => $pdamCostRecoveryPct,
+            'total_recovery_pct'      => $totalCostRecoveryPct,
+            'net_selisih_listrik'     => $netSelisihListrik,
+            'net_selisih_air'         => $netSelisihAir,
+            'net_selisih_total'       => $netSelisihTotal,
+        ];
+
         return view('gm.monitoring', compact(
             'periode', 'year', 'month',
             'meterReadings', 'summaryGedung',
@@ -319,7 +442,8 @@ class GmMonitoringController extends Controller
             'lvsbReadings', 'lvsbSummary',
             'mvsbReadings', 'mvsbSummary',
             'dailyLogs', 'dailyLogStats',
-            'todayPulse', 'chart'
+            'todayPulse', 'chart',
+            'tenantBillingSummary'
         ));
     }
 }

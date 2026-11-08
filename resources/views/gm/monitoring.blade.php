@@ -645,6 +645,247 @@
         </div>
     </div>
 
+    {{-- ── 3.C. Ringkasan Eksekutif Penagihan Utilitas Tenant & Recovery Analysis ── --}}
+    @if(isset($tenantBillingSummary) && $tenantBillingSummary['has_data'])
+    <div class="panel" style="margin-bottom:24px; padding:22px; border:1.5px solid rgba(250,204,21,0.35); background:linear-gradient(135deg, rgba(250,204,21,0.06) 0%, rgba(56,189,248,0.05) 50%, var(--bg-card) 100%); box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+        {{-- Header Section --}}
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <span class="badge" style="background:linear-gradient(135deg, #f59e0b, #0ea5e9); color:#fff; border:none; padding:4px 10px; font-weight:700; letter-spacing:0.04em;">
+                        🏢 + ⚡ + 💧 PENAGIHAN UTILITAS TENANT
+                    </span>
+                    <span style="font-size:0.8rem; color:var(--accent); font-weight:600;">
+                        Periode {{ $selectedMonthName }} · 261 Tenant Residence
+                    </span>
+                </div>
+                <h3 style="font-size:1.25rem; font-weight:700; color:var(--text-primary); margin:2px 0 0; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif);">
+                    Ringkasan Penagihan Utilitas Tenant &amp; Analisis Pemulihan Biaya (Cost Recovery)
+                </h3>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin:4px 0 0; line-height:1.4;">
+                    Rekapitulasi penggunaan listrik (reguler &amp; 11 fasilitas EV charger) serta air bersih bulanan seluruh tenant. Kalkulasi billing mengacu pada ketentuan resmi: <b>Tarif Rp 1.699,53/kWh, Minimum 40 Jam Nyala, PPJ 2,4%, Biaya Materai Rp 10.000</b>, dan <b>Tarif Air Rp 21.500/m³</b>.
+                </p>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <a href="{{ route('billing.utilities.hub', ['year' => $year, 'month' => $month]) }}" class="btn btn-sm btn-primary" style="padding:8px 14px; font-size:0.82rem; font-weight:700;">
+                    ⚙️ Buka Menu Utilitas &rarr;
+                </a>
+            </div>
+        </div>
+
+        {{-- 4 Kartu Metrik Utama Penagihan Tenant --}}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:20px;">
+            {{-- Card 1: Grand Total Tagihan Tenant --}}
+            <div style="background:var(--bg-card); border:1.5px solid rgba(16,185,129,0.4); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden; box-shadow:0 4px 12px rgba(16,185,129,0.1);">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#10b981;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:800; color:var(--text-muted); letter-spacing:0.04em;">Grand Total Penagihan</span>
+                    <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-size:0.7rem; font-weight:700;">Listrik + Air</span>
+                </div>
+                <div style="font-size:1.6rem; font-weight:800; color:#10b981; font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif); font-variant-numeric:tabular-nums; margin:2px 0;">
+                    {{ $rp($tenantBillingSummary['grand_total_billing']) }}
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">
+                    Pemulihan Beban Utilitas: <b style="color:#10b981;">{{ $tenantBillingSummary['total_recovery_pct'] }}%</b> dari total OpEx
+                </div>
+            </div>
+
+            {{-- Card 2: Listrik Reguler --}}
+            <div style="background:var(--bg-card); border:1.5px solid rgba(250,204,21,0.35); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#facc15;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:800; color:var(--text-muted); letter-spacing:0.04em;">⚡ Listrik Reguler ({{ $tenantBillingSummary['count_meter_regular'] }} Unit)</span>
+                    <span class="badge" style="background:rgba(250,204,21,0.15); color:#facc15; font-size:0.7rem; font-weight:700;">{{ $n($tenantBillingSummary['kwh_regular']) }} kWh</span>
+                </div>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif); font-variant-numeric:tabular-nums; margin:2px 0;">
+                    {{ $rp($tenantBillingSummary['regular_total']) }}
+                </div>
+                <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
+                    Billing: {{ $rp($tenantBillingSummary['regular_billing']) }} · PPJ: {{ $rp($tenantBillingSummary['regular_ppj']) }} · Materai: {{ $rp($tenantBillingSummary['regular_materai']) }}
+                </div>
+                <div style="font-size:0.72rem; color:var(--accent-light); margin-top:4px;">
+                    Unit kena batas minimum 40 jam: <b>{{ $tenantBillingSummary['regular_min_applied'] }} unit</b>
+                </div>
+            </div>
+
+            {{-- Card 3: Fasilitas EV Charging --}}
+            <div style="background:var(--bg-card); border:1.5px solid rgba(56,189,248,0.35); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#38bdf8;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:800; color:var(--text-muted); letter-spacing:0.04em;">🚗 Fasilitas EV ({{ $tenantBillingSummary['count_meter_ev'] }} Unit)</span>
+                    <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.7rem; font-weight:700;">{{ $n($tenantBillingSummary['kwh_ev']) }} kWh</span>
+                </div>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif); font-variant-numeric:tabular-nums; margin:2px 0;">
+                    {{ $rp($tenantBillingSummary['ev_total']) }}
+                </div>
+                <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
+                    Billing: {{ $rp($tenantBillingSummary['ev_billing']) }} · PPJ: {{ $rp($tenantBillingSummary['ev_ppj']) }} · Materai: {{ $rp($tenantBillingSummary['ev_materai']) }}
+                </div>
+                <div style="font-size:0.72rem; color:#38bdf8; margin-top:4px;">
+                    Total Titik Listrik: <b>{{ $tenantBillingSummary['count_total_meter'] }} titik meter</b>
+                </div>
+            </div>
+
+            {{-- Card 4: Air Bersih Tenant --}}
+            <div style="background:var(--bg-card); border:1.5px solid rgba(6,182,212,0.35); border-radius:var(--radius-md); padding:16px; position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:#06b6d4;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <span style="font-size:0.75rem; text-transform:uppercase; font-weight:800; color:var(--text-muted); letter-spacing:0.04em;">💧 Air Bersih ({{ $tenantBillingSummary['count_tenant_air'] }} Unit)</span>
+                    <span class="badge" style="background:rgba(6,182,212,0.15); color:#06b6d4; font-size:0.7rem; font-weight:700;">{{ $n($tenantBillingSummary['total_m3_air']) }} m³</span>
+                </div>
+                <div style="font-size:1.5rem; font-weight:700; color:var(--text-primary); font-family:var(--font-serif, 'Cormorant Garamond', Georgia, serif); font-variant-numeric:tabular-nums; margin:2px 0;">
+                    {{ $rp($tenantBillingSummary['grand_total_air']) }}
+                </div>
+                <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
+                    Tarif resmi: Rp 21.500 / m³ · Total konsumsi: <b>{{ $n($tenantBillingSummary['total_m3_air']) }} m³</b>
+                </div>
+                <div style="font-size:0.72rem; color:#06b6d4; margin-top:4px;">
+                    Pemulihan Beban Air Gedung: <b>{{ $tenantBillingSummary['pdam_recovery_pct'] }}%</b>
+                </div>
+            </div>
+        </div>
+
+        {{-- Tabel Breakdown Tagihan Tenant & Ketentuan --}}
+        <div style="background:var(--bg-card-subtle); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:0.8rem; font-weight:700; color:var(--text-primary); text-transform:uppercase; letter-spacing:0.04em;">
+                    Rincian Perhitungan Tagihan Utilitas Tenant (Ketentuan Tarif, Minimum Jam Nyala, PPJ, Materai)
+                </span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">
+                    Semua komponen ditagihkan secara resmi per tenant
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" style="font-size:0.8rem; width:100%;">
+                    <thead>
+                        <tr>
+                            <th class="l" style="width:22%;">Komponen Utilitas</th>
+                            <th class="c" style="width:9%;">Titik Meter</th>
+                            <th class="r" style="width:12%;">Pemakaian (Volume)</th>
+                            <th class="r" style="width:12%;">Tarif Dasar</th>
+                            <th class="r" style="width:13%;">Billing / Biaya Pokok</th>
+                            <th class="r" style="width:10%;">PPJ (2,4%)</th>
+                            <th class="r" style="width:9%;">Materai 10k</th>
+                            <th class="r" style="width:13%;">Total Tagihan (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="l">
+                                <b style="color:#facc15;">⚡ Listrik Hunian Reguler</b>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">Ketentuan: max(40 Jam x Daya, Aktual) · {{ $tenantBillingSummary['regular_min_applied'] }} unit kena minimum</div>
+                            </td>
+                            <td class="c"><b>{{ $tenantBillingSummary['count_meter_regular'] }}</b> unit</td>
+                            <td class="r" style="font-weight:700; color:#facc15;">{{ $n($tenantBillingSummary['kwh_regular']) }} kWh</td>
+                            <td class="r">Rp 1.699,53</td>
+                            <td class="r" style="font-weight:600;">{{ $rp($tenantBillingSummary['regular_billing']) }}</td>
+                            <td class="r" style="color:#38bdf8;">{{ $rp($tenantBillingSummary['regular_ppj']) }}</td>
+                            <td class="r">{{ $rp($tenantBillingSummary['regular_materai']) }}</td>
+                            <td class="r" style="font-weight:800; color:var(--text-primary);">{{ $rp($tenantBillingSummary['regular_total']) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="l">
+                                <b style="color:#38bdf8;">🚗 Listrik Fasilitas EV Charger</b>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">Ketentuan: max(40 Jam x Daya EV, Aktual) · {{ $tenantBillingSummary['ev_min_applied'] }} unit kena minimum</div>
+                            </td>
+                            <td class="c"><b>{{ $tenantBillingSummary['count_meter_ev'] }}</b> unit</td>
+                            <td class="r" style="font-weight:700; color:#38bdf8;">{{ $n($tenantBillingSummary['kwh_ev']) }} kWh</td>
+                            <td class="r">Rp 1.699,53</td>
+                            <td class="r" style="font-weight:600;">{{ $rp($tenantBillingSummary['ev_billing']) }}</td>
+                            <td class="r" style="color:#38bdf8;">{{ $rp($tenantBillingSummary['ev_ppj']) }}</td>
+                            <td class="r">{{ $rp($tenantBillingSummary['ev_materai']) }}</td>
+                            <td class="r" style="font-weight:800; color:var(--text-primary);">{{ $rp($tenantBillingSummary['ev_total']) }}</td>
+                        </tr>
+                        <tr style="background:rgba(250,204,21,0.04); font-weight:700; border-top:1px dashed var(--border);">
+                            <td class="l" colspan="1"><b>SUBTOTAL LISTRIK RESIDENCE</b></td>
+                            <td class="c"><b>{{ $tenantBillingSummary['count_total_meter'] }}</b> titik</td>
+                            <td class="r" style="color:#facc15;">{{ $n($tenantBillingSummary['total_kwh']) }} kWh</td>
+                            <td class="r">—</td>
+                            <td class="r">{{ $rp($tenantBillingSummary['total_billing_listrik']) }}</td>
+                            <td class="r" style="color:#38bdf8;">{{ $rp($tenantBillingSummary['total_ppj_listrik']) }}</td>
+                            <td class="r">{{ $rp($tenantBillingSummary['total_materai_listrik']) }}</td>
+                            <td class="r" style="color:#facc15; font-size:0.92rem; font-weight:800;">{{ $rp($tenantBillingSummary['grand_total_listrik']) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="l">
+                                <b style="color:#06b6d4;">💧 Air Bersih Hunian (PAM / Gedung)</b>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">Kalkulasi: Volume Pemakaian m³ &times; Rp 21.500</div>
+                            </td>
+                            <td class="c"><b>{{ $tenantBillingSummary['count_tenant_air'] }}</b> unit</td>
+                            <td class="r" style="font-weight:700; color:#06b6d4;">{{ $n($tenantBillingSummary['total_m3_air']) }} m³</td>
+                            <td class="r">Rp 21.500,00</td>
+                            <td class="r" style="font-weight:600;">{{ $rp($tenantBillingSummary['grand_total_air']) }}</td>
+                            <td class="r" style="color:var(--text-muted);">—</td>
+                            <td class="r" style="color:var(--text-muted);">—</td>
+                            <td class="r" style="font-weight:800; color:#06b6d4;">{{ $rp($tenantBillingSummary['grand_total_air']) }}</td>
+                        </tr>
+                        <tr style="background:rgba(16,185,129,0.08); font-weight:800; border-top:2px solid rgba(16,185,129,0.3); font-size:0.88rem;">
+                            <td class="l" colspan="2" style="color:#10b981;">
+                                🏢 GRAND TOTAL PENAGIHAN TENANT (BULANAN)
+                            </td>
+                            <td class="r" colspan="2" style="font-size:0.75rem; color:var(--text-muted);">
+                                261 Tenant Aktif (272 Titik Listrik + 261 Air)
+                            </td>
+                            <td class="r" colspan="3" style="font-size:0.75rem; color:var(--text-muted);">
+                                Terdiri dari Billing, PPJ &amp; Materai
+                            </td>
+                            <td class="r" style="color:#10b981; font-size:1.05rem;">
+                                {{ $rp($tenantBillingSummary['grand_total_billing']) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Executive Recovery Comparison Box (Beban Gedung vs Tagihan Tenant) --}}
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px;">
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.04em;">
+                ⚖️ Rekonsiliasi &amp; Analisis Beban Utilitas Bersama (Gedung vs Tenant)
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
+                {{-- Listrik Gedung vs Tenant --}}
+                <div style="padding:12px; background:var(--bg-card-subtle); border-radius:var(--radius-sm); border:1px solid var(--border);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Beban Tagihan Listrik PLN:</span>
+                        <b style="color:var(--text-primary);">{{ $rp($summaryGedung['total_rupiah']) }}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Total Ditagihkan ke Tenant:</span>
+                        <b style="color:#10b981;">{{ $rp($tenantBillingSummary['grand_total_listrik']) }}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding-top:6px; border-top:1px dashed var(--border); font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Selisih (Beban Public Area / Losses):</span>
+                        <b style="color:{{ $tenantBillingSummary['net_selisih_listrik'] >= 0 ? '#fbbf24' : '#10b981' }};">
+                            {{ $rp($tenantBillingSummary['net_selisih_listrik']) }} ({{ $tenantBillingSummary['pln_recovery_pct'] }}% Pulih)
+                        </b>
+                    </div>
+                </div>
+
+                {{-- Air Gedung vs Tenant --}}
+                <div style="padding:12px; background:var(--bg-card-subtle); border-radius:var(--radius-sm); border:1px solid var(--border);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Beban Biaya Air Utama Gedung:</span>
+                        <b style="color:var(--text-primary);">{{ $rp($summaryGedung['biaya_air']) }}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Total Ditagihkan ke Tenant:</span>
+                        <b style="color:#10b981;">{{ $rp($tenantBillingSummary['grand_total_air']) }}</b>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding-top:6px; border-top:1px dashed var(--border); font-size:0.78rem;">
+                        <span style="color:var(--text-muted);">Selisih (Cooling Tower &amp; Public Area):</span>
+                        <b style="color:{{ $tenantBillingSummary['net_selisih_air'] >= 0 ? '#38bdf8' : '#10b981' }};">
+                            {{ $rp($tenantBillingSummary['net_selisih_air']) }} ({{ $tenantBillingSummary['pdam_recovery_pct'] }}% Pulih)
+                        </b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- ── 4. Grafik Tren Pemakaian ── --}}
     <div class="form-grid" style="margin-bottom:24px;">
         <section class="panel">

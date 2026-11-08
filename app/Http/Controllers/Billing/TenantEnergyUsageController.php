@@ -201,10 +201,13 @@ class TenantEnergyUsageController extends Controller
 
         if ($request->filled('pemakaian') && $isSuperAdmin) {
             $pemakaian = (float) $request->input('pemakaian');
+            if ($pemakaian < 0) {
+                $pemakaian = 0.0; // Opsi B: pemakaian tidak boleh negatif
+            }
         } else {
             $pemakaian = ($standAkhir - $standAwal) * $faktor;
             if ($pemakaian < 0) {
-                $pemakaian = 0; // Proteksi rollover
+                $pemakaian = 0; // Proteksi rollover & Opsi B
             }
         }
 
@@ -423,6 +426,7 @@ class TenantEnergyUsageController extends Controller
                 }
 
                 $meterType = $isEv ? 'ev' : 'regular';
+                $isSpecial = !empty($ket) || ($akhir < $awal) || ($pemakaian <= 0 && ($akhir < $awal));
 
                 // Simpan atau perbarui pembacaan
                 TenantEnergyReading::updateOrCreate(
@@ -433,16 +437,18 @@ class TenantEnergyUsageController extends Controller
                         'meter_type'    => $meterType,
                     ],
                     [
-                        'tanggal_catat' => $tanggal,
-                        'daya'          => $daya > 0 ? $daya : ($isEv ? $tenant->daya_ev : $tenant->daya_listrik),
-                        'stand_awal'    => $awal,
-                        'stand_akhir'   => $akhir,
-                        'pemakaian'     => $pemakaian,
-                        'tarif_per_kwh' => 1699.53,
-                        'catatan'       => $ket ?: null,
-                        'user_id'       => $userId,
-                        'verified_at'   => now(),
-                        'verified_by'   => $userId,
+                        'tanggal_catat'   => $tanggal,
+                        'daya'            => $daya > 0 ? $daya : ($isEv ? $tenant->daya_ev : $tenant->daya_listrik),
+                        'stand_awal'      => $awal,
+                        'stand_akhir'     => $akhir,
+                        'pemakaian'       => $pemakaian < 0 ? 0.00 : $pemakaian,
+                        'tarif_per_kwh'   => 1699.53,
+                        'catatan'         => $ket ?: null,
+                        'keterangan'      => $ket ?: null,
+                        'is_special_case' => $isSpecial,
+                        'user_id'         => $userId,
+                        'verified_at'     => now(),
+                        'verified_by'     => $userId,
                     ]
                 );
 
@@ -841,6 +847,15 @@ class TenantEnergyUsageController extends Controller
             $isEv = (stripos($floorRaw, 'CAR') !== false);
             $cleanFloor = trim(str_ireplace(['/ CAR', '/CAR', 'CAR', '/'], '', $floorRaw));
 
+            $pemakaianCalc = round($akhir - $awal, 2);
+            // Opsi B: jika pemakaian minus (karena stand mundur atau kWh error), jadikan 0.00
+            if ($pemakaianCalc < 0 || ($akhir < $awal)) {
+                $pemakaianCalc = 0.00;
+                if (empty($keterangan)) {
+                    $keterangan = 'KWH ERROR (Stand Mundur/Prorate Manual)';
+                }
+            }
+
             $parsed[] = [
                 'floor_raw'   => $floorRaw,
                 'clean_floor' => $cleanFloor,
@@ -849,7 +864,7 @@ class TenantEnergyUsageController extends Controller
                 'daya'        => $daya,
                 'stand_awal'  => $awal,
                 'stand_akhir' => $akhir,
-                'pemakaian'   => round($akhir - $awal, 2),
+                'pemakaian'   => $pemakaianCalc,
                 'keterangan'  => $keterangan,
             ];
         }

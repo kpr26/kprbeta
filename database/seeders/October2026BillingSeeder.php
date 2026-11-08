@@ -44,6 +44,12 @@ class October2026BillingSeeder extends Seeder
             $pemakaian = (float) $row[6];
             $ket       = isset($row[14]) ? trim($row[14]) : null;
 
+            // Opsi B: Proteksi anomali stand mundur / KWH error agar pemakaian tidak minus
+            if ($pemakaian < 0 || ($akhir < $awal)) {
+                $pemakaian = 0.00;
+                $ket = $ket ?: 'KWH ERROR (Stand Mundur/Prorate Manual)';
+            }
+
             $isEv = (stripos($floorRaw, 'CAR') !== false);
             $cleanFloor = trim(str_ireplace(['/ CAR', '/CAR', 'CAR', '/'], '', $floorRaw));
             $unitKey = $cleanFloor . '_' . $unitCode;
@@ -93,6 +99,11 @@ class October2026BillingSeeder extends Seeder
                 $wAkhir     = (float) $wRow[4];
                 $wPakai     = (float) $wRow[5];
                 $wKet       = isset($wRow[6]) ? trim($wRow[6]) : null;
+
+                if ($wPakai < 0 || ($wAkhir < $wAwal)) {
+                    $wPakai = 0.00;
+                    $wKet = $wKet ?: 'Meter Error / Stand Mundur';
+                }
 
                 $waterData[$unitKey] = [
                     'floor'      => $cleanFloor,

@@ -23,25 +23,35 @@ class BillingHubController extends Controller
         $month = (int) $request->input('month', now()->month);
 
         $totalTenants = Tenant::where('is_active', true)->count();
+        $totalTenantsWithEv = Tenant::where('is_active', true)->where('has_ev_charger', true)->count();
 
         // Data Energy
         $energyReadings = TenantEnergyReading::where('periode_tahun', $year)
             ->where('periode_bulan', $month)
             ->get();
-        $energyCount = $energyReadings->count();
-        $totalKwh    = $energyReadings->sum('pemakaian');
+        $energyTenantIds = $energyReadings->pluck('tenant_id')->unique()->toArray();
+        $energyCount     = count($energyTenantIds);
+        $totalKwh        = (float) $energyReadings->sum('pemakaian');
+
+        // Pemisahan Meter Reguler & Meter EV Charger
+        $energyRegularReadings = $energyReadings->where('meter_type', 'regular');
+        $energyEvReadings      = $energyReadings->where('meter_type', 'ev');
+        $energyRegularCount    = $energyRegularReadings->count();
+        $energyEvCount         = $energyEvReadings->count();
+        $totalTitikMeter       = $energyReadings->count();
+        $kwhRegular            = (float) $energyRegularReadings->sum('pemakaian');
+        $kwhEv                 = (float) $energyEvReadings->sum('pemakaian');
 
         // Data Water
         $waterReadings = TenantWaterReading::where('periode_tahun', $year)
             ->where('periode_bulan', $month)
             ->get();
-        $waterCount  = $waterReadings->count();
-        $totalWater  = $waterReadings->sum('pemakaian');
+        $waterTenantIds = $waterReadings->pluck('tenant_id')->unique()->toArray();
+        $waterCount     = count($waterTenantIds);
+        $totalWater     = (float) $waterReadings->sum('pemakaian');
 
-        // Both complete
-        $energyTenantIds = $energyReadings->pluck('tenant_id')->toArray();
-        $waterTenantIds  = $waterReadings->pluck('tenant_id')->toArray();
-        $completeBoth    = count(array_intersect($energyTenantIds, $waterTenantIds));
+        // Both complete (Unit tenant yang tercatat listrik dan air sekaligus)
+        $completeBoth = count(array_intersect($energyTenantIds, $waterTenantIds));
 
         $namaBulan = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -56,7 +66,13 @@ class BillingHubController extends Controller
             'month',
             'namaBulan',
             'totalTenants',
+            'totalTenantsWithEv',
             'energyCount',
+            'energyRegularCount',
+            'energyEvCount',
+            'totalTitikMeter',
+            'kwhRegular',
+            'kwhEv',
             'totalKwh',
             'waterCount',
             'totalWater',

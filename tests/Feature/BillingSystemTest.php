@@ -1010,4 +1010,135 @@ class BillingSystemTest extends TestCase
         $resZip->assertOk();
         $this->assertEquals('application/zip', $resZip->headers->get('content-type'));
     }
+
+    public function test_negative_energy_usage_uses_option_b_zero_pemakaian_and_hub_shows_separate_regular_and_ev(): void
+    {
+        $superAdmin = User::factory()->create(['role' => 'superadmin']);
+
+        // Buat 1 tenant biasa dan 1 tenant dengan EV
+        $tenantA = Tenant::create([
+            'nama_tenant'         => 'Unit 22 D',
+            'kode_tenant'         => 'TNT-22-D',
+            'lantai'              => '22',
+            'nomor_unit'          => 'D',
+            'daya_listrik'        => 21.12,
+            'nomor_meter_listrik' => 'KWH-22-D',
+            'is_active'           => true,
+        ]);
+
+        $tenantB = Tenant::create([
+            'nama_tenant'         => 'Unit 25 A',
+            'kode_tenant'         => 'TNT-25-A',
+            'lantai'              => '25',
+            'nomor_unit'          => 'A',
+            'daya_listrik'        => 10.56,
+            'has_ev_charger'      => true,
+            'daya_ev'             => 7.70,
+            'nomor_meter_listrik' => 'KWH-25-A',
+            'nomor_meter_ev'      => 'KWH-25-A-EV',
+            'is_active'           => true,
+        ]);
+
+        // Kasus Stand Mundur (Opsi B): Stand awal 275827.90, akhir 171.04 -> pemakaian harus 0.00
+        $readingA = TenantEnergyReading::create([
+            'tenant_id'     => $tenantA->id,
+            'meter_type'    => 'regular',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'daya'          => 21.12,
+            'stand_awal'    => 275827.90,
+            'stand_akhir'   => 171.04,
+            'pemakaian'     => 0.00, // Opsi B
+            'catatan'       => 'KWH ERROR',
+            'is_special_case' => true,
+        ]);
+
+        // Regular B normal
+        $readingB = TenantEnergyReading::create([
+            'tenant_id'     => $tenantB->id,
+            'meter_type'    => 'regular',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'daya'          => 10.56,
+            'stand_awal'    => 1000.00,
+            'stand_akhir'   => 1500.00,
+            'pemakaian'     => 500.00,
+        ]);
+
+        // EV Reading B
+        $readingBEv = TenantEnergyReading::create([
+            'tenant_id'     => $tenantB->id,
+            'meter_type'    => 'ev',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'daya'          => 7.70,
+            'stand_awal'    => 200.00,
+            'stand_akhir'   => 250.00,
+            'pemakaian'     => 50.00,
+        ]);
+
+        // Billing readingA harus otomatis mengambil minimum charge (40 jam) dan tidak bernilai minus!
+        $this->assertEquals(0.00, (float) $readingA->pemakaian);
+        $this->assertGreaterThan(0, $readingA->billing);
+        $this->assertEquals($readingA->min_charge, $readingA->billing);
+
+        // Buka Utilities Hub
+        $resHub = $this->actingAs($superAdmin)->get(route('billing.utilities.hub', ['year' => 2026, 'month' => 10]));
+        $resHub->assertOk();
+        // Hub menampilkan konsumsi positif (500 + 50 + 0 = 550 kWh)
+        $resHub->assertSee('550,00');
+        // Hub menampilkan pemisahan terinci Reguler + EV
+        $resHub->assertSee('Reguler:');
+        $resHub->assertSee('EV:');
+        $resHub->assertSee('Titik Meter Terdata:');
+    }
+
+    public function test_gm_executive_summary_displays_tenant_billing_with_official_tariffs_and_recovery_analysis(): void
+    {
+        $gm = User::factory()->create(['role' => 'gm']);
+
+        $tenant = Tenant::create([
+            'nama_tenant'         => 'Unit 30 B',
+            'kode_tenant'         => 'TNT-30-B',
+            'lantai'              => '30',
+            'nomor_unit'          => 'B',
+            'daya_listrik'        => 21.12,
+            'nomor_meter_listrik' => 'KWH-30-B',
+            'nomor_meter_air'     => 'PAM-30-B',
+            'is_active'           => true,
+        ]);
+
+        TenantEnergyReading::create([
+            'tenant_id'     => $tenant->id,
+            'meter_type'    => 'regular',
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'daya'          => 21.12,
+            'stand_awal'    => 1000.00,
+            'stand_akhir'   => 2000.00,
+            'pemakaian'     => 1000.00, // 1000 kWh > 844.8 min_hour -> actual_charge 1.699.530
+        ]);
+
+        TenantWaterReading::create([
+            'tenant_id'     => $tenant->id,
+            'periode_tahun' => 2026,
+            'periode_bulan' => 10,
+            'tanggal_catat' => '2026-10-31',
+            'stand_awal'    => 50.000,
+            'stand_akhir'   => 60.000,
+            'pemakaian'     => 10.000, // 10 m3 x 21500 = 215.000
+        ]);
+
+        $response = $this->actingAs($gm)->get(route('gm.monitoring', ['periode' => '2026-10']));
+        $response->assertOk();
+        $response->assertSee('PENAGIHAN UTILITAS TENANT');
+        $response->assertSee('Listrik Hunian Reguler');
+        $response->assertSee('Air Bersih Hunian');
+        $response->assertSee('Grand Total Penagihan');
+        $response->assertSee('Rekonsiliasi &amp; Analisis Beban Utilitas Bersama', false);
+    }
 }
