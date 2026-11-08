@@ -46,7 +46,12 @@ class User extends Authenticatable
 
     public function isSupervisor(): bool
     {
-        return in_array($this->role, ['eng_spv', 'supervisor'], true);
+        return in_array($this->role, ['eng_spv', 'supervisor', 'spv'], true);
+    }
+
+    public function canManageTenants(): bool
+    {
+        return $this->isSuperAdmin() || $this->isSupervisor();
     }
 
     public function isAdmin(): bool

@@ -1177,6 +1177,36 @@ table.log-table { width: 100%; border-collapse: collapse; font-size: .84rem; whi
   to { transform: translateY(0); }
 }
 
+/* ── Billing System Styles ── */
+.tenant-quick-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.tenant-quick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+.tenant-quick-card.is-done {
+  border-left: 4px solid var(--success) !important;
+}
+.tenant-quick-card.is-partial {
+  border-left: 4px solid #facc15 !important;
+}
+.tenant-quick-card.is-pending {
+  border-left: 4px solid rgba(239, 68, 68, 0.7) !important;
+}
+.hover-accent:hover {
+  color: var(--accent) !important;
+}
+
+@media (max-width: 640px) {
+  .quick-modal-dialog {
+    margin: 10px auto !important;
+    max-width: 100% !important;
+    border-radius: 14px !important;
+  }
+}
+
+
 
 
 

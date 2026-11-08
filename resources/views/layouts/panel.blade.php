@@ -103,6 +103,23 @@
                         <span>Pengaturan Profil</span>
                     </a>
 
+                    <div class="user-dropdown-divider"></div>
+                    <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em;">Billing System</div>
+                    <a href="{{ route('billing.utilities.hub') }}" class="user-dropdown-item" role="menuitem">
+                        <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">📊</span>
+                        <span>Utilities Hub</span>
+                    </a>
+                    <a href="{{ route('billing.quick-input') }}" class="user-dropdown-item" role="menuitem">
+                        <span style="color:var(--success); font-size:1.05rem; line-height:1;">⚡</span>
+                        <span>Input Cepat Meteran</span>
+                    </a>
+                    @if($authUser->canManageTenants())
+                    <a href="{{ route('billing.tenants.index') }}" class="user-dropdown-item" role="menuitem">
+                        <span style="color:var(--accent-light); font-size:1.05rem; line-height:1;">🏢</span>
+                        <span>Kelola Tenant</span>
+                    </a>
+                    @endif
+
                     @if($isGm || $authUser->isSuperAdmin())
                         <a href="{{ route('gm.monitoring') }}" class="user-dropdown-item" role="menuitem">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#facc15;"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5Zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7Zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4Z"/></svg>
@@ -249,6 +266,38 @@
             <a href="{{ route('public-area.mvsb.index') }}" class="nav-item {{ request()->routeIs('public-area.mvsb.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--purple); width:16px; height:16px;"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.381Z" clip-rule="evenodd"/></svg>
                 MVSB
+            </a>
+
+            {{-- Menu Billing System (Tampil Untuk Semua Role) --}}
+            <div class="sidebar-section-title" style="padding:14px 12px 4px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; display:flex; align-items:center; gap:6px;">
+                <span>Billing System</span>
+            </div>
+
+            @if($authUser->canManageTenants())
+            <a href="{{ route('billing.tenants.index') }}" class="nav-item {{ request()->routeIs('billing.tenants.*') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--accent-light);"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                Kelola Tenant
+            </a>
+            @endif
+
+            <a href="{{ route('billing.utilities.hub') }}" class="nav-item {{ request()->routeIs('billing.utilities.hub', 'billing.quick-input') ? 'nav-item--active' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#38bdf8;"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                Utilities
+            </a>
+
+            <a href="{{ route('billing.energy.index') }}" class="nav-item {{ request()->routeIs('billing.energy.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--warning); width:16px; height:16px;"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>
+                Tenant Energy Usage
+            </a>
+
+            <a href="{{ route('billing.water.index') }}" class="nav-item {{ request()->routeIs('billing.water.*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:var(--info); width:16px; height:16px;"><path fill-rule="evenodd" d="M10 2.5c.3 0 .58.14.77.37C12.4 4.87 16 9.45 16 12.5a6 6 0 0 1-12 0c0-3.05 3.6-7.63 5.23-9.63A1 1 0 0 1 10 2.5Z" clip-rule="evenodd"/></svg>
+                Tenant Water Usage
+            </a>
+
+            <a href="{{ route('billing.photos') }}" class="nav-item {{ request()->routeIs('billing.photos*') ? 'nav-item--active' : '' }}" style="padding-left:24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="color:#c084fc; width:16px; height:16px;"><path fill-rule="evenodd" d="M1 5.25A2.25 2.25 0 0 1 3.25 3h13.5A2.25 2.25 0 0 1 19 5.25v9.5A2.25 2.25 0 0 1 16.75 17H3.25A2.25 2.25 0 0 1 1 14.75v-9.5Zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 0 0 .75-.75v-2.69l-2.22-2.219a.75.75 0 0 0-1.06 0l-1.91 1.909-3.47-3.47a.75.75 0 0 0-1.06 0L2.5 11.06Zm10-4.81a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z" clip-rule="evenodd"/></svg>
+                Bukti Foto Meteran
             </a>
 
             @if($authUser->isSuperAdmin())
@@ -418,6 +467,23 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd"/></svg>
                             <span>Pengaturan Profil</span>
                         </a>
+
+                        <div class="user-dropdown-divider"></div>
+                        <div style="padding:6px 16px 2px; font-size:0.68rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:0.04em;">Billing System</div>
+                        <a href="{{ route('billing.utilities.hub') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:#38bdf8; font-size:1.05rem; line-height:1;">📊</span>
+                            <span>Utilities Hub</span>
+                        </a>
+                        <a href="{{ route('billing.quick-input') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:var(--success); font-size:1.05rem; line-height:1;">⚡</span>
+                            <span>Input Cepat Meteran</span>
+                        </a>
+                        @if($authUser->canManageTenants())
+                        <a href="{{ route('billing.tenants.index') }}" class="user-dropdown-item" role="menuitem">
+                            <span style="color:var(--accent-light); font-size:1.05rem; line-height:1;">🏢</span>
+                            <span>Kelola Tenant</span>
+                        </a>
+                        @endif
 
                         @if($isGm || $authUser->isSuperAdmin())
                             <a href="{{ route('gm.monitoring') }}" class="user-dropdown-item" role="menuitem">

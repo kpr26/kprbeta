@@ -12,6 +12,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GmMonitoringController;
 use App\Http\Controllers\WhatsappSettingController;
 use App\Http\Controllers\PwaController;
+use App\Http\Controllers\Billing\TenantController;
+use App\Http\Controllers\Billing\TenantEnergyUsageController;
+use App\Http\Controllers\Billing\TenantWaterUsageController;
+use App\Http\Controllers\Billing\BillingHubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -272,4 +276,56 @@ Route::middleware('auth')->group(function () {
     Route::get('/daily-log/{dailyLogBook}/edit', [DailyLogBookController::class, 'edit'])->name('daily-log.edit');
     Route::put('/daily-log/{dailyLogBook}', [DailyLogBookController::class, 'update'])->name('daily-log.update');
     Route::delete('/daily-log/{dailyLogBook}', [DailyLogBookController::class, 'destroy'])->name('daily-log.destroy');
+
+    // ── Billing System (Semua Role: Tenant & Utilities) ──
+    Route::prefix('billing')->name('billing.')->group(function () {
+        Route::redirect('/', '/billing/utilities');
+
+        // Sub Menu 1: Tenant (Master Data & Manajemen Tenant)
+        Route::resource('tenants', TenantController::class);
+
+        // Sub Menu 2: Utilities Hub & Quick Input Teknisi
+        Route::get('/utilities', [BillingHubController::class, 'index'])->name('utilities.hub');
+        Route::post('/utilities/toggle-session', [BillingHubController::class, 'togglePeriodSession'])->name('utilities.toggle-session');
+        Route::get('/quick-input', [BillingHubController::class, 'quickInput'])->name('quick-input');
+        Route::post('/quick-input', [BillingHubController::class, 'storeQuickInput'])->name('quick-input.store');
+        Route::get('/api/tenant-stand', [BillingHubController::class, 'getTenantStand'])->name('api.tenant-stand');
+
+        // Sub Menu 2c: Bukti Foto Meteran (Galeri & Export Backup ZIP / PDF)
+        Route::get('/photos', [BillingHubController::class, 'photoGallery'])->name('photos');
+        Route::get('/photos/zip', [BillingHubController::class, 'downloadPhotosZip'])->name('photos.zip');
+        Route::get('/photos/print', [BillingHubController::class, 'printPhotoReport'])->name('photos.print');
+
+        // Sub Menu 2a: Tenant Energy Usage (Penggunaan Listrik Bulanan)
+        Route::prefix('energy')->name('energy.')->group(function () {
+            Route::get('/', [TenantEnergyUsageController::class, 'index'])->name('index');
+            Route::get('/input', [TenantEnergyUsageController::class, 'create'])->name('create');
+            Route::post('/input', [TenantEnergyUsageController::class, 'store'])->name('store');
+            Route::delete('/{energyReading}', [TenantEnergyUsageController::class, 'destroy'])->name('destroy')->whereNumber('energyReading');
+            Route::get('/export/excel', [TenantEnergyUsageController::class, 'exportExcel'])->name('excel');
+            Route::get('/export/csv', [TenantEnergyUsageController::class, 'exportCsv'])->name('csv');
+            Route::get('/export/pdf', [TenantEnergyUsageController::class, 'exportPdf'])->name('pdf');
+
+            // Input Bulk Manual (Khusus Super Admin)
+            Route::get('/bulk', [TenantEnergyUsageController::class, 'bulkCreate'])->name('bulk.create');
+            Route::post('/bulk', [TenantEnergyUsageController::class, 'bulkStore'])->name('bulk.store');
+            Route::get('/bulk/template', [TenantEnergyUsageController::class, 'downloadBulkTemplate'])->name('bulk.template');
+        });
+
+        // Sub Menu 2b: Tenant Water Usage (Penggunaan Air Bulanan)
+        Route::prefix('water')->name('water.')->group(function () {
+            Route::get('/', [TenantWaterUsageController::class, 'index'])->name('index');
+            Route::get('/input', [TenantWaterUsageController::class, 'create'])->name('create');
+            Route::post('/input', [TenantWaterUsageController::class, 'store'])->name('store');
+            Route::delete('/{waterReading}', [TenantWaterUsageController::class, 'destroy'])->name('destroy')->whereNumber('waterReading');
+            Route::get('/export/excel', [TenantWaterUsageController::class, 'exportExcel'])->name('excel');
+            Route::get('/export/csv', [TenantWaterUsageController::class, 'exportCsv'])->name('csv');
+            Route::get('/export/pdf', [TenantWaterUsageController::class, 'exportPdf'])->name('pdf');
+
+            // Input Bulk Manual Air (Khusus Super Admin)
+            Route::get('/bulk', [TenantWaterUsageController::class, 'bulkCreate'])->name('bulk.create');
+            Route::post('/bulk', [TenantWaterUsageController::class, 'bulkStore'])->name('bulk.store');
+            Route::get('/bulk/template', [TenantWaterUsageController::class, 'downloadBulkTemplate'])->name('bulk.template');
+        });
+    });
 });
