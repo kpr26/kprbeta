@@ -365,6 +365,13 @@ select.input option:hover {
 
     {{-- CARD LIST PEKERJAAN --}}
     @if ($logs->count() > 0)
+        @if ($logs->total() > 10)
+            <div class="kpr-pagination-top" style="margin-bottom:14px;">
+                <div class="kpr-pagination-status-text">
+                    Menampilkan <strong>{{ $logs->firstItem() }} – {{ $logs->lastItem() }}</strong> dari <strong>{{ $logs->total() }}</strong> pekerjaan (Maksimal 10 per halaman)
+                </div>
+            </div>
+        @endif
         <div class="daily-log-card-grid">
             @foreach ($logs as $log)
                 <div class="job-card">

@@ -843,6 +843,5 @@
             }
         });
     }
-    @endif
 </script>
 @endpush

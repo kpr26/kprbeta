@@ -900,6 +900,5 @@
             }
         });
     }
-    @endif
 </script>
 @endpush

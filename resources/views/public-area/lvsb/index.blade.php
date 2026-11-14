@@ -1374,6 +1374,5 @@
             }
         });
     }
-    @endif
 </script>
 @endpush

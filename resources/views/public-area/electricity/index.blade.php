@@ -208,6 +208,9 @@
             </h3>
         </div>
 
+        {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+        <div class="kpr-pagination-top" id="electricity-pagination-top"></div>
+
         <div class="table-wrap">
             <table class="log-table">
                 <thead>
@@ -225,7 +228,7 @@
                 </thead>
                 <tbody>
                 @forelse ($rows as $r)
-                    <tr>
+                    <tr class="electricity-table-row">
                         <td class="l">{{ $r->tanggal->translatedFormat('D, d M Y') }}</td>
                         <td class="l" style="font-weight:600; color:var(--warning);">{{ $r->meter_name }}</td>
                         <td style="font-weight:700;">{{ $n($r->stand_meter) }}</td>
@@ -271,12 +274,28 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Navigasi Paginasi Halaman Bawah --}}
+        <div class="kpr-pagination-bottom" id="electricity-pagination-bottom"></div>
     </div>
 </section>
 @endsection
 
 @push('scripts')
 <script>
+    // Inisialisasi Pagination Cerdas (Maksimal 10 data per halaman secara default)
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'electricity-pagination-top',
+            containerBottomId: 'electricity-pagination-bottom',
+            rowSelector: '.log-table tbody tr.electricity-table-row',
+            emptySelector: '.log-table tbody tr td.empty',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'pencatatan listrik PA',
+            storageKey: 'kpr_electricity_per_page'
+        });
+    }
     document.querySelectorAll('.input-stand-meter').forEach(inp => {
         const hint = inp.closest('div').parentElement.querySelector('.calc-diff-hint');
         const update = () => {
