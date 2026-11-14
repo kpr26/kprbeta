@@ -127,10 +127,17 @@ class PublicAreaLvsbController extends Controller
         $summary = [
             'count'       => $rows->count(),
             'avg_voltage' => count($vList) > 0 ? round(array_sum($vList) / count($vList), 1) : null,
+            'max_voltage' => count($vList) > 0 ? max($vList) : null,
+            'min_voltage' => count($vList) > 0 ? min($vList) : null,
             'max_power'   => count($pList) > 0 ? max($pList) : null,
+            'min_power'   => count($pList) > 0 ? min($pList) : null,
             'avg_power'   => count($pList) > 0 ? round(array_sum($pList) / count($pList), 2) : null,
+            'avg_current' => count($cList) > 0 ? round(array_sum($cList) / count($cList), 2) : null,
             'max_current' => count($cList) > 0 ? max($cList) : null,
+            'min_current' => count($cList) > 0 ? min($cList) : null,
             'avg_pf'      => count($pfList) > 0 ? round(array_sum($pfList) / count($pfList), 2) : null,
+            'max_pf'      => count($pfList) > 0 ? max($pfList) : null,
+            'min_pf'      => count($pfList) > 0 ? min($pfList) : null,
         ];
 
         $chartData = [

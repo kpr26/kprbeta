@@ -142,11 +142,20 @@
         </tbody>
     </table>
 
-    {{-- BAGIAN 2: RANGKUMAN DALAM BENTUK GRAFIK --}}
-    <div class="section-title">II. Grafik Tren Tegangan 20kV & Arus Beban (Interval {{ $periodeLabel }})</div>
-    <div class="chart-container">
-        <div style="height:180px; width:100%;">
-            <canvas id="chartMvsbPdf"></canvas>
+    {{-- BAGIAN 2: RANGKUMAN DALAM BENTUK GRAFIK (INDIVIDU PER NILAI INPUTAN) --}}
+    <div class="section-title">II. Grafik Tren Parameter MVSB (Individu: Tegangan 20kV & Arus Beban)</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#7c3aed; margin-bottom:4px;">1. Tegangan Menengah 20kV Incoming (Volt)</div>
+            <div style="height:120px; width:100%;">
+                <canvas id="chartMvsbPdfVolt"></canvas>
+            </div>
+        </div>
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#0284c7; margin-bottom:4px;">2. Arus Listrik Beban Operasional (Ampere)</div>
+            <div style="height:120px; width:100%;">
+                <canvas id="chartMvsbPdfCurr"></canvas>
+            </div>
         </div>
     </div>
 
@@ -193,62 +202,44 @@
         const dataVolt = @json($chartVolt);
         const dataCurr = @json($chartCurr);
 
-        const ctx = document.getElementById('chartMvsbPdf');
-        if (ctx && labels.length > 0) {
-            new Chart(ctx, {
+        function makeMvsbPdfChart(id, label, data, color, unit) {
+            const el = document.getElementById(id);
+            if (!el || !labels.length) return null;
+            return new Chart(el, {
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: 'Voltage 20kV (Volt)',
-                            data: dataVolt,
-                            borderColor: '#7c3aed',
-                            backgroundColor: 'rgba(124,58,237,0.08)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.2,
-                            yAxisID: 'y',
-                            pointRadius: labels.length > 35 ? 0 : 2,
-                        },
-                        {
-                            label: 'Current (Ampere)',
-                            data: dataCurr,
-                            borderColor: '#0284c7',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.2,
-                            yAxisID: 'y1',
-                            pointRadius: labels.length > 35 ? 0 : 2,
-                        }
-                    ]
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                        borderWidth: 1.5,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: labels.length > 35 ? 0 : 2,
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 8.5 } } }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         x: { ticks: { font: { size: 7.5 }, maxRotation: 45 } },
-                        y: { 
-                            type: 'linear', 
-                            position: 'left', 
-                            title: { display: true, text: 'Volt', font: { size: 7.5 } },
-                            ticks: { font: { size: 7.5 } } 
-                        },
-                        y1: { 
-                            type: 'linear', 
-                            position: 'right', 
-                            title: { display: true, text: 'Ampere', font: { size: 7.5 } },
-                            grid: { drawOnChartArea: false },
-                            ticks: { font: { size: 7.5 } } 
+                        y: {
+                            type: 'linear',
+                            title: { display: true, text: unit, font: { size: 7.5 } },
+                            ticks: { font: { size: 7.5 } },
+                            grace: '5%'
                         }
                     }
                 }
             });
         }
+
+        makeMvsbPdfChart('chartMvsbPdfVolt', 'Voltage 20kV (Volt)', dataVolt, 'rgb(124, 58, 237)', 'V');
+        makeMvsbPdfChart('chartMvsbPdfCurr', 'Current (Ampere)', dataCurr, 'rgb(2, 132, 199)', 'A');
 
         setTimeout(() => window.print(), 500);
     });

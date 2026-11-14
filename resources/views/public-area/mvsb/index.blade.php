@@ -325,21 +325,63 @@
             </div>
         </div>
 
-        {{-- GRAFIK VISUALISASI CHART.JS --}}
-        <div>
-            <h4 style="font-size:0.92rem; color:var(--text-primary); margin:0 0 10px; font-weight:700; display:flex; align-items:center; gap:6px;">
-                <span>📈</span> Grafik Tren Tegangan 20kV & Arus Beban PLN
-            </h4>
-            <div style="position:relative; min-height:260px; height:260px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:var(--shadow-sm);">
-                @if(empty($chartData['labels']))
-                    <div style="height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); gap:8px;">
-                        <span style="font-size:1.8rem;">📊</span>
-                        <span style="font-size:0.85rem;">Belum ada data pencatatan MVSB pada interval ini.</span>
-                    </div>
-                @else
-                    <canvas id="chartMvsbInterval"></canvas>
-                @endif
+        {{-- GRAFIK VISUALISASI CHART.JS TERPISAH PER NILAI INPUTAN --}}
+        <div style="margin-top:20px;">
+            <div style="margin-bottom:14px;">
+                <h4 style="font-size:1rem; color:var(--text-primary); margin:0 0 4px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                    <span>📈</span> Grafik Tren Parameter MVSB 20kV (Individu per Nilai Inputan)
+                </h4>
+                <p style="margin:0; font-size:0.8rem; color:var(--text-secondary);">
+                    Grafik dipisahkan menjadi grafik independen untuk Tegangan 20kV dan Arus Beban agar fluktuasi masing-masing parameter terbaca akurat dan tidak saling menumpuk skala.
+                </p>
             </div>
+
+            @if(empty($chartData['labels']))
+                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:36px; text-align:center; color:var(--text-muted);">
+                    <span style="font-size:2rem; display:block; margin-bottom:8px;">📊</span>
+                    <span style="font-size:0.88rem;">Belum ada data pencatatan MVSB pada interval ini.</span>
+                </div>
+            @else
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:18px;">
+                    {{-- 1. GRAFIK TEGANGAN 20KV (VOLT) --}}
+                    <div class="kpr-chart-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:rgba(192,132,252,0.15); color:var(--purple); font-size:0.85rem; font-weight:700;">⚡</span>
+                                <div>
+                                    <strong style="font-size:0.9rem; color:var(--text-primary); display:block; line-height:1.2;">Tegangan (Voltage 20kV)</strong>
+                                    <span style="font-size:0.72rem; color:var(--text-muted);">Incoming Gardu PLN Menengah</span>
+                                </div>
+                            </div>
+                            <span class="badge" style="background:rgba(192,132,252,0.15); color:var(--purple); font-size:0.75rem; padding:3px 8px; font-weight:700;">
+                                Avg: {{ $n($summary['avg_voltage'], 1) }} V
+                            </span>
+                        </div>
+                        <div style="position:relative; height:230px; width:100%;">
+                            <canvas id="chartMvsbVoltage"></canvas>
+                        </div>
+                    </div>
+
+                    {{-- 2. GRAFIK ARUS (AMPERE) --}}
+                    <div class="kpr-chart-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:6px; background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.85rem; font-weight:700;">⚡</span>
+                                <div>
+                                    <strong style="font-size:0.9rem; color:var(--text-primary); display:block; line-height:1.2;">Arus Beban (Current)</strong>
+                                    <span style="font-size:0.72rem; color:var(--text-muted);">Operasional Beban Gedung</span>
+                                </div>
+                            </div>
+                            <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-size:0.75rem; padding:3px 8px; font-weight:700;">
+                                Max: {{ $n($summary['max_current'], 2) }} A
+                            </span>
+                        </div>
+                        <div style="position:relative; height:230px; width:100%;">
+                            <canvas id="chartMvsbCurrent"></canvas>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -561,11 +603,10 @@
         }
     });
 
-    // Inisialisasi Grafik Visualisasi Chart.js Tren Interval MVSB
+    // Inisialisasi Grafik Visualisasi Chart.js Tren Interval MVSB (Individu per Parameter)
     document.addEventListener('DOMContentLoaded', function() {
         const chartData = @json($chartData);
-        const ctx = document.getElementById('chartMvsbInterval');
-        if (!ctx || !chartData || !chartData.labels || chartData.labels.length === 0) return;
+        if (!chartData || !chartData.labels || chartData.labels.length === 0) return;
 
         function getThemeColors() {
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -577,94 +618,126 @@
                 voltColor: isLight ? '#7c3aed' : '#c084fc',
                 voltBg:    isLight ? 'rgba(124,58,237,0.08)' : 'rgba(192,132,252,0.12)',
                 currColor: isLight ? '#0284c7' : '#38bdf8',
+                currBg:    isLight ? 'rgba(2,132,199,0.08)' : 'rgba(56,189,248,0.12)',
             };
         }
 
         let th = getThemeColors();
+        const fmtNum = (val) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 }).format(val);
 
-        const chartMvsb = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        label: 'Voltage 20kV (Volt)',
-                        data: chartData.voltage,
-                        borderColor: th.voltColor,
-                        backgroundColor: th.voltBg,
+        function buildSingleMvsbChart(canvasId, label, data, color, bgColor, unit) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+
+            const validValues = (data || []).filter(v => v !== null && !isNaN(v));
+            let yMin = undefined;
+            let yMax = undefined;
+            if (validValues.length > 0) {
+                const minVal = Math.min(...validValues);
+                const maxVal = Math.max(...validValues);
+                const span = maxVal - minVal;
+                if (span > 0) {
+                    const pad = Math.max(span * 0.15, 0.05);
+                    yMin = Math.max(0, Number((minVal - pad).toFixed(2)));
+                    yMax = Number((maxVal + pad).toFixed(2));
+                }
+            }
+
+            return new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: bgColor,
                         borderWidth: 2,
                         fill: true,
                         tension: 0.25,
-                        yAxisID: 'yVolt',
                         pointRadius: chartData.labels.length > 35 ? 0 : 3,
-                    },
-                    {
-                        label: 'Current (Ampere)',
-                        data: chartData.current,
-                        borderColor: th.currColor,
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.25,
-                        yAxisID: 'yCurr',
-                        pointRadius: chartData.labels.length > 35 ? 0 : 3,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: color,
+                    }]
                 },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: th.textColor,
-                            font: { size: 11 },
-                            usePointStyle: true,
-                            boxWidth: 8
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.parsed.y;
+                                    return ` ${label}: ${fmtNum(val)} ${unit}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: th.gridColor },
+                            ticks: { color: th.tickColor, font: { size: 10 } }
+                        },
+                        y: {
+                            type: 'linear',
+                            title: { display: true, text: unit, color: color, font: { size: 10, weight: 'bold' } },
+                            grid: { color: th.gridColor },
+                            ticks: { color: th.tickColor, font: { size: 10 } },
+                            min: yMin,
+                            max: yMax,
+                            grace: '5%',
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        grid: { color: th.gridColor },
-                        ticks: { color: th.tickColor, font: { size: 10 } }
-                    },
-                    yVolt: {
-                        type: 'linear',
-                        position: 'left',
-                        title: { display: true, text: 'Volt', color: th.voltColor, font: { size: 10 } },
-                        grid: { color: th.gridColor },
-                        ticks: { color: th.tickColor, font: { size: 10 } }
-                    },
-                    yCurr: {
-                        type: 'linear',
-                        position: 'right',
-                        title: { display: true, text: 'Ampere', color: th.currColor, font: { size: 10 } },
-                        grid: { drawOnChartArea: false },
-                        ticks: { color: th.tickColor, font: { size: 10 } }
-                    }
                 }
-            }
-        });
+            });
+        }
+
+        // 1. Grafik Tegangan 20kV (Volt)
+        const chartVolt = buildSingleMvsbChart(
+            'chartMvsbVoltage',
+            'Voltage 20kV Incoming',
+            chartData.voltage,
+            th.voltColor,
+            th.voltBg,
+            'Volt'
+        );
+
+        // 2. Grafik Arus Beban (Ampere)
+        const chartCurr = buildSingleMvsbChart(
+            'chartMvsbCurrent',
+            'Arus Beban Operasional',
+            chartData.current,
+            th.currColor,
+            th.currBg,
+            'Ampere'
+        );
+
+        const allMvsbCharts = [chartVolt, chartCurr].filter(Boolean);
 
         window.addEventListener('kpr-theme-changed', function() {
             const next = getThemeColors();
-            chartMvsb.data.datasets[0].borderColor = next.voltColor;
-            chartMvsb.data.datasets[0].backgroundColor = next.voltBg;
-            chartMvsb.data.datasets[1].borderColor = next.currColor;
-            chartMvsb.options.plugins.legend.labels.color = next.textColor;
-            chartMvsb.options.scales.x.grid.color = next.gridColor;
-            chartMvsb.options.scales.x.ticks.color = next.tickColor;
-            chartMvsb.options.scales.yVolt.grid.color = next.gridColor;
-            chartMvsb.options.scales.yVolt.ticks.color = next.tickColor;
-            chartMvsb.options.scales.yVolt.title.color = next.voltColor;
-            chartMvsb.options.scales.yCurr.ticks.color = next.tickColor;
-            chartMvsb.options.scales.yCurr.title.color = next.currColor;
-            chartMvsb.update();
+            if (chartVolt) {
+                chartVolt.data.datasets[0].borderColor = next.voltColor;
+                chartVolt.data.datasets[0].backgroundColor = next.voltBg;
+                chartVolt.options.scales.y.title.color = next.voltColor;
+            }
+            if (chartCurr) {
+                chartCurr.data.datasets[0].borderColor = next.currColor;
+                chartCurr.data.datasets[0].backgroundColor = next.currBg;
+                chartCurr.options.scales.y.title.color = next.currColor;
+            }
+            allMvsbCharts.forEach(c => {
+                c.options.scales.x.grid.color = next.gridColor;
+                c.options.scales.x.ticks.color = next.tickColor;
+                c.options.scales.y.grid.color = next.gridColor;
+                c.options.scales.y.ticks.color = next.tickColor;
+                c.update();
+            });
         });
     });
 

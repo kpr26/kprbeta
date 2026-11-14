@@ -191,11 +191,32 @@
         </tbody>
     </table>
 
-    {{-- BAGIAN 2: RANGKUMAN DALAM BENTUK GRAFIK --}}
-    <div class="section-title">II. Grafik Tren Daya (kW), Tegangan (V), & PF Kapasitor</div>
-    <div class="chart-container">
-        <div style="height:150px; width:100%;">
-            <canvas id="chartLvsbPdf"></canvas>
+    {{-- BAGIAN 2: RANGKUMAN DALAM BENTUK GRAFIK (INDIVIDU PER NILAI INPUTAN) --}}
+    <div class="section-title">II. Grafik Tren Parameter LVSB (Individu: Tegangan, Arus, Beban Daya, Power Factor)</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#b45309; margin-bottom:4px;">1. Tegangan Incoming Trafo 3-P (Volt)</div>
+            <div style="height:110px; width:100%;">
+                <canvas id="chartLvsbPdfVolt"></canvas>
+            </div>
+        </div>
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#7c3aed; margin-bottom:4px;">2. Arus Listrik Incoming (Ampere)</div>
+            <div style="height:110px; width:100%;">
+                <canvas id="chartLvsbPdfCurr"></canvas>
+            </div>
+        </div>
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#0284c7; margin-bottom:4px;">3. Beban Daya Aktif (Power Total kW)</div>
+            <div style="height:110px; width:100%;">
+                <canvas id="chartLvsbPdfPower"></canvas>
+            </div>
+        </div>
+        <div class="chart-container" style="margin:0; padding:6px 8px;">
+            <div style="font-size:8px; font-weight:bold; color:#059669; margin-bottom:4px;">4. Power Factor Kapasitor Bank (Cos φ)</div>
+            <div style="height:110px; width:100%;">
+                <canvas id="chartLvsbPdfPF"></canvas>
+            </div>
         </div>
     </div>
 
@@ -344,67 +365,51 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const labels = @json($chartLabels);
+        const dataVolt = @json($chartVolt);
+        const dataCurr = @json($chartCurrent);
         const dataPower = @json($chartPower);
         const dataPF = @json($chartPF);
 
-        const ctx = document.getElementById('chartLvsbPdf');
-        if (ctx && labels.length > 0) {
-            new Chart(ctx, {
+        function makePdfChart(id, label, data, color, unit, extraY = {}) {
+            const el = document.getElementById(id);
+            if (!el || !labels.length) return null;
+            return new Chart(el, {
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [
-                        {
-                            label: 'Incoming Power (kW)',
-                            data: dataPower,
-                            borderColor: '#d97706',
-                            backgroundColor: 'rgba(217,119,6,0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.2,
-                            yAxisID: 'y',
-                            pointRadius: labels.length > 35 ? 0 : 2,
-                        },
-                        {
-                            label: 'Capacitor PF',
-                            data: dataPF,
-                            borderColor: '#10b981',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.2,
-                            yAxisID: 'y1',
-                            pointRadius: labels.length > 35 ? 0 : 2,
-                        }
-                    ]
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color.replace(')', ', 0.1)').replace('rgb', 'rgba'),
+                        borderWidth: 1.5,
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: labels.length > 35 ? 0 : 2,
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     animation: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { boxWidth: 10, font: { size: 8 } } }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
                         x: { ticks: { font: { size: 7 }, maxRotation: 45 } },
-                        y: { 
-                            type: 'linear', 
-                            position: 'left', 
-                            title: { display: true, text: 'Power (kW)', font: { size: 7 } },
-                            ticks: { font: { size: 7 } } 
-                        },
-                        y1: { 
-                            type: 'linear', 
-                            position: 'right', 
-                            min: 0.7, 
-                            max: 1.0, 
-                            title: { display: true, text: 'PF', font: { size: 7 } },
-                            grid: { drawOnChartArea: false },
-                            ticks: { font: { size: 7 } } 
+                        y: {
+                            type: 'linear',
+                            title: { display: true, text: unit, font: { size: 7 } },
+                            ticks: { font: { size: 7 } },
+                            ...extraY
                         }
                     }
                 }
             });
         }
+
+        makePdfChart('chartLvsbPdfVolt', 'Tegangan (V)', dataVolt, 'rgb(217, 119, 6)', 'V', { grace: '5%' });
+        makePdfChart('chartLvsbPdfCurr', 'Arus (A)', dataCurr, 'rgb(124, 58, 237)', 'A', { grace: '5%' });
+        makePdfChart('chartLvsbPdfPower', 'Power (kW)', dataPower, 'rgb(2, 132, 199)', 'kW', { grace: '5%' });
+        makePdfChart('chartLvsbPdfPF', 'Cos φ', dataPF, 'rgb(5, 150, 105)', 'Cos φ', { min: 0.7, max: 1.0 });
 
         setTimeout(() => window.print(), 500);
     });
