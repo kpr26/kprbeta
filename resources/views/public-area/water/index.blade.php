@@ -440,6 +440,9 @@
             </form>
         @endif
 
+        {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+        <div class="kpr-pagination-top" id="water-pagination-top"></div>
+
         <div class="table-wrap">
             <table class="log-table">
                 <thead>
@@ -463,7 +466,7 @@
                 <tbody>
                 @forelse ($rows as $r)
                     @php $meta = $waterMeters[$r->meter_key] ?? null; @endphp
-                    <tr>
+                    <tr class="water-table-row">
                         @if ($isSuperAdmin)
                             <td class="c" style="vertical-align:middle;">
                                 <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-water" data-verified="{{ $r->isVerified() ? '1' : '0' }}" style="width:17px; height:17px; cursor:pointer; accent-color:#0284c7;">
@@ -518,6 +521,9 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Navigasi Paginasi Halaman Bawah --}}
+        <div class="kpr-pagination-bottom" id="water-pagination-bottom"></div>
     </div>
 </section>
 @endsection
@@ -785,8 +791,13 @@
                 bulkMaster.indeterminate = someChecked;
             }
             if (bulkTableAll) {
-                bulkTableAll.checked = allChecked;
-                bulkTableAll.indeterminate = someChecked;
+                const visibleRows = Array.from(document.querySelectorAll('.log-table tbody tr.water-table-row:not([style*="display: none"])'));
+                const visibleChecked = visibleRows.filter(r => {
+                    const cb = r.querySelector('.bulk-item-water');
+                    return cb && cb.checked;
+                });
+                bulkTableAll.checked = visibleRows.length > 0 && visibleChecked.length === visibleRows.length;
+                bulkTableAll.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visibleRows.length;
             }
         }
 
@@ -796,7 +807,17 @@
         }
 
         if (bulkMaster) bulkMaster.addEventListener('change', function() { toggleAll(this.checked); });
-        if (bulkTableAll) bulkTableAll.addEventListener('change', function() { toggleAll(this.checked); });
+        if (bulkTableAll) {
+            bulkTableAll.addEventListener('change', function() {
+                const visibleCheckboxes = Array.from(document.querySelectorAll('.log-table tbody tr.water-table-row:not([style*="display: none"]) .bulk-item-water'));
+                if (visibleCheckboxes.length > 0) {
+                    visibleCheckboxes.forEach(cb => { cb.checked = bulkTableAll.checked; });
+                    updateToolbar();
+                } else {
+                    toggleAll(this.checked);
+                }
+            });
+        }
 
         document.querySelectorAll('.bulk-item-water').forEach(cb => {
             cb.addEventListener('change', updateToolbar);
@@ -856,7 +877,29 @@
                 bulkForm.submit();
             });
         }
+
+        window.updateBulkWaterToolbar = updateToolbar;
     })();
+    @endif
+
+    // Inisialisasi Pagination Cerdas (Maksimal 10 data per halaman secara default)
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'water-pagination-top',
+            containerBottomId: 'water-pagination-bottom',
+            rowSelector: '.log-table tbody tr.water-table-row',
+            emptySelector: '.log-table tbody tr td.empty',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'pencatatan air',
+            storageKey: 'kpr_water_per_page',
+            onPageChange: function(page, startIdx, endIdx) {
+                if (typeof window.updateBulkWaterToolbar === 'function') {
+                    window.updateBulkWaterToolbar();
+                }
+            }
+        });
+    }
     @endif
 </script>
 @endpush

@@ -2896,5 +2896,200 @@ input[type="submit"].is-submitting {
   cursor: not-allowed !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   KPR BETA — RESPONSIVE PAGINATION COMPONENT (WEB & PWA MOBILE)
+   Limit Data Per Page (Default 10 data) & Quick Navigation
+   ═══════════════════════════════════════════════════════════════ */
+.kpr-pagination-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 12px 0;
+  box-sizing: border-box;
+}
+
+.kpr-pagination-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.kpr-pagination-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.kpr-pagination-info svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.kpr-pagination-controls-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kpr-pagination-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.kpr-pagination-select {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.kpr-pagination-select:focus,
+.kpr-pagination-select:hover {
+  border-color: var(--accent);
+}
+
+.kpr-pagination-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  margin-top: 10px;
+}
+
+.kpr-pagination-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.kpr-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  user-select: none;
+}
+
+[data-theme="light"] .kpr-page-btn {
+  background: var(--bg-card-subtle);
+  color: var(--text-secondary);
+}
+
+.kpr-page-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+  transform: translateY(-1px);
+}
+
+.kpr-page-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: var(--text-on-accent);
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.35);
+  cursor: default;
+}
+
+.kpr-page-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.kpr-page-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.kpr-page-ellipsis {
+  padding: 0 6px;
+  color: var(--text-muted);
+  font-weight: 700;
+  user-select: none;
+}
+
+.kpr-pagination-status-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .kpr-pagination-top,
+  .kpr-pagination-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .kpr-pagination-controls-top {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .kpr-pagination-nav {
+    justify-content: center;
+    width: 100%;
+    gap: 4px;
+  }
+  .kpr-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 0.78rem;
+  }
+  .kpr-page-btn--nav-text span {
+    display: none;
+  }
+  .kpr-pagination-status-text {
+    text-align: center;
+    font-size: 0.75rem;
+  }
+}
+
+
 
 

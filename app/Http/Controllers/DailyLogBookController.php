@@ -39,7 +39,12 @@ class DailyLogBookController extends Controller
         // Filter logic
         $query->filter($filters);
 
-        $logs = $query->paginate(15)->withQueryString();
+        $perPage = (int) $request->input('per_page', 10);
+        if ($perPage < 5 || $perPage > 100) {
+            $perPage = 10;
+        }
+
+        $logs = $query->paginate($perPage)->withQueryString();
 
         // Ringkasan metrik statistik
         $currentMonth = $filters['bulan'] ?: now()->format('Y-m');

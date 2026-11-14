@@ -319,6 +319,270 @@
                 window.hideKprLoading();
             });
         })();
+
+        // ══════════════════════════════════════════════════════════════════════
+        // GLOBAL KPR BETA PAGINATION CONTROLLER (WEB & PWA MOBILE)
+        // Membatasi tampilan data maksimal 10 per halaman dengan navigasi instan
+        // ══════════════════════════════════════════════════════════════════════
+        window.initKprTablePagination = function(config) {
+            const rowSelector = config.rowSelector;
+            const cardSelector = config.cardSelector || null;
+            const topContainer = config.containerTopId 
+                ? document.getElementById(config.containerTopId) 
+                : (typeof config.topContainer === 'string' ? document.querySelector(config.topContainer) : config.topContainer);
+            const bottomContainer = config.containerBottomId 
+                ? document.getElementById(config.containerBottomId) 
+                : (typeof config.bottomContainer === 'string' ? document.querySelector(config.bottomContainer) : config.bottomContainer);
+            const defaultPerPage = config.defaultPerPage || 10;
+            const perPageOptions = config.perPageOptions || [10, 20, 30, 'all'];
+            const storageKey = config.storageKey || 'kpr_table_per_page';
+            const paramName = config.paramName || 'page';
+            const scrollToTarget = config.scrollToTarget || null;
+
+            if (!rowSelector && !cardSelector) return null;
+
+            // Load saved per-page preference (default 10)
+            let perPage = defaultPerPage;
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved === 'all') {
+                    perPage = 'all';
+                } else if (saved && !isNaN(parseInt(saved, 10)) && parseInt(saved, 10) > 0) {
+                    perPage = parseInt(saved, 10);
+                }
+            } catch(e) {}
+
+            // Load page from URL query
+            let currentPage = 1;
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const p = parseInt(urlParams.get(paramName), 10);
+                if (!isNaN(p) && p > 0) currentPage = p;
+            } catch(e) {}
+
+            function getRows() {
+                return rowSelector ? Array.from(document.querySelectorAll(rowSelector)) : [];
+            }
+
+            function getCards() {
+                return cardSelector ? Array.from(document.querySelectorAll(cardSelector)) : [];
+            }
+
+            function render() {
+                const rows = getRows();
+                const cards = getCards();
+                const totalItems = Math.max(rows.length, cards.length);
+
+                if (totalItems === 0) {
+                    if (topContainer) topContainer.style.display = 'none';
+                    if (bottomContainer) bottomContainer.style.display = 'none';
+                    return;
+                }
+
+                if (topContainer) topContainer.style.display = '';
+                if (bottomContainer) bottomContainer.style.display = '';
+
+                const limit = (perPage === 'all' || perPage >= totalItems) ? totalItems : perPage;
+                const totalPages = (perPage === 'all' || limit <= 0) ? 1 : Math.ceil(totalItems / limit);
+
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+
+                const startIndex = (currentPage - 1) * limit;
+                const endIndex = Math.min(startIndex + limit, totalItems);
+
+                // Show / hide table rows
+                rows.forEach((row, idx) => {
+                    if (idx >= startIndex && idx < endIndex) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show / hide mobile cards
+                cards.forEach((card, idx) => {
+                    if (idx >= startIndex && idx < endIndex) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Render Top Bar
+                if (topContainer) {
+                    const rangeText = totalItems > 0 
+                        ? `Menampilkan data <strong>${startIndex + 1} – ${endIndex}</strong> dari <strong>${totalItems}</strong> data`
+                        : 'Belum ada data';
+
+                    let optionsHtml = '';
+                    perPageOptions.forEach(opt => {
+                        const val = opt === 'all' ? 'all' : opt;
+                        const label = opt === 'all' ? 'Tampilkan Semua' : `${opt} Data / Halaman`;
+                        const isSelected = (perPage === val) ? 'selected' : '';
+                        optionsHtml += `<option value="${val}" ${isSelected}>${label}</option>`;
+                    });
+
+                    topContainer.innerHTML = `
+                        <div class="kpr-pagination-info">
+                            <svg viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>${rangeText} ${totalPages > 1 ? `(Halaman ${currentPage} dari ${totalPages})` : ''}</span>
+                        </div>
+                        <div class="kpr-pagination-controls-top">
+                            <label class="kpr-pagination-label">Per Halaman:</label>
+                            <select class="kpr-pagination-select" id="${topContainer.id}-select-per-page" aria-label="Batas Data Per Halaman">
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                    `;
+
+                    const selectEl = topContainer.querySelector('.kpr-pagination-select');
+                    if (selectEl) {
+                        selectEl.addEventListener('change', function() {
+                            perPage = this.value === 'all' ? 'all' : parseInt(this.value, 10);
+                            try {
+                                localStorage.setItem(storageKey, perPage);
+                            } catch(e) {}
+                            currentPage = 1;
+                            updateUrlParam();
+                            render();
+                        });
+                    }
+                }
+
+                // Render Bottom Bar
+                if (bottomContainer) {
+                    if (totalPages <= 1) {
+                        bottomContainer.innerHTML = `
+                            <div class="kpr-pagination-info" style="font-size:0.8rem; color:var(--text-muted); width:100%; text-align:center; justify-content:center;">
+                                ✓ Menampilkan seluruh data pada periode ini (${totalItems} data)
+                            </div>
+                        `;
+                    } else {
+                        let pagesHtml = '';
+
+                        // Navigation Buttons: First & Prev
+                        pagesHtml += `
+                            <button type="button" class="kpr-page-btn kpr-page-btn--nav-text" data-page="1" ${currentPage === 1 ? 'disabled' : ''} title="Halaman Pertama">
+                                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15.79 14.77a.75.75 0 0 1-1.06.02l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 1 1 1.04 1.08L11.832 10l3.938 3.71a.75.75 0 0 1 .02 1.06Zm-6 0a.75.75 0 0 1-1.06.02l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 1 1 1.04 1.08L5.832 10l3.938 3.71a.75.75 0 0 1 .02 1.06Z" clip-rule="evenodd"/></svg>
+                                <span>Pertama</span>
+                            </button>
+                            <button type="button" class="kpr-page-btn kpr-page-btn--nav-text" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''} title="Halaman Sebelumnya">
+                                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd"/></svg>
+                                <span>Sebelumnya</span>
+                            </button>
+                        `;
+
+                        // Numeric Page Buttons with Sliding Window
+                        const maxButtons = 5;
+                        let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+                        let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+                        if (endPage - startPage + 1 < maxButtons) {
+                            startPage = Math.max(1, endPage - maxButtons + 1);
+                        }
+
+                        if (startPage > 1) {
+                            pagesHtml += `<button type="button" class="kpr-page-btn" data-page="1">1</button>`;
+                            if (startPage > 2) pagesHtml += `<span class="kpr-page-ellipsis">…</span>`;
+                        }
+
+                        for (let p = startPage; p <= endPage; p++) {
+                            const isActive = (p === currentPage) ? 'active' : '';
+                            pagesHtml += `<button type="button" class="kpr-page-btn ${isActive}" data-page="${p}">${p}</button>`;
+                        }
+
+                        if (endPage < totalPages) {
+                            if (endPage < totalPages - 1) pagesHtml += `<span class="kpr-page-ellipsis">…</span>`;
+                            pagesHtml += `<button type="button" class="kpr-page-btn" data-page="${totalPages}">${totalPages}</button>`;
+                        }
+
+                        // Navigation Buttons: Next & Last
+                        pagesHtml += `
+                            <button type="button" class="kpr-page-btn kpr-page-btn--nav-text" data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''} title="Halaman Berikutnya">
+                                <span>Berikutnya</span>
+                                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/></svg>
+                            </button>
+                            <button type="button" class="kpr-page-btn kpr-page-btn--nav-text" data-page="${totalPages}" ${currentPage === totalPages ? 'disabled' : ''} title="Halaman Terakhir">
+                                <span>Terakhir</span>
+                                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.21 14.77a.75.75 0 0 1 .02-1.06L14.168 10 10.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Zm-6 0a.75.75 0 0 1 .02-1.06L8.168 10 4.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd"/></svg>
+                            </button>
+                        `;
+
+                        bottomContainer.innerHTML = `
+                            <nav class="kpr-pagination-nav" aria-label="Navigasi Halaman Data">
+                                ${pagesHtml}
+                            </nav>
+                            <div class="kpr-pagination-status-text">
+                                Halaman <strong>${currentPage}</strong> dari <strong>${totalPages}</strong>
+                            </div>
+                        `;
+
+                        // Add click listeners to page buttons
+                        bottomContainer.querySelectorAll('.kpr-page-btn').forEach(btn => {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const targetPage = parseInt(this.dataset.page, 10);
+                                if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                                    currentPage = targetPage;
+                                    updateUrlParam();
+                                    render();
+
+                                    // Scroll to table smoothly if user scrolled down
+                                    if (scrollToTarget) {
+                                        const el = typeof scrollToTarget === 'string' ? document.querySelector(scrollToTarget) : scrollToTarget;
+                                        if (el) {
+                                            const rect = el.getBoundingClientRect();
+                                            if (rect.top < 0 || rect.top > window.innerHeight) {
+                                                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+
+                if (typeof config.onPageChange === 'function') {
+                    config.onPageChange(currentPage, totalPages, startIndex, endIndex);
+                }
+            }
+
+            function updateUrlParam() {
+                try {
+                    const url = new URL(window.location);
+                    if (currentPage > 1) {
+                        url.searchParams.set(paramName, currentPage);
+                    } else {
+                        url.searchParams.delete(paramName);
+                    }
+                    window.history.replaceState({}, '', url);
+                } catch(e) {}
+            }
+
+            // Initial render
+            render();
+
+            return {
+                refresh: render,
+                setPage: function(p) {
+                    currentPage = p;
+                    updateUrlParam();
+                    render();
+                },
+                getPage: function() { return currentPage; },
+                getPerPage: function() { return perPage; },
+                getCurrentRange: function() {
+                    const totalItems = Math.max(getRows().length, getCards().length);
+                    const limit = (perPage === 'all' || perPage >= totalItems) ? totalItems : perPage;
+                    const startIndex = (currentPage - 1) * limit;
+                    const endIndex = Math.min(startIndex + limit, totalItems);
+                    return { startIndex, endIndex, totalItems, currentPage };
+                }
+            };
+        };
     </script>
 
     @stack('scripts')

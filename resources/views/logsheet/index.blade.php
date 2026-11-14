@@ -357,6 +357,9 @@
         </form>
     @endif
 
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="logsheet-pagination-top"></div>
+
     {{-- Tabel Rekapitulasi (Stand Total ditiadakan sesuai instruksi) --}}
     <div class="table-wrap">
         <table class="log-table">
@@ -602,6 +605,9 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="logsheet-pagination-bottom"></div>
 </section>
 @endsection
 
@@ -938,8 +944,13 @@
                 bulkMasterCheck.indeterminate = someChecked;
             }
             if (bulkCheckTableAll) {
-                bulkCheckTableAll.checked = allChecked;
-                bulkCheckTableAll.indeterminate = someChecked;
+                const visibleRows = Array.from(document.querySelectorAll('.log-table tbody tr[id^="row-logsheet-"]:not([style*="display: none"])'));
+                const visibleChecked = visibleRows.filter(r => {
+                    const cb = r.querySelector('.bulk-item-check');
+                    return cb && cb.checked;
+                });
+                bulkCheckTableAll.checked = visibleRows.length > 0 && visibleChecked.length === visibleRows.length;
+                bulkCheckTableAll.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visibleRows.length;
             }
 
             // Visual feedback on mobile cards
@@ -969,7 +980,18 @@
         }
         if (bulkCheckTableAll) {
             bulkCheckTableAll.addEventListener('change', function() {
-                toggleAll(this.checked);
+                const visibleCheckboxes = Array.from(document.querySelectorAll('.log-table tbody tr[id^="row-logsheet-"]:not([style*="display: none"]) .bulk-item-check'));
+                if (visibleCheckboxes.length > 0) {
+                    visibleCheckboxes.forEach(cb => {
+                        cb.checked = bulkCheckTableAll.checked;
+                        document.querySelectorAll(`.bulk-item-check[value="${cb.value}"]`).forEach(sibling => {
+                            sibling.checked = bulkCheckTableAll.checked;
+                        });
+                    });
+                    updateBulkToolbar();
+                } else {
+                    toggleAll(this.checked);
+                }
             });
         }
 
@@ -1058,7 +1080,30 @@
                 }
             });
         }
+
+        // Ekspos fungsi sinkronisasi status checkbox masal saat halaman berpindah
+        window.updateBulkLogsheetToolbar = updateBulkToolbar;
     })();
     @endif
+
+    // Inisialisasi Pagination Cerdas (Maksimal 10 data per halaman secara default)
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'logsheet-pagination-top',
+            containerBottomId: 'logsheet-pagination-bottom',
+            rowSelector: '.log-table tbody tr[id^="row-logsheet-"]',
+            cardSelector: '.mobile-logsheet-list .mobile-log-card',
+            emptySelector: '.mobile-logsheet-list .empty, .log-table tbody .empty-row',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'logsheet',
+            storageKey: 'kpr_logsheet_per_page',
+            onPageChange: function(page, startIdx, endIdx) {
+                if (typeof window.updateBulkLogsheetToolbar === 'function') {
+                    window.updateBulkLogsheetToolbar();
+                }
+            }
+        });
+    }
 </script>
 @endpush

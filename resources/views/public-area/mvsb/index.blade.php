@@ -397,6 +397,9 @@
         </form>
     @endif
 
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="mvsb-pagination-top"></div>
+
     <div class="table-wrap">
         <table class="log-table">
             <thead>
@@ -417,7 +420,7 @@
             </thead>
             <tbody>
                 @forelse($rows as $r)
-                    <tr>
+                    <tr class="mvsb-table-row">
                         @if (auth()->user()->isSuperAdmin())
                             <td class="c" style="vertical-align:middle;">
                                 <input type="checkbox" name="bulk_ids[]" value="{{ $r->id }}" class="bulk-item-mvsb" data-verified="{{ $r->isVerified() ? '1' : '0' }}" style="width:17px; height:17px; cursor:pointer; accent-color:#a855f7;">
@@ -503,6 +506,9 @@
             </tbody>
         </table>
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="mvsb-pagination-bottom"></div>
 </section>
 @endsection
 
@@ -728,8 +734,13 @@
                 bulkMaster.indeterminate = someChecked;
             }
             if (bulkTableAll) {
-                bulkTableAll.checked = allChecked;
-                bulkTableAll.indeterminate = someChecked;
+                const visibleRows = Array.from(document.querySelectorAll('.log-table tbody tr.mvsb-table-row:not([style*="display: none"])'));
+                const visibleChecked = visibleRows.filter(r => {
+                    const cb = r.querySelector('.bulk-item-mvsb');
+                    return cb && cb.checked;
+                });
+                bulkTableAll.checked = visibleRows.length > 0 && visibleChecked.length === visibleRows.length;
+                bulkTableAll.indeterminate = visibleChecked.length > 0 && visibleChecked.length < visibleRows.length;
             }
         }
 
@@ -739,7 +750,17 @@
         }
 
         if (bulkMaster) bulkMaster.addEventListener('change', function() { toggleAll(this.checked); });
-        if (bulkTableAll) bulkTableAll.addEventListener('change', function() { toggleAll(this.checked); });
+        if (bulkTableAll) {
+            bulkTableAll.addEventListener('change', function() {
+                const visibleCheckboxes = Array.from(document.querySelectorAll('.log-table tbody tr.mvsb-table-row:not([style*="display: none"]) .bulk-item-mvsb'));
+                if (visibleCheckboxes.length > 0) {
+                    visibleCheckboxes.forEach(cb => { cb.checked = bulkTableAll.checked; });
+                    updateToolbar();
+                } else {
+                    toggleAll(this.checked);
+                }
+            });
+        }
 
         document.querySelectorAll('.bulk-item-mvsb').forEach(cb => {
             cb.addEventListener('change', updateToolbar);
@@ -799,7 +820,29 @@
                 bulkForm.submit();
             });
         }
+
+        window.updateBulkMvsbToolbar = updateToolbar;
     })();
+    @endif
+
+    // Inisialisasi Pagination Cerdas (Maksimal 10 data per halaman secara default)
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'mvsb-pagination-top',
+            containerBottomId: 'mvsb-pagination-bottom',
+            rowSelector: '.log-table tbody tr.mvsb-table-row',
+            emptySelector: '.log-table tbody tr td.empty',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'logsheet MVSB',
+            storageKey: 'kpr_mvsb_per_page',
+            onPageChange: function(page, startIdx, endIdx) {
+                if (typeof window.updateBulkMvsbToolbar === 'function') {
+                    window.updateBulkMvsbToolbar();
+                }
+            }
+        });
+    }
     @endif
 </script>
 @endpush
