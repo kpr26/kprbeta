@@ -199,12 +199,12 @@
             .lvsb-subcard[data-group="outgoing_1_2"] .lvsb-subgroups-wrap,
             .lvsb-subcard[data-group="outgoing_2_1"] .lvsb-subgroups-wrap {
                 display: grid !important;
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
                 gap: 12px !important;
             }
             .lvsb-subcard[data-group="outgoing_2_2"] .lvsb-subgroups-wrap {
                 display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
                 gap: 12px !important;
             }
 
@@ -212,14 +212,33 @@
             #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_1_2"] .lvsb-subgroups-wrap,
             #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_2_1"] .lvsb-subgroups-wrap {
                 display: grid !important;
-                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
                 gap: 14px !important;
             }
             #lvsbCardsContainer.is-slide-layout .lvsb-subcard[data-group="outgoing_2_2"] .lvsb-subgroups-wrap {
                 display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
                 gap: 14px !important;
             }
+        }
+
+        /* Hilangkan spinner bawaan browser pada input LVSB agar tidak memakan ruang dan menutupi teks */
+        .input-unit input::-webkit-outer-spin-button,
+        .input-unit input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        .input-unit input[type=number] {
+            -moz-appearance: textfield !important;
+        }
+        .input-unit span {
+            pointer-events: none !important;
+            user-select: none !important;
+        }
+        /* Pastikan input compact pada subgroup tidak dipaksa padding-right 56px oleh logsheet.css */
+        .lvsb-input-compact {
+            min-width: 0 !important;
+            box-sizing: border-box !important;
         }
 
         /* Tablet View (768px - 1023px): 2 Kolom Responsif */
@@ -434,15 +453,18 @@
                                                         $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $todayReading?->val($gKey, $sKey, $fKey));
                                                         $prevVal = $prevReading?->val($gKey, $sKey, $fKey);
                                                         $isEnergy = ($fKey === 'energy');
+                                                        $u = $fMeta['unit'];
+                                                        $uLen = strlen($u);
+                                                        $padR = $isEnergy ? '42px' : ($uLen <= 1 ? '20px' : ($uLen === 2 ? '26px' : '36px'));
                                                     @endphp
                                                     <div style="{{ $isEnergy ? 'grid-column: 1 / -1;' : '' }}">
                                                         <label style="font-size:0.72rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ $fMeta['label'] }}">
                                                             {{ $fMeta['label'] }}
                                                         </label>
                                                         <div class="input-unit" style="position:relative;">
-                                                            <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $isEnergy ? '55px' : '45px' }}; font-size:0.82rem; font-weight:600;">
-                                                            <span style="position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:0.68rem; color:var(--text-muted); pointer-events:none;">
-                                                                {{ $fMeta['unit'] }}
+                                                            <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input lvsb-input-compact" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $padR }} !important; padding-left:7px; font-size:0.82rem; font-weight:600;">
+                                                            <span style="position:absolute; right:5px; top:50%; transform:translateY(-50%); font-size:0.68rem; color:var(--text-muted); pointer-events:none; font-weight:600; line-height:1;">
+                                                                {{ $u }}
                                                             </span>
                                                         </div>
                                                         @if($prevVal !== null)
@@ -464,8 +486,8 @@
                                                 Power Factor (PF / Cos φ) Kapasitor Bank
                                             </label>
                                             <div class="input-unit" style="position:relative;">
-                                                <input type="number" step="0.01" min="0" max="1" inputmode="decimal" name="readings[incoming_capacitor][power_factor]" class="input" value="{{ old('readings.incoming_capacitor.power_factor', $todayReading?->val('incoming_capacitor', 'power_factor')) }}" placeholder="0.98" style="width:100%; padding-right:55px; font-size:0.95rem; font-weight:700; color:#fbbf24;">
-                                                <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted); pointer-events:none;">
+                                                <input type="number" step="0.01" min="0" max="1" inputmode="decimal" name="readings[incoming_capacitor][power_factor]" class="input lvsb-input-compact" value="{{ old('readings.incoming_capacitor.power_factor', $todayReading?->val('incoming_capacitor', 'power_factor')) }}" placeholder="0.98" style="width:100%; padding-right:36px !important; font-size:0.95rem; font-weight:700; color:#fbbf24;">
+                                                <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.75rem; color:var(--text-muted); pointer-events:none; font-weight:600;">
                                                     PF
                                                 </span>
                                             </div>
@@ -508,15 +530,18 @@
                                                     $val = old("readings.{$gKey}.{$fKey}", $todayReading?->val($gKey, $fKey));
                                                     $prevVal = $prevReading?->val($gKey, $fKey);
                                                     $isEnergy = ($fKey === 'energy');
+                                                    $u = $fMeta['unit'];
+                                                    $uLen = strlen($u);
+                                                    $padR = $isEnergy ? '48px' : ($uLen <= 1 ? '24px' : ($uLen === 2 ? '30px' : '40px'));
                                                 @endphp
                                                 <div style="{{ $isEnergy ? 'grid-column: 1 / -1;' : '' }}">
                                                     <label style="font-size:0.74rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">
                                                         {{ $fMeta['label'] }}
                                                     </label>
                                                     <div class="input-unit" style="position:relative;">
-                                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $isEnergy ? '65px' : '52px' }}; font-size:0.86rem; font-weight:600;">
-                                                        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.74rem; color:var(--text-muted); pointer-events:none;">
-                                                            {{ $fMeta['unit'] }}
+                                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input lvsb-input-compact" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $padR }} !important; padding-left:8px; font-size:0.86rem; font-weight:600;">
+                                                        <span style="position:absolute; right:7px; top:50%; transform:translateY(-50%); font-size:0.74rem; color:var(--text-muted); pointer-events:none; font-weight:600; line-height:1;">
+                                                            {{ $u }}
                                                         </span>
                                                     </div>
                                                     @if($prevVal !== null)

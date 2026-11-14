@@ -13,6 +13,16 @@
 @section('page-subtitle', 'Pencatatan Parameter Tegangan Menengah (Voltage 20kV) & Arus (Current) Panel Incoming PLN')
 
 @section('panel')
+<style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    input[type=number] {
+        -moz-appearance: textfield !important;
+    }
+</style>
 <section class="panel" style="max-width:1200px; margin:0 auto;">
     {{-- Header Sub Menu --}}
     <div class="panel-head" style="align-items:flex-start; flex-wrap:wrap; gap:16px;">

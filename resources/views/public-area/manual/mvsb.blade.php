@@ -10,6 +10,16 @@
 @section('page-subtitle', 'Khusus Super Admin — Input data parameter MVSB 20kV untuk tanggal yang terlewat')
 
 @section('panel')
+<style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    input[type=number] {
+        -moz-appearance: textfield !important;
+    }
+</style>
 <section class="panel" style="max-width:800px; margin:0 auto;">
     <div class="panel-head" style="align-items:flex-start; flex-wrap:wrap; gap:14px;">
         <div>

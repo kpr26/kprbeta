@@ -10,6 +10,24 @@
 @section('page-subtitle', 'Khusus Super Admin — Input data parameter LVSB untuk tanggal yang terlewat')
 
 @section('panel')
+<style>
+    .input-unit input::-webkit-outer-spin-button,
+    .input-unit input::-webkit-inner-spin-button {
+        -webkit-appearance: none !important;
+        margin: 0 !important;
+    }
+    .input-unit input[type=number] {
+        -moz-appearance: textfield !important;
+    }
+    .input-unit span {
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+    .lvsb-input-compact {
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+    }
+</style>
 <section class="panel" style="max-width:1200px; margin:0 auto;">
     <div class="panel-head" style="align-items:flex-start; flex-wrap:wrap; gap:14px;">
         <div>
@@ -86,15 +104,18 @@
                                         @foreach ($sub['fields'] as $fKey => $fMeta)
                                             @php
                                                 $val = old("readings.{$gKey}.{$sKey}.{$fKey}", $reading->val($gKey, $sKey, $fKey));
+                                                $u = $fMeta['unit'];
+                                                $uLen = strlen($u);
+                                                $padR = $fKey === 'energy' ? '44px' : ($uLen <= 1 ? '22px' : ($uLen === 2 ? '28px' : '36px'));
                                             @endphp
                                             <div>
                                                 <label style="font-size:0.72rem; color:var(--text-muted); display:block; margin-bottom:3px;">
                                                     {{ $fMeta['label'] }}
                                                 </label>
                                                 <div style="position:relative;">
-                                                    <input type="number" step="{{ $fMeta['step'] }}" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:55px; font-size:0.86rem;">
-                                                    <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none;">
-                                                        {{ $fMeta['unit'] }}
+                                                    <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $sKey }}][{{ $fKey }}]" class="input lvsb-input-compact" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $padR }} !important; padding-left:8px; font-size:0.86rem;">
+                                                    <span style="position:absolute; right:7px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none; font-weight:600;">
+                                                        {{ $u }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -108,15 +129,18 @@
                             @foreach ($group['fields'] as $fKey => $fMeta)
                                 @php
                                     $val = old("readings.{$gKey}.{$fKey}", $reading->val($gKey, null, $fKey));
+                                    $u = $fMeta['unit'];
+                                    $uLen = strlen($u);
+                                    $padR = $fKey === 'energy' ? '48px' : ($uLen <= 1 ? '24px' : ($uLen === 2 ? '30px' : '40px'));
                                 @endphp
                                 <div>
                                     <label style="font-size:0.72rem; color:var(--text-muted); display:block; margin-bottom:3px;">
                                         {{ $fMeta['label'] }}
                                     </label>
                                     <div style="position:relative;">
-                                        <input type="number" step="{{ $fMeta['step'] }}" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:55px; font-size:0.86rem;">
-                                        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none;">
-                                            {{ $fMeta['unit'] }}
+                                        <input type="number" step="{{ $fMeta['step'] }}" inputmode="decimal" name="readings[{{ $gKey }}][{{ $fKey }}]" class="input lvsb-input-compact" value="{{ $val }}" placeholder="{{ $fMeta['placeholder'] }}" style="width:100%; padding-right:{{ $padR }} !important; padding-left:8px; font-size:0.86rem;">
+                                        <span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:0.72rem; color:var(--text-muted); pointer-events:none; font-weight:600;">
+                                            {{ $u }}
                                         </span>
                                     </div>
                                 </div>

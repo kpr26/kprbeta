@@ -51,9 +51,9 @@ class PublicAreaLvsbReading extends Model
                 'color'         => '#fbbf24',
                 'has_subgroups' => false,
                 'fields'        => [
-                    'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                    'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                    'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                    'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                    'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                    'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                     'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                     'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                     'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -69,9 +69,9 @@ class PublicAreaLvsbReading extends Model
                     'riser_3' => [
                         'label'  => 'Riser 3',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -80,9 +80,9 @@ class PublicAreaLvsbReading extends Model
                     'ov_ac_sky_lobby' => [
                         'label'  => 'OV AC Sky Lobby',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -91,9 +91,9 @@ class PublicAreaLvsbReading extends Model
                     'ac_r_panel_trafo' => [
                         'label'  => 'Ac R. Panel & R. Trafo',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -111,9 +111,9 @@ class PublicAreaLvsbReading extends Model
                     'riser_4' => [
                         'label'  => 'Riser 4',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -131,27 +131,27 @@ class PublicAreaLvsbReading extends Model
                     'riser_2' => [
                         'label'  => 'Riser 2',
                         'fields' => [
-                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'    => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'      => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'    => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'      => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'     => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                         ],
                     ],
                     'db_fire_2_lvl_12' => [
                         'label'  => 'DB Fire 2 Level 12',
                         'fields' => [
-                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'    => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'      => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'    => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'      => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'     => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                         ],
                     ],
                     'spare' => [
                         'label'  => 'Spare',
                         'fields' => [
-                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'    => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'      => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p' => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'    => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'      => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'     => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                         ],
                     ],
@@ -167,9 +167,9 @@ class PublicAreaLvsbReading extends Model
                     'riser_1' => [
                         'label'  => 'Riser 1',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
@@ -178,9 +178,9 @@ class PublicAreaLvsbReading extends Model
                     'riser_5' => [
                         'label'  => 'Riser 5',
                         'fields' => [
-                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'Volt', 'step' => '0.1', 'placeholder' => '380.0'],
-                            'current'      => ['label' => 'Current', 'unit' => 'Ampere', 'step' => '0.01', 'placeholder' => '0.00'],
-                            'power'        => ['label' => 'Power', 'unit' => 'kW Total', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'voltage_3p'   => ['label' => 'Voltage 3-P', 'unit' => 'V', 'step' => '0.1', 'placeholder' => '380.0'],
+                            'current'      => ['label' => 'Current', 'unit' => 'A', 'step' => '0.01', 'placeholder' => '0.00'],
+                            'power'        => ['label' => 'Power', 'unit' => 'kW', 'step' => '0.01', 'placeholder' => '0.00'],
                             'energy'       => ['label' => 'Energy', 'unit' => 'GWh', 'step' => '0.00000001', 'placeholder' => '0.00000000'],
                             'power_factor' => ['label' => 'Power Factor (PF)', 'unit' => 'PF', 'step' => '0.01', 'placeholder' => '0.95'],
                             'frequency'    => ['label' => 'Frequency', 'unit' => 'Hz', 'step' => '0.1', 'placeholder' => '50.0'],
