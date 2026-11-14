@@ -136,6 +136,9 @@
     </div>
 
     <!-- Tabel Data Penggunaan Air Bulanan -->
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="billing-water-pagination-top"></div>
+
     <div class="table-container" style="overflow-x:auto;">
         <table class="table" style="width:100%; border-collapse:collapse;">
             <thead>
@@ -154,7 +157,7 @@
             <tbody>
                 @forelse($tenantList as $row)
                     @php $t = $row->tenant; @endphp
-                    <tr style="border-bottom:1px solid var(--border-color); font-size:0.85rem; {{ $row->is_terkendala ? 'background:rgba(245,158,11,0.04);' : '' }}">
+                    <tr class="billing-water-row" style="border-bottom:1px solid var(--border-color); font-size:0.85rem; {{ $row->is_terkendala ? 'background:rgba(245,158,11,0.04);' : '' }}">
                         <td style="padding:12px 14px;">
                             <a href="{{ route('billing.tenants.show', $t) }}" style="font-weight:700; color:var(--text-primary); text-decoration:none;" class="hover-accent">
                                 {{ $t->nama_tenant }}
@@ -264,5 +267,24 @@
             @endif
         </table>
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="billing-water-pagination-bottom"></div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'billing-water-pagination-top',
+            containerBottomId: 'billing-water-pagination-bottom',
+            rowSelector: '.table tbody tr.billing-water-row',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'tenant air',
+            storageKey: 'kpr_billing_water_per_page'
+        });
+    }
+</script>
+@endpush

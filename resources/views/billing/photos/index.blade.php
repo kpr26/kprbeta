@@ -103,6 +103,9 @@
     </div>
 
     <!-- Grid Kartu Foto per Tenant -->
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="billing-photos-pagination-top"></div>
+
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:18px;">
         @forelse($galleryList as $item)
             @php
@@ -111,7 +114,7 @@
                 $ev = $item->ev;
                 $w = $item->water;
             @endphp
-            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <div class="billing-photo-card" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
                 <div>
                     <!-- Header Kartu Unit -->
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
@@ -245,5 +248,24 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="billing-photos-pagination-bottom"></div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'billing-photos-pagination-top',
+            containerBottomId: 'billing-photos-pagination-bottom',
+            cardSelector: '.billing-photo-card',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'unit tenant',
+            storageKey: 'kpr_billing_photos_per_page'
+        });
+    }
+</script>
+@endpush

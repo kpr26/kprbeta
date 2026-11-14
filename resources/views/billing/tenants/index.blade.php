@@ -55,6 +55,29 @@
     </div>
 
     <!-- Tabel Data Tenant -->
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    @if($tenants->total() > 0)
+        <div class="kpr-pagination-top" style="margin-bottom:14px;">
+            <div class="kpr-pagination-info">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Zm0 5.25a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>
+                </svg>
+                <span>Menampilkan data <strong>{{ $tenants->firstItem() }} – {{ $tenants->lastItem() }}</strong> dari <strong>{{ $tenants->total() }}</strong> tenant @if($tenants->lastPage() > 1)(Halaman {{ $tenants->currentPage() }} dari {{ $tenants->lastPage() }})@endif</span>
+            </div>
+            <form method="GET" action="{{ route('billing.tenants.index') }}" class="kpr-pagination-controls-top" style="display:inline-flex; align-items:center; gap:8px;">
+                @if(request('search'))<input type="hidden" name="search" value="{{ request('search') }}">@endif
+                @if(request('lantai'))<input type="hidden" name="lantai" value="{{ request('lantai') }}">@endif
+                @if(request('status'))<input type="hidden" name="status" value="{{ request('status') }}">@endif
+                <label class="kpr-pagination-label">Per Halaman:</label>
+                <select name="per_page" class="kpr-pagination-select" onchange="this.form.submit()">
+                    @foreach([10, 20, 30, 50, 100] as $opt)
+                        <option value="{{ $opt }}" {{ request('per_page', 10) == $opt ? 'selected' : '' }}>{{ $opt }} Data / Halaman</option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+    @endif
+
     <div class="table-container" style="overflow-x:auto;">
         <table class="table" style="width:100%; border-collapse:collapse;">
             <thead>

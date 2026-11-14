@@ -52,10 +52,16 @@ class TenantController extends Controller
             $query->where('is_active', false);
         }
 
+        $perPageInput = $request->input('per_page', 10);
+        $perPage = ($perPageInput === 'all' || (int)$perPageInput >= 1000) ? 1000 : (int)$perPageInput;
+        if ($perPage <= 0) {
+            $perPage = 10;
+        }
+
         $tenants = $query->orderBy('lantai')
                          ->orderBy('nomor_unit')
                          ->orderBy('nama_tenant')
-                         ->paginate(15)
+                         ->paginate($perPage)
                          ->withQueryString();
 
         $allLantai = Tenant::select('lantai')

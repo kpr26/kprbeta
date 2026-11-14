@@ -124,6 +124,9 @@
     </div>
 
     <!-- Tabel Data Penggunaan Listrik Bulanan -->
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="billing-energy-pagination-top"></div>
+
     <div class="table-container" style="overflow-x:auto;">
         <table class="table" style="width:100%; border-collapse:collapse;">
             <thead>
@@ -142,7 +145,7 @@
             <tbody>
                 @forelse($tenantList as $row)
                     @php $t = $row->tenant; @endphp
-                    <tr style="border-bottom:1px solid var(--border-color); font-size:0.85rem;">
+                    <tr class="billing-energy-row" style="border-bottom:1px solid var(--border-color); font-size:0.85rem;">
                         <td style="padding:12px 14px;">
                             <a href="{{ route('billing.tenants.show', $t) }}" style="font-weight:700; color:var(--text-primary); text-decoration:none;" class="hover-accent">
                                 {{ $t->nama_tenant }}
@@ -320,5 +323,24 @@
             @endif
         </table>
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="billing-energy-pagination-bottom"></div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    if (typeof window.initKprTablePagination === 'function') {
+        window.initKprTablePagination({
+            containerTopId: 'billing-energy-pagination-top',
+            containerBottomId: 'billing-energy-pagination-bottom',
+            rowSelector: '.table tbody tr.billing-energy-row',
+            defaultPerPage: 10,
+            perPageOptions: [10, 20, 30, 'all'],
+            itemName: 'tenant listrik',
+            storageKey: 'kpr_billing_energy_per_page'
+        });
+    }
+</script>
+@endpush

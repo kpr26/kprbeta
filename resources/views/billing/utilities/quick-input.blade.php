@@ -89,6 +89,9 @@
     </div>
 
     <!-- Daftar Kartu Tenant (Checklist Rute) -->
+    {{-- Navigasi Paginasi Halaman Atas (Maksimal 10 Data per Halaman) --}}
+    <div class="kpr-pagination-top" id="quick-input-pagination-top"></div>
+
     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px;">
         @forelse($checklist as $index => $item)
             @php
@@ -261,6 +264,9 @@
             </div>
         @endforelse
     </div>
+
+    {{-- Navigasi Paginasi Halaman Bawah --}}
+    <div class="kpr-pagination-bottom" id="quick-input-pagination-bottom"></div>
 </div>
 
 <!-- ============================================================== -->
@@ -858,6 +864,19 @@ function showTenantPhotos(tenantId) {
         lbCap.textContent = 'Foto Water Meter: ' + card.dataset.tenantNama;
         lb.hidden = false;
     }
+}
+
+// Inisialisasi Pagination Cerdas (Maksimal 10 data per halaman secara default)
+if (typeof window.initKprTablePagination === 'function') {
+    window.initKprTablePagination({
+        containerTopId: 'quick-input-pagination-top',
+        containerBottomId: 'quick-input-pagination-bottom',
+        cardSelector: '.tenant-quick-card',
+        defaultPerPage: 10,
+        perPageOptions: [10, 20, 30, 'all'],
+        itemName: 'tenant',
+        storageKey: 'kpr_quick_input_per_page'
+    });
 }
 </script>
 @endpush
